@@ -30,6 +30,10 @@ const MAX_BET = 20;                          // maximum stake per round
 const BUYS = {
   bonus: { min: 3, odds: { 3: 0.948, 4: 0.05, 5: 0.002 }, priceX: 32 }
 };
+// «Βύσμα» always costs BUY_PRICE_EUR. The bought bonus is played at BUY_PRICE_EUR / priceX (0,625 €),
+// so a buy returns ~90% whatever bet the player has selected.
+const BUY_PRICE_EUR = 20;
+const buyBet = kind => BUY_PRICE_EUR / BUYS[kind].priceX;
 const MAX_BUY_EUR = 20;
 const spinsFor = n => 10 + 2 * (n - 3);      // 3 -> 10, 4 -> 12, 5 -> 14
 
@@ -196,7 +200,7 @@ function playBonus(n, rng) {
 }
 
 if (typeof module !== 'undefined') module.exports = {
-  REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN, MAX_WIN_EUR, MIN_CYCLE_MS, MAX_BET, BUYS, MAX_BUY_EUR,
+  REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN, MAX_WIN_EUR, MIN_CYCLE_MS, MAX_BET, BUYS, MAX_BUY_EUR, BUY_PRICE_EUR, buyBet,
   get PAY() { return PAY; }, setPay(p) { PAY = p; }, get BONUS_P() { return BONUS_P; }, get WILD_W_FS() { return WILD_W_FS; }, get WILD_W_MAX() { return WILD_W_MAX; }, setBonusP(p) { BONUS_P = p; }, setWildMax(w) { WILD_W_MAX = [0, w, w, w, 0]; }, setWildFs(w) { WILD_W_FS = [0, w, w, w, 0]; },
   spinsFor, makeRng, makeSeededRng, drawCell, spinGrid, evaluate, playBonus, playBase, buyGrid, playBuy, nextWilds, keptWilds, multOf, medalsOf, canRespin, stepDown
 };

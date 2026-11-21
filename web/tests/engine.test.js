@@ -166,6 +166,11 @@ test('Βύσμα: one buy, 32x the bet, offered up to 20', () => {
   near(Object.values(E.BUYS.bonus.odds).reduce((a, b) => a + b, 0), 1);
 });
 
+test('Βύσμα: always costs 20 and plays the bonus at 0,625', () => {
+  assert.equal(E.BUY_PRICE_EUR, 20); near(E.buyBet('bonus'), 0.625);
+  near(E.buyBet('bonus') * E.BUYS.bonus.priceX, E.BUY_PRICE_EUR);
+});
+
 test('Βύσμα: the trigger spin always lands at least the minimum medals, one per reel at most', () => {
   const rng = E.makeSeededRng(21), seen = { 3: 0, 4: 0, 5: 0 };
   for (const kind of ['bonus']) for (let i = 0; i < 20000; i++) {

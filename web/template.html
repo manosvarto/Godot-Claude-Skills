@@ -284,9 +284,9 @@ h2 { margin: 0 0 4px; font-size: 26px; }
   <div class="frame"><div class="inner buy" id="buyPanel">
     <div class="buy-head"><h2 class="goldtext">Βύσμα</h2><span class="buy-note">Αγόρασε μπόνους κατευθείαν</span></div>
     <div class="buy-row">
-      <button class="gold-btn buy-btn" id="buyBonus"><span class="t">Μπόνους</span><span class="p" id="buyBonusPrice">—</span><span class="n" id="buyBonusNote">Σίγουρα 3+ Στρατάρχες, ευκαιρία για Μέγιστο</span></button>
+      <button class="gold-btn buy-btn" id="buyBonus"><span class="t">Μπόνους</span><span class="p" id="buyBonusPrice">—</span><span class="n" id="buyBonusNote">Σίγουρα 3+ Στρατάρχες, ευκαιρία για Μέγιστο · παίζεται με 0,625 €</span></button>
     </div>
-    <p class="buy-note">Οι τροχοί γυρίζουν και φέρνουν σίγουρα 3 Στρατάρχες, με ευκαιρία για 4 ή 5 (Μέγιστο μπόνους). Τιμή 32× το πόνταρισμα. Μια αγορά μετράει ως πόνταρισμα, γι' αυτό επιτρέπεται έως 20.</p>
+    <p class="buy-note">Κοστίζει πάντα 20 €, ό,τι πόνταρισμα κι αν έχεις. Οι τροχοί γυρίζουν και φέρνουν σίγουρα 3 Στρατάρχες, με ευκαιρία για 4 ή 5 (Μέγιστο μπόνους). Το μπόνους παίζεται με πόνταρισμα 0,625 €.</p>
   </div></div>
   <div class="demo">Μόνο μονάδες επίδειξης. Δεν παίζονται και δεν πληρώνονται πραγματικά χρήματα.</div>
 
@@ -333,7 +333,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
           <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατάρχης πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατάρχες δίνουν 14.</span></li>
           <li><b>Πληρωμή Στρατάρχη</b><span>Πληρώνουν όπου κι αν πέσουν: 3 πληρώνουν 1× το πόνταρισμα, 4 πληρώνουν 10×, 5 πληρώνουν 100×.</span></li>
           <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατάρχη.</span></li>
-          <li><b>Βύσμα</b><span>Αγορά μπόνους κατευθείαν για 32× το πόνταρισμα: οι τροχοί γυρίζουν και φέρνουν σίγουρα τουλάχιστον 3 Στρατάρχες. Μπορεί να πέσουν 4 ή 5 και να ανοίξει το Μέγιστο μπόνους (όπως στο κανονικό παιχνίδι), και τα κέρδη του γυρίσματος πληρώνονται. Επιστρέφει περίπου 90%, όπως το υπόλοιπο παιχνίδι. Διαθέσιμο όταν η τιμή είναι έως 20.</span></li>
+          <li><b>Βύσμα</b><span>Αγορά μπόνους κατευθείαν, πάντα για 20 €. Το μπόνους παίζεται με πόνταρισμα 0,625 € (20 € ÷ 32), ό,τι πόνταρισμα κι αν έχεις διαλέξει. Οι τροχοί γυρίζουν και φέρνουν σίγουρα τουλάχιστον 3 Στρατάρχες. Μπορεί να πέσουν 4 ή 5 και να ανοίξει το Μέγιστο μπόνους (όπως στο κανονικό παιχνίδι), και τα κέρδη του γυρίσματος πληρώνονται. Επιστρέφει περίπου 90%, όπως το υπόλοιπο παιχνίδι. Διαθέσιμο όταν η τιμή είναι έως 20.</span></li>
           <li><b>Μέγιστο κέρδος</b><span>10.000× το πόνταρισμα ανά γύρο (γύρισμα, επαναλήψεις και μπόνους μαζί), και ποτέ πάνω από 140.000 ανά γύρο. Με πόνταρισμα 20 αυτό είναι 7.000×.</span></li>
           <li><b>Όρια</b><span>Μέγιστο πόνταρισμα 20 ανά γύρο. Κάθε νέος γύρος ξεκινάει τουλάχιστον 3 δευτερόλεπτα μετά τον προηγούμενο.</span></li>
         </ul>
@@ -766,12 +766,8 @@ function render() {
   $('betUp').disabled = S.busy || S.betIdx === BETS.length - 1;
   $('spinBtn').disabled = S.busy || S.balance < bet() || S.cooling;
   ['force2', 'force3', 'force4', 'force5'].forEach(id => $(id).disabled = S.busy);
-  for (const [kind, id] of [['bonus', 'buyBonus']]) {
-    const price = BUYS[kind].priceX * bet(), over = price > MAX_BUY_EUR + 1e-9;
-    $(id + 'Price').textContent = fmt(price);
-    $(id + 'Note').textContent = over ? `Πάνω από το όριο των ${fmt(MAX_BUY_EUR)}` : 'Σίγουρα 3+ Στρατάρχες, ευκαιρία για Μέγιστο';
-    $(id).disabled = S.busy || S.cooling || over || S.balance < price;
-  }
+  $('buyBonusPrice').textContent = fmt(BUY_PRICE_EUR);
+  $('buyBonus').disabled = S.busy || S.cooling || S.balance < BUY_PRICE_EUR;
   $('sessionRtp').textContent = S.wagered ? (100 * S.returned / S.wagered).toFixed(1).replace('.', ',') + '%' : '–';
   renderLadder();
   store.set('balance100', S.balance); store.set('betIdx', S.betIdx);
@@ -840,11 +836,11 @@ function ask(html, yes, no) {
 async function buyBonus(kind) {
   if (S.busy || S.cooling) return;
   Sound.unlock();
-  const b = bet(), price = BUYS[kind].priceX * b;
-  if (price > MAX_BUY_EUR + 1e-9 || S.balance < price) return;
+  const b = buyBet(kind), price = BUY_PRICE_EUR;
+  if (S.balance < price) return;
   S.auto = false; $('auto').setAttribute('aria-pressed', 'false');
   S.busy = true; render();
-  const ok = await ask(`<div class="kicker">Βύσμα</div><div class="big goldtext">Μπόνους</div><p>Αγορά για ${fmt(price)} με πόνταρισμα ${fmt(b)};</p>`, 'Αγορά', 'Άκυρο');
+  const ok = await ask(`<div class="kicker">Βύσμα</div><div class="big goldtext">Μπόνους</div><p>Αγορά για ${fmt(price)}; Το μπόνους παίζεται με πόνταρισμα ${b.toLocaleString('el-GR', { minimumFractionDigits: 3 })} €.</p>`, 'Αγορά', 'Άκυρο');
   if (!ok) { S.busy = false; render(); return; }
   const startedAt = performance.now();
   S.balance -= price; S.wagered += price; render();
