@@ -207,6 +207,21 @@ h2 { margin: 0 0 4px; font-size: 26px; }
   .pt:not(.top) .pays { grid-template-columns: repeat(3, auto 1fr); }
   .pt.top .pays { grid-template-columns: repeat(3, auto 1fr); }
 }
+.shake { animation: shake var(--shake-dur, .7s) cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0); }
+  8% { transform: translate(calc(var(--amp) * -1), calc(var(--amp) * .5)) rotate(-.4deg); }
+  16% { transform: translate(var(--amp), calc(var(--amp) * -.6)) rotate(.4deg); }
+  26% { transform: translate(calc(var(--amp) * -.8), calc(var(--amp) * -.4)); }
+  36% { transform: translate(calc(var(--amp) * .7), calc(var(--amp) * .6)) rotate(-.3deg); }
+  48% { transform: translate(calc(var(--amp) * -.5), calc(var(--amp) * .3)); }
+  60% { transform: translate(calc(var(--amp) * .4), calc(var(--amp) * -.3)); }
+  74% { transform: translate(calc(var(--amp) * -.25), calc(var(--amp) * .15)); }
+  88% { transform: translate(calc(var(--amp) * .1), 0); }
+}
+.flash::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 40; background: radial-gradient(circle at 50% 45%, rgba(255,230,138,.55), rgba(224,50,44,.25) 45%, transparent 75%); animation: flash .7s ease-out forwards; }
+@keyframes flash { from { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .shake { animation: none; } .flash::after { animation-duration: .01s; } }
 @media (prefers-reduced-motion: reduce) { .cell.win, .reel.tension { animation: none; } }
 </style>
 
@@ -734,6 +749,27 @@ const Sound = (() => {
       for (let i = 0; i < 8; i++) noise(sfxGain, t + i * .06, .1, { vol: .14, freq: 1800 });
     }),
     click: () => fx(t => tone(sfxGain, 1400, t, .04, { type: 'square', vol: .06 })),
+    // dramatic hit for the medal respins; level 0, 1, 2... grows each row
+    drama: (level = 0) => fx(t => {
+      const lift = level * 2;   // semitones higher each row
+      musicGain.gain.setTargetAtTime(pref.music ? MUSIC_VOL * .2 : 0, t, .03);
+      musicGain.gain.setTargetAtTime(pref.music ? MUSIC_VOL : 0, t + 1.6, .35);
+      // timpani roll building up
+      for (let i = 0; i < 10; i++) {
+        const tt = t + i * .045, v = .12 + i * .035;
+        tone(sfxGain, 62 + lift * 2, tt, .25, { type: 'sine', vol: v, slideTo: 48 });
+        noise(sfxGain, tt, .08, { vol: v * .5, type: 'lowpass', freq: 260 });
+      }
+      // brass stab: D minor, low and wide
+      const hitT = t + .46;
+      [38, 45, 50, 53, 57].forEach(m => {
+        tone(sfxGain, hz(m + lift), hitT, 1.3, { type: 'sawtooth', vol: .11, attack: .015, cutoff: 1400 + level * 500 });
+        tone(sfxGain, hz(m + lift) * 1.004, hitT, 1.3, { type: 'sawtooth', vol: .07, attack: .015, cutoff: 900 });
+      });
+      tone(sfxGain, 55, hitT, 1.1, { type: 'sine', vol: .8, slideTo: 32 });         // sub boom
+      noise(sfxGain, hitT, 1.4, { vol: .18, freq: 4000 });                            // cymbal crash
+      noise(sfxGain, t, .46, { vol: .12, type: 'bandpass', freq: 300, sweepTo: 3000 + level * 1500, q: 2 }); // riser
+    }),
     step: () => fx(t => { tone(sfxGain, 260, t, .12, { type: 'triangle', vol: .35, slideTo: 150 }); noise(sfxGain, t, .06, { vol: .12, freq: 900, type: 'lowpass' }); })
   };
 })();
@@ -897,6 +933,18 @@ function forcedGrid(n) {
   return grid;
 }
 
+// Screen shake + flash, timed with the hit of Sound.drama
+async function drama(level) {
+  Sound.drama(level);
+  await sleep(460);
+  const w = document.querySelector('.wrap');
+  w.style.setProperty('--amp', (6 + level * 4) + 'px');
+  w.style.setProperty('--shake-dur', (.6 + level * .15) + 's');
+  w.classList.remove('shake'); document.body.classList.remove('flash'); void w.offsetWidth;
+  w.classList.add('shake'); document.body.classList.add('flash');
+  setTimeout(() => { w.classList.remove('shake'); document.body.classList.remove('flash'); }, 1300);
+  await sleep(S.turbo ? 350 : 650);
+}
 function setMode(text, cls = '') { $('mode').textContent = text; $('mode').className = 'mode ' + cls; }
 
 async function spin(force = 0) {
@@ -920,9 +968,11 @@ async function spin(force = 0) {
     const total = ROWS - 1 - Math.max(...pos.map(p => p.r));
     setMode('2 Στρατάρχες · Επανάληψη', 'bonus');
     pos.forEach(p => tag(p.c, p.r, '▼ ΚΑΤΩ', true));
-    await sleep(S.turbo ? 500 : 1200);
+    await sleep(S.turbo ? 200 : 450);
+    await drama(0);
     for (let k = 1; res.bonusCount < 3 && canRespin(pos); k++) {
       $('fsInfo').textContent = `Επανάληψη ${k} / ${total}`;
+      if (k > 1) await drama(k - 1);
       const fixed = stepDown(pos, BONUS);
       grid = spinGrid(rng, { fixed });
       Sound.step();
