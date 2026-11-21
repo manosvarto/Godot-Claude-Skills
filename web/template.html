@@ -253,7 +253,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
       <li><b>4 Στρατάρχες</b><span>Μέγιστο μπόνους: 12 δωρεάν γυρίσματα, και κάθε μπαλαντέρ που πέφτει κλειδώνει στη θέση του μέχρι το τέλος του μπόνους.</span></li>
       <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατάρχης πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατάρχες δίνουν 14.</span></li>
       <li><b>Πληρωμή Στρατάρχη</b><span>Πληρώνουν όπου κι αν πέσουν: 3 πληρώνουν 1× το πόνταρισμα, 4 πληρώνουν 10×, 5 πληρώνουν 100×.</span></li>
-      <li><b>Μπαλαντέρ</b><span>Η στρατιωτική ταυτότητα εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατάρχη.</span></li>
+      <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατάρχη.</span></li>
       <li><b>Μέγιστο κέρδος</b><span>10.000× το πόνταρισμα ανά γύρισμα ή ανά μπόνους.</span></li>
     </ul>
   </div></div>
@@ -331,7 +331,8 @@ const BONUS_SVG = (() => {
 })();
 const WILD_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs>
     <radialGradient id="bg" cx=".5" cy=".45" r=".75"><stop offset="0" stop-color="#6fae3a"/><stop offset=".6" stop-color="#3a6b22"/><stop offset="1" stop-color="#16300c"/></radialGradient>
-    <linearGradient id="s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#c3ccd2"/><stop offset="1" stop-color="#7f8a92"/></linearGradient></defs>
+    <linearGradient id="s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#c3ccd2"/><stop offset="1" stop-color="#7f8a92"/></linearGradient>
+    <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6c2"/><stop offset=".35" stop-color="#ffe68a"/><stop offset=".65" stop-color="#f2b62f"/><stop offset="1" stop-color="#c47a0e"/></linearGradient></defs>
     <rect width="100" height="100" fill="url(#bg)"/>
     <circle cx="50" cy="50" r="38" fill="#ffe68a" opacity=".22"/>
     <path d="M44 8 C36 12 30 14 27 20" fill="none" stroke="#e6ebee" stroke-width="2" stroke-dasharray="2.5 2"/>
@@ -340,7 +341,13 @@ const WILD_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
       <g transform="translate(46 40)"><rect width="24" height="16" fill="#1d5fbf" stroke="#2a1a05" stroke-width="1"/>
         <rect y="3.5" width="24" height="1.8" fill="#fff"/><rect y="7.1" width="24" height="1.8" fill="#fff"/><rect y="10.7" width="24" height="1.8" fill="#fff"/><rect y="14.2" width="24" height="1.8" fill="#fff"/>
         <rect width="9" height="8.9" fill="#1d5fbf"/><rect x="3.6" width="1.8" height="8.9" fill="#fff"/><rect y="3.6" width="9" height="1.8" fill="#fff"/></g>
-      <path d="M46 64 H70 M46 69 H64" stroke="#56606a" stroke-width="1.8"/></g></svg>`;
+      <path d="M46 64 H70 M46 69 H64" stroke="#56606a" stroke-width="1.8"/></g>
+    <g transform="rotate(-8 50 78)">
+      <text x="50" y="88" text-anchor="middle" font-family="Arial Black, Impact, Haettenschweiler, sans-serif" font-weight="900" font-size="30" letter-spacing="-1"
+        fill="url(#wg)" stroke="#2a1a05" stroke-width="3.2" paint-order="stroke" textLength="84" lengthAdjust="spacingAndGlyphs">WILD</text>
+      <text x="50" y="88" text-anchor="middle" font-family="Arial Black, Impact, Haettenschweiler, sans-serif" font-weight="900" font-size="30" letter-spacing="-1"
+        fill="none" stroke="#fff6c2" stroke-width=".8" opacity=".7" textLength="84" lengthAdjust="spacingAndGlyphs">WILD</text>
+    </g></svg>`;
 
 // Full-body cartoon soldier: Greek camouflage, saluting, holding the Greek flag. Same thick-outline style as the cards.
 const TROOPER_SVG = (() => {
@@ -432,9 +439,8 @@ const TROOPER_SVG = (() => {
 
 const NAMES = { L10:'Δέκα', LJ:'Βαλές (J)', LQ:'Ντάμα (Q)', LK:'Ρήγας (K)', LH:'Γράμμα H', LM:'Γράμμα M',
   PVT:'Στρατιώτης', SGT:'Λοχίας', SSG:'Επιλοχίας', MSG:'Αρχιλοχίας', LT2:'Ανθυπολοχαγός', LT1:'Υπολοχαγός', CPT:'Λοχαγός',
-  MAJ:'Ταγματάρχης', LTC:'Αντισυνταγματάρχης', COL:'Συνταγματάρχης', GEN:'Στρατηγός', WILD:'Μπαλαντέρ', BONUS:'Στρατάρχης' };
-const LABEL = { PVT:'ΣΤΡΑΤΙΩΤΗΣ', SGT:'ΛΟΧΙΑΣ', SSG:'ΕΠΙΛΟΧΙΑΣ', MSG:'ΑΡΧΙΛΟΧΙΑΣ', LT2:'ΑΝΘΛΓΟΣ', LT1:'ΥΠΛΓΟΣ', CPT:'ΛΟΧΑΓΟΣ',
-  MAJ:'ΤΑΓΜ/ΧΗΣ', LTC:'ΑΝΤΙΣ/ΧΗΣ', COL:'ΣΥΝΤ/ΧΗΣ', GEN:'ΣΤΡΑΤΗΓΟΣ', WILD:'ΜΠΑΛΑΝΤΕΡ', BONUS:'ΣΤΡΑΤΑΡΧΗΣ' };
+  MAJ:'Ταγματάρχης', LTC:'Αντισυνταγματάρχης', COL:'Συνταγματάρχης', GEN:'Στρατηγός', WILD:'WILD', BONUS:'Στρατάρχης' };
+const LABEL = {};   // no text strips: the pictures speak for themselves, WILD is written on its own art
 const GROUP = { PVT:'Οπλίτης', SGT:'Υπαξιωματικός', SSG:'Υπαξιωματικός', MSG:'Υπαξιωματικός', LT2:'Κατώτερος αξιωματικός', LT1:'Κατώτερος αξιωματικός',
   CPT:'Κατώτερος αξιωματικός', MAJ:'Ανώτερος αξιωματικός', LTC:'Ανώτερος αξιωματικός', COL:'Ανώτερος αξιωματικός', GEN:'Ανώτατος αξιωματικός' };
 
@@ -722,7 +728,7 @@ function renderLadder() {
   const letters = SYMBOLS.filter(s => !ranks.includes(s));
   [...ranks].reverse().forEach((s, i) => rows.push(`<div class="pt">${cellHTML(s)}<div><div class="rank">ΒΑΘΜΙΔΑ ${ranks.length - i}</div><div class="name">${NAMES[s]}</div>${pays(PAY[s])}</div></div>`));
   [...letters].reverse().forEach(s => rows.push(`<div class="pt">${cellHTML(s)}<div><div class="rank">ΓΡΑΜΜΑ</div><div class="name">${NAMES[s]}</div>${pays(PAY[s])}</div></div>`));
-  rows.push(`<div class="pt">${cellHTML('WILD')}<div><div class="rank">ΜΠΑΛΑΝΤΕΡ</div><div class="name">Στρατιωτική ταυτότητα</div><div class="pays" style="display:block;color:var(--muted)">Τροχοί 2–4</div></div></div>`);
+  rows.push(`<div class="pt">${cellHTML('WILD')}<div><div class="rank">ΜΠΑΛΑΝΤΕΡ</div><div class="name">WILD</div><div class="pays" style="display:block;color:var(--muted)">Τροχοί 2–4</div></div></div>`);
   $('ladder').innerHTML = rows.join('');
 }
 
