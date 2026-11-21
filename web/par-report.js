@@ -21,7 +21,7 @@ for (const [target, chunks] of Object.entries(groups).sort((a, b) => b[0] - a[0]
   const n = m.rounds, rtp = m.sum / n, sd = Math.sqrt(m.sumSq / n - rtp * rtp), se = sd / Math.sqrt(n);
   const bonusN = m.trig[3] + m.trig[4] + m.trig[5], maxN = m.trig[4] + m.trig[5];
   const dist = m.buckets.map((c, i) => ({
-    range: i === 0 ? '0 (χωρίς κέρδος)' : i === m.buckets.length - 1 ? `${m.edges[i].toLocaleString('el-GR')}× (μέγιστο)` : `${m.edges[i - 1].toLocaleString('el-GR')}× – ${m.edges[i].toLocaleString('el-GR')}×`,
+    range: i === 0 ? '0 (χωρίς κέρδος)' : i === m.buckets.length - 1 ? `${m.edges[i - 1].toLocaleString('el-GR')}× – ${m.edges[i].toLocaleString('el-GR')}× (μαζί με το μέγιστο)` : `${m.edges[i - 1].toLocaleString('el-GR')}× – ${m.edges[i].toLocaleString('el-GR')}×`,
     count: c, share: c / n, oneIn: oneIn(c / n)
   }));
   profiles.push({
