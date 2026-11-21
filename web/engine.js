@@ -12,9 +12,9 @@ const WILD_W_FS = [0, 20, 20, 20, 0];   // wilds land more often in free spins
 let BONUS_P = 0.06;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
 let PAY = {
-  L10:[0.24,0.49,0.96], LJ:[0.24,0.49,1.09], LQ:[0.3,0.6,1.21], LK:[0.3,0.6,1.45], LH:[0.36,0.73,1.69], LM:[0.36,0.84,1.8],
-  PVT:[0.6,1.5,3.02], SGT:[0.73,1.8,3.62], SSG:[0.9,2.12,4.52], MSG:[1.09,2.42,5.43], LT2:[1.21,3.02,6.04], LT1:[1.5,3.62,7.54],
-  CPT:[1.8,4.52,9.05], MAJ:[2.42,6.04,11.8], LTC:[3.02,7.54,14.7], COL:[4.52,11.8,24.5], GEN:[6.04,17.7,60.0]
+  L10:[0.24,0.49,0.96], LJ:[0.24,0.49,1.08], LQ:[0.3,0.6,1.2], LK:[0.3,0.6,1.44], LH:[0.36,0.73,1.68], LM:[0.36,0.84,1.79],
+  PVT:[0.6,1.49,3], SGT:[0.73,1.79,3.6], SSG:[0.9,2.11,4.5], MSG:[1.08,2.41,5.4], LT2:[1.2,3,6.01], LT1:[1.49,3.6,7.5],
+  CPT:[1.79,4.5,9], MAJ:[2.41,6.01,11.7], LTC:[3,7.5,14.6], COL:[4.5,11.7,24.4], GEN:[6.01,17.6,59.7]
 };
 const BONUS_PAY = { 3: 1, 4: 10, 5: 100 };   // x total bet
 const MAX_WIN = 10000;                       // x total bet, per spin/feature
@@ -60,14 +60,16 @@ const medalsOf = grid => { const out = []; for (let c = 0; c < REELS; c++) for (
 const canRespin = pos => pos.length === 2 && Math.max(...pos.map(p => p.r)) < ROWS - 1;
 const stepDown = (pos, sym) => pos.map(p => ({ c: p.c, r: p.r + 1, fromR: p.r, sym }));
 
-// Max bonus: a wild that was part of a win stays where it is; any other wild moves one row down
-// (and leaves the board from the bottom row). Returns every move, including r === ROWS (leaving).
-function nextWilds(grid, res) {
-  const hit = new Set();
+// Max bonus: a wild that is part of a win locks for the rest of the bonus; a wild that has never
+// been part of a win moves one row down (and leaves the board from the bottom row).
+// prev: the moves returned last spin (to know which wilds are already locked).
+// Returns every move, including r === ROWS (leaving).
+function nextWilds(grid, res, prev = []) {
+  const hit = new Set(), was = new Set(prev.filter(w => w.stay && w.r < ROWS).map(w => w.c + ',' + w.r));
   for (const w of res.wins) for (const [c, r] of w.cells) if (grid[c][r] === WILD) hit.add(c + ',' + r);
   const out = new Map();
   for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++) if (grid[c][r] === WILD) {
-    const stay = hit.has(c + ',' + r), nr = stay ? r : r + 1;
+    const k = c + ',' + r, stay = was.has(k) || hit.has(k), nr = stay ? r : r + 1;
     const key = c + ',' + nr;
     if (!out.has(key) || stay) out.set(key, { c, r: nr, fromR: r, sym: WILD, stay });
   }
@@ -129,7 +131,7 @@ function playBonus(n, rng) {
     const grid = spinGrid(rng, { allowBonus: false, fixed: max ? wilds.filter(w => w.r < ROWS) : [], fs: true });
     const res = evaluate(grid);
     total += res.total;
-    if (max) wilds = nextWilds(grid, res);
+    if (max) wilds = nextWilds(grid, res, wilds);
     if (total >= MAX_WIN) return { total: MAX_WIN, max, spins };
   }
   return { total, max, spins };

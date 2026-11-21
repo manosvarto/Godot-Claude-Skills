@@ -10,4 +10,4 @@ Greek Army themed 5x4, 1024-ways slot in the "card edition" art style. Demo cred
 - `template.html` – page, frames, bonus/wild art and UI. `/*ENGINE*/` and `/*CARDS*/` are filled in by the build.
 - `build.js` – `node web/build.js` writes `chain-of-command.html`.
 
-Current tuning: ~96% RTP (95.6–95.9% across exact and simulated checks), 40% of rounds win, medal respin 1 in 60 rounds, bonus 1 in 164, max bonus 1 in 3,190.
+Current tuning: ~96% RTP, 40% of rounds win, medal respin 1 in 60 rounds, bonus 1 in 164, max bonus 1 in 3,190 (wilds that win lock for the rest of the max bonus).

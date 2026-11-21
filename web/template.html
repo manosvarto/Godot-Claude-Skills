@@ -162,7 +162,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
 .pt { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 10px; align-items: center; padding: 8px; border-radius: 6px; background: var(--panel-2); }
 .pt .cell { width: 58px; }
 .pt .rank { font-size: 11px; font-weight: 800; color: var(--gold); letter-spacing: .12em; }
-.pt .name { font-weight: 800; font-size: 15px; line-height: 1.15; overflow-wrap: anywhere; }
+.pt .name { font-weight: 800; font-size: 15px; line-height: 1.15; overflow-wrap: break-word; }
 .pt .pays { display: grid; grid-template-columns: auto 1fr; column-gap: 6px; font-size: 13px; font-variant-numeric: tabular-nums; margin-top: 3px; }
 .pt .pays span { color: var(--muted); }
 .pt.top { grid-column: 1 / -1; grid-template-columns: 78px minmax(0, 1fr); background: linear-gradient(90deg, rgba(242,182,47,.28), var(--panel-2)); box-shadow: inset 0 0 0 1px rgba(255,230,138,.45); }
@@ -177,6 +177,17 @@ h2 { margin: 0 0 4px; font-size: 26px; }
 .stat .v { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--gold-hi); }
 .stat .l { font-size: 12px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
 .testbar { display: flex; flex-wrap: wrap; gap: 10px; }
+.help-btn { background: linear-gradient(#8fc2ff, var(--gem-blue) 55%, #164a91); color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.5); }
+.sheet { position: fixed; inset: 0; z-index: 50; overflow-y: auto; overscroll-behavior: contain; background: rgba(6, 8, 14, .9); backdrop-filter: blur(3px);
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(28px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.sheet[hidden] { display: none; }
+.sheet-inner { max-width: 660px; margin: 0 auto; display: grid; gap: 20px; }
+.sheet-head { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 2px; background: linear-gradient(rgba(6,8,14,.97) 70%, rgba(6,8,14,0)); }
+.sheet-head h2 { font-size: 32px; margin: 0; }
+.gem-btn.close { --c: var(--gem-red); width: 40px; height: 40px; font-size: 26px; flex: none; }
+.steps { margin: 0; padding-left: 22px; display: grid; gap: 8px; font-size: 16px; line-height: 1.4; }
+.steps b { color: var(--gold-hi); }
 
 @media (max-width: 480px) {
   .inner { padding: 10px; }
@@ -186,8 +197,9 @@ h2 { margin: 0 0 4px; font-size: 26px; }
   .readout .value { font-size: 20px; }
   .status .mode { font-size: 14px; } .status .fs { font-size: 12px; }
   .rules li { grid-template-columns: 1fr; gap: 2px; }
-  .ladder { grid-template-columns: 1fr 1fr; }
-  .pt { grid-template-columns: 46px minmax(0,1fr); gap: 8px; padding: 6px; } .pt .cell { width: 46px; }
+  .ladder { grid-template-columns: 1fr; }
+  .pt { grid-template-columns: 52px minmax(0,1fr); gap: 10px; padding: 6px 8px; } .pt .cell { width: 52px; }
+  .pt:not(.top) .pays { grid-template-columns: repeat(3, auto 1fr); }
   .pt.top .pays { grid-template-columns: repeat(3, auto 1fr); }
 }
 @media (prefers-reduced-motion: reduce) { .cell.win, .reel.tension { animation: none; } }
@@ -233,43 +245,11 @@ h2 { margin: 0 0 4px; font-size: 26px; }
         <button class="gold-btn" id="refill">Γέμισμα 1.000</button>
         <button class="gold-btn" id="music" aria-pressed="true">Μουσική</button>
         <button class="gold-btn" id="sfx" aria-pressed="true">Ήχοι</button>
+        <button class="gold-btn help-btn" id="helpBtn" aria-haspopup="dialog">Πώς παίζεται</button>
       </div>
     </div>
   </div>
   <div class="demo">Μόνο μονάδες επίδειξης. Δεν παίζονται και δεν πληρώνονται πραγματικά χρήματα.</div>
-
-  <div class="frame"><div class="inner panel-body">
-    <h2 class="goldtext">Κλίμακα συμβόλων</h2>
-    <p class="hint">Κέρδη για το τρέχον πόνταρισμα, ανά τρόπο, για 3, 4 ή 5 συνεχόμενους τροχούς από αριστερά. Οι τρόποι πολλαπλασιάζονται: δύο Λοχίες στον 1ο τροχό και ένας στον 2ο και στον 3ο μετράνε 2 τρόπους. Τα γράμματα είναι τα πιο συχνά και πληρώνουν λίγο.</p>
-    <div class="ladder" id="ladder"></div>
-  </div></div>
-
-  <div class="frame"><div class="inner panel-body">
-    <h2 class="goldtext">Διαταγές μπόνους</h2>
-    <ul class="rules">
-      <li><b>2 Στρατάρχες</b><span>Δωρεάν επανάληψη: οι 2 Στρατάρχες μένουν και κατεβαίνουν μία σειρά σε κάθε επανάληψη, μέχρι ένας τους να φτάσει στην κάτω σειρά. Αν πέσει τρίτος Στρατάρχης, ανοίγει το μπόνους.</span></li>
-      <li><b>3 Στρατάρχες</b><span>Μπόνους: 10 δωρεάν γυρίσματα. Οι μπαλαντέρ έρχονται πιο συχνά στα δωρεάν γυρίσματα.</span></li>
-      <li><b>4 Στρατάρχες</b><span>Μέγιστο μπόνους: 12 δωρεάν γυρίσματα. Ένα WILD που μπαίνει σε κέρδος μένει στη θέση του για το επόμενο γύρισμα. Ένα WILD χωρίς κέρδος κατεβαίνει μία σειρά, και από την κάτω σειρά φεύγει.</span></li>
-      <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατάρχης πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατάρχες δίνουν 14.</span></li>
-      <li><b>Πληρωμή Στρατάρχη</b><span>Πληρώνουν όπου κι αν πέσουν: 3 πληρώνουν 1× το πόνταρισμα, 4 πληρώνουν 10×, 5 πληρώνουν 100×.</span></li>
-      <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατάρχη.</span></li>
-      <li><b>Μέγιστο κέρδος</b><span>10.000× το πόνταρισμα ανά γύρισμα ή ανά μπόνους.</span></li>
-    </ul>
-  </div></div>
-
-  <div class="frame"><div class="inner panel-body">
-    <h2 class="goldtext">Μαθηματικά παιχνιδιού</h2>
-    <p class="hint">Κάθε θέση επιλέγεται με κρυπτογραφική γεννήτρια τυχαίων αριθμών. Οι πιθανότητες είναι ρυθμισμένες ώστε το παιχνίδι να κρατά περίπου 4% μακροπρόθεσμα.</p>
-    <div class="stats">
-      <div class="stat"><div class="v">96,0%</div><div class="l">Επιστροφή στον παίκτη</div></div>
-      <div class="stat"><div class="v">40%</div><div class="l">Γυρίσματα με κέρδος</div></div>
-      <div class="stat"><div class="v">1 στα 60</div><div class="l">Επανάληψη</div></div>
-      <div class="stat"><div class="v">1 στα 164</div><div class="l">Μπόνους</div></div>
-      <div class="stat"><div class="v">1 στα 3.190</div><div class="l">Μέγιστο μπόνους</div></div>
-      <div class="stat"><div class="v" id="sessionRtp">–</div><div class="l">Η δική σου επιστροφή</div></div>
-    </div>
-    <p class="hint">Προσομοίωση με 3 εκατομμύρια γύρους και 1,1 εκατομμύρια μπόνους. Το μπόνους πληρώνει κατά μέσο όρο περίπου 16× το πόνταρισμα, το μέγιστο μπόνους περίπου 525×.</p>
-  </div></div>
 
   <div class="frame"><div class="inner panel-body">
     <h2 class="goldtext">Εργαλεία δοκιμής</h2>
@@ -281,6 +261,57 @@ h2 { margin: 0 0 4px; font-size: 26px; }
       <button class="gold-btn" id="force5">Μέγιστο μπόνους (5)</button>
     </div>
   </div></div>
+</div>
+
+<div class="sheet" id="help" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="sheet-inner" lang="el">
+    <div class="sheet-head">
+      <h2 class="goldtext" id="helpTitle">Πώς παίζεται</h2>
+      <button class="gem-btn close" id="helpClose" aria-label="Κλείσιμο">×</button>
+    </div>
+    <div class="frame"><div class="inner panel-body">
+      <h2 class="goldtext">Τα βασικά</h2>
+      <ol class="steps">
+        <li>Διάλεξε πόνταρισμα με τα κουμπιά − και +.</li>
+        <li>Πάτα <b>ΓΥΡΝΑ</b> (ή το πλήκτρο κενού).</li>
+        <li>Κερδίζεις όταν ίδια σύμβολα πέφτουν σε 3, 4 ή 5 συνεχόμενους τροχούς, ξεκινώντας από τον πρώτο αριστερά. Δεν χρειάζεται να είναι στην ίδια σειρά.</li>
+        <li>Το WILD αντικαθιστά κάθε σύμβολο εκτός από τον Στρατάρχη.</li>
+        <li>Ο Στρατάρχης είναι το μεγαλύτερο σύμβολο: 2 δίνουν επανάληψη, 3 ή περισσότεροι ανοίγουν το μπόνους.</li>
+      </ol>
+    </div></div>
+      <div class="frame"><div class="inner panel-body">
+        <h2 class="goldtext">Κλίμακα συμβόλων</h2>
+        <p class="hint">Κέρδη για το τρέχον πόνταρισμα, ανά τρόπο, για 3, 4 ή 5 συνεχόμενους τροχούς από αριστερά. Οι τρόποι πολλαπλασιάζονται: δύο Λοχίες στον 1ο τροχό και ένας στον 2ο και στον 3ο μετράνε 2 τρόπους. Τα γράμματα είναι τα πιο συχνά και πληρώνουν λίγο.</p>
+        <div class="ladder" id="ladder"></div>
+      </div></div>
+
+      <div class="frame"><div class="inner panel-body">
+        <h2 class="goldtext">Διαταγές μπόνους</h2>
+        <ul class="rules">
+          <li><b>2 Στρατάρχες</b><span>Δωρεάν επανάληψη: οι 2 Στρατάρχες μένουν και κατεβαίνουν μία σειρά σε κάθε επανάληψη, μέχρι ένας τους να φτάσει στην κάτω σειρά. Αν πέσει τρίτος Στρατάρχης, ανοίγει το μπόνους.</span></li>
+          <li><b>3 Στρατάρχες</b><span>Μπόνους: 10 δωρεάν γυρίσματα. Οι μπαλαντέρ έρχονται πιο συχνά στα δωρεάν γυρίσματα.</span></li>
+          <li><b>4 Στρατάρχες</b><span>Μέγιστο μπόνους: 12 δωρεάν γυρίσματα. Ένα WILD που μπαίνει σε κέρδος κλειδώνει στη θέση του μέχρι το τέλος του μπόνους. Ένα WILD που δεν έχει κερδίσει ακόμα κατεβαίνει μία σειρά σε κάθε γύρισμα, και από την κάτω σειρά φεύγει.</span></li>
+          <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατάρχης πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατάρχες δίνουν 14.</span></li>
+          <li><b>Πληρωμή Στρατάρχη</b><span>Πληρώνουν όπου κι αν πέσουν: 3 πληρώνουν 1× το πόνταρισμα, 4 πληρώνουν 10×, 5 πληρώνουν 100×.</span></li>
+          <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατάρχη.</span></li>
+          <li><b>Μέγιστο κέρδος</b><span>10.000× το πόνταρισμα ανά γύρισμα ή ανά μπόνους.</span></li>
+        </ul>
+      </div></div>
+
+      <div class="frame"><div class="inner panel-body">
+        <h2 class="goldtext">Μαθηματικά παιχνιδιού</h2>
+        <p class="hint">Κάθε θέση επιλέγεται με κρυπτογραφική γεννήτρια τυχαίων αριθμών. Οι πιθανότητες είναι ρυθμισμένες ώστε το παιχνίδι να κρατά περίπου 4% μακροπρόθεσμα.</p>
+        <div class="stats">
+          <div class="stat"><div class="v">96,0%</div><div class="l">Επιστροφή στον παίκτη</div></div>
+          <div class="stat"><div class="v">40%</div><div class="l">Γυρίσματα με κέρδος</div></div>
+          <div class="stat"><div class="v">1 στα 60</div><div class="l">Επανάληψη</div></div>
+          <div class="stat"><div class="v">1 στα 164</div><div class="l">Μπόνους</div></div>
+          <div class="stat"><div class="v">1 στα 3.190</div><div class="l">Μέγιστο μπόνους</div></div>
+          <div class="stat"><div class="v" id="sessionRtp">–</div><div class="l">Η δική σου επιστροφή</div></div>
+        </div>
+        <p class="hint">Προσομοίωση με 3 εκατομμύρια γύρους και 1,1 εκατομμύρια μπόνους. Το μπόνους πληρώνει κατά μέσο όρο περίπου 16× το πόνταρισμα, το μέγιστο μπόνους περίπου 550×.</p>
+      </div></div>
+  </div>
 </div>
 
 <script>
@@ -384,9 +415,9 @@ const bet = () => BETS[S.betIdx];
 
 // ---------- Sound: march music + effects, all synthesized with Web Audio ----------
 const Sound = (() => {
-  let ctx = null, comp, musicGain, sfxGain, noiseBuf;
+  let ctx = null, comp, musicGain, sfxGain, noiseBuf, echo;
   const pref = { music: store.get('music', true), sfx: store.get('sfx', true) };
-  const MUSIC_VOL = 0.30, SFX_VOL = 0.55;
+  const MUSIC_VOL = 0.26, SFX_VOL = 0.55;
   const hz = m => 440 * Math.pow(2, (m - 69) / 12);
 
   function ensure() {
@@ -399,6 +430,11 @@ const Sound = (() => {
       comp.connect(master); master.connect(ctx.destination);
       musicGain = ctx.createGain(); musicGain.gain.value = pref.music ? MUSIC_VOL : 0; musicGain.connect(comp);
       sfxGain = ctx.createGain(); sfxGain.gain.value = pref.sfx ? SFX_VOL : 0; sfxGain.connect(comp);
+      // echo send for the music: dotted-eighth delay with soft feedback, darkened
+      echo = ctx.createGain(); echo.gain.value = 1;
+      const dl = ctx.createDelay(1.5), fb = ctx.createGain(), wet = ctx.createGain(), lp = ctx.createBiquadFilter();
+      dl.delayTime.value = 60 / 92 * .75; fb.gain.value = .34; wet.gain.value = .28; lp.type = 'lowpass'; lp.frequency.value = 2400;
+      echo.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(wet); wet.connect(musicGain);
       noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
       const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
     }
@@ -407,7 +443,7 @@ const Sound = (() => {
   }
 
   // --- building blocks ---
-  function tone(dest, freq, t, dur, { type = 'square', vol = .2, attack = .005, cutoff = 0, slideTo = 0 } = {}) {
+  function tone(dest, freq, t, dur, { type = 'square', vol = .2, attack = .005, cutoff = 0, slideTo = 0, send = 0 } = {}) {
     const o = ctx.createOscillator(), g = ctx.createGain();
     o.type = type; o.frequency.setValueAtTime(freq, t);
     if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
@@ -417,7 +453,24 @@ const Sound = (() => {
     let node = o;
     if (cutoff) { const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = cutoff; o.connect(f); node = f; }
     node.connect(g); g.connect(dest);
+    if (send) { const sg = ctx.createGain(); sg.gain.value = send; g.connect(sg); sg.connect(echo); }
     o.start(t); o.stop(t + dur + .05);
+  }
+  // Sustained voice: soft attack, hold, release. Two detuned oscillators through a lowpass.
+  function voice(freq, t, dur, { type = 'sawtooth', vol = .05, attack = .5, release = .6, cutoff = 900, detune = 8, send = 0, vibrato = 0 } = {}) {
+    const g = ctx.createGain(), f = ctx.createBiquadFilter();
+    f.type = 'lowpass'; f.frequency.value = cutoff; f.Q.value = .5;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + attack);
+    g.gain.setValueAtTime(vol, t + Math.max(attack, dur - release)); g.gain.linearRampToValueAtTime(0, t + dur);
+    f.connect(g); g.connect(musicGain);
+    if (send) { const sg = ctx.createGain(); sg.gain.value = send; g.connect(sg); sg.connect(echo); }
+    let lfo = null;
+    if (vibrato) { lfo = ctx.createOscillator(); const lg = ctx.createGain(); lfo.frequency.value = 5.2; lg.gain.value = vibrato; lfo.connect(lg); lfo.start(t); lfo.stop(t + dur + .1); lfo.lg = lg; }
+    for (const d of [-detune, detune]) {
+      const o = ctx.createOscillator(); o.type = type; o.frequency.value = freq; o.detune.value = d;
+      if (lfo) lfo.lg.connect(o.detune);
+      o.connect(f); o.start(t); o.stop(t + dur + .1);
+    }
   }
   function noise(dest, t, dur, { vol = .2, type = 'highpass', freq = 1500, q = .7, sweepTo = 0 } = {}) {
     const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
@@ -427,52 +480,57 @@ const Sound = (() => {
     s.connect(f); f.connect(g); g.connect(dest);
     s.start(t, Math.random() * .5); s.stop(t + dur + .05);
   }
-  const snare = (t, v) => { noise(musicGain, t, .14, { vol: .32 * v, freq: 1800 }); tone(musicGain, 190, t, .08, { type: 'triangle', vol: .18 * v }); };
-  const kick = t => tone(musicGain, 120, t, .22, { type: 'sine', vol: .7, slideTo: 42 });
-  const crash = t => noise(musicGain, t, 1.2, { vol: .10, freq: 6000 });
-
-  // --- march: Bb major, 8 bars of 16th-note steps ---
-  const MEL = [ // [step, midi, length in steps]
-    [0,65,2],[2,70,2],[4,74,4],[8,70,2],[10,74,2],[12,77,4],
-    [16,79,3],[19,77,1],[20,75,4],[24,67,2],[26,70,2],[28,75,4],
-    [32,77,2],[34,75,2],[36,74,2],[38,72,2],[40,69,4],[44,72,2],[46,77,2],
-    [48,74,6],[54,70,2],[56,65,4],
-    [64,70,2],[66,74,2],[68,77,4],[72,82,4],[76,77,4],
-    [80,79,3],[83,77,1],[84,74,4],[88,70,4],[92,67,4],
-    [96,75,2],[98,79,2],[100,82,4],[104,81,2],[106,77,2],[108,72,4],
-    [112,70,8]
-  ];
-  const melAt = {}; MEL.forEach(([s, m, l]) => melAt[s] = [m, l]);
-  const CHORDS = [[46,58,62,65],[51,58,63,67],[53,57,60,65],[46,58,62,65],[46,58,62,65],[43,58,62,67],[51,55,58,63],[46,58,62,65]];
-  const CHORD_B7 = [53, 57, 60, 65]; // F for the second half of bar 7
-  const SNARE = [1,0,0,0, .6,0,.5,.5, 1,0,0,0, .6,0,.5,0];
-  let playing = false, step = 0, nextTime = 0, timer = null, bonusMode = false;
+  // --- theme: D minor, 92 bpm, 8 bars of 16th-note steps. Pads, plucked arpeggio, war drums, horn ---
+  const taiko = (t, v = 1) => { tone(musicGain, 78, t, .45, { type: 'sine', vol: .55 * v, slideTo: 44 }); noise(musicGain, t, .12, { vol: .16 * v, type: 'lowpass', freq: 380 }); };
+  const snare = (t, v = 1) => { noise(musicGain, t, .22, { vol: .16 * v, type: 'bandpass', freq: 1700, q: .8 }); tone(musicGain, 210, t, .07, { type: 'triangle', vol: .08 * v }); };
+  const hat = (t, v = 1) => noise(musicGain, t, .035, { vol: .045 * v, freq: 7500 });
+  const swell = t => noise(musicGain, t, 2.4, { vol: .05, type: 'bandpass', freq: 600, sweepTo: 5000, q: 1.5 });
+  // chords per bar (2 bars each): Dm, Bb, F, C
+  const CH = [[50,53,57],[50,53,57],[46,50,53],[46,50,53],[41,48,53,57],[41,48,53,57],[48,52,55],[48,52,55]];
+  const ARP = [0, 1, 2, 4, 2, 1, 0, 1, 2, 4, 5, 4, 2, 1, 2, 1]; // index into chord tones spread over 2 octaves
+  const HORN = [[0,69,4],[4,74,8],[12,76,4],[16,77,10],[26,76,2],[28,74,4],
+                [32,74,10],[42,72,2],[44,70,4],[48,70,16],
+                [64,69,4],[68,72,8],[76,77,4],[80,76,8],[88,72,8],
+                [96,76,10],[106,74,2],[108,72,4],[112,72,6],[118,74,2],[120,69,8]];
+  const hornAt = {}; HORN.forEach(([s, m, l]) => hornAt[s] = [m, l]);
+  let playing = false, step = 0, loop = 0, nextTime = 0, timer = null, bonusMode = false;
 
   function playStep(s, t, spb) {
-    const bar = s >> 4, inBar = s & 15;
-    const chord = bar === 6 && inBar >= 8 ? CHORD_B7 : CHORDS[bar];
-    if (s === 0) crash(t);
-    if (inBar === 0 || inBar === 8) kick(t);
-    const sv = bar === 7 && inBar >= 12 ? .8 : SNARE[inBar];
-    if (sv) snare(t, sv);
-    if (bar === 7 && inBar >= 12) snare(t + spb / 2, .55);           // roll into the loop
-    if (inBar === 0 || inBar === 8) tone(musicGain, hz(chord[0] - 12 + (inBar === 8 ? 7 : 0)), t, spb * 3.5, { type: 'triangle', vol: .42 });
-    if (inBar === 4 || inBar === 12) chord.slice(1).forEach(m => tone(musicGain, hz(m - 12), t, spb * 1.6, { type: 'sawtooth', vol: .045, cutoff: 1300 }));
-    const n = melAt[s];
-    if (n) {
-      tone(musicGain, hz(n[0]), t, spb * n[1] * .92, { type: 'square', vol: .085, attack: .012, cutoff: 2400 });
-      tone(musicGain, hz(n[0] - 12), t, spb * n[1] * .92, { type: 'sawtooth', vol: .04, attack: .02, cutoff: 1500 });
-      if (bonusMode) tone(musicGain, hz(n[0] + 12), t, spb * n[1] * .8, { type: 'triangle', vol: .05 });
+    const bar = s >> 4, inBar = s & 15, ch = CH[bar];
+    const tones = [...ch.map(m => m + 12), ...ch.map(m => m + 24)];
+    if (s === 0) loop++;
+    // pad on each new chord
+    if (inBar === 0 && bar % 2 === 0) ch.forEach(m => voice(hz(m), t, spb * 32 + .3, { vol: .028, attack: .9, release: .9, cutoff: 850 }));
+    if (s === 112) swell(t);
+    // low drums: boom . . . . . boom . boom . . . . . . .
+    if (inBar === 0 || inBar === 6 || inBar === 8) taiko(t, inBar === 0 ? 1 : .7);
+    if (bonusMode && (inBar === 11 || inBar === 14)) taiko(t, .5);
+    if (inBar === 12) snare(t, 1);
+    if (bar === 7 && inBar >= 8) snare(t, .35 + (inBar - 8) * .08);   // build into the loop
+    if (inBar % 2 === 0) hat(t, inBar % 4 === 2 ? 1 : .5);
+    if (bonusMode && inBar % 2 === 1) hat(t, .6);
+    // bass: driving eighths on the root
+    if (inBar % 2 === 0) tone(musicGain, hz(ch[0] - 12), t, spb * 1.7, { type: 'sawtooth', vol: inBar % 4 === 0 ? .13 : .09, cutoff: 420 });
+    // plucked arpeggio
+    const a = tones[ARP[inBar] % tones.length];
+    tone(musicGain, hz(a), t, .22, { type: 'triangle', vol: .055, send: .5 });
+    tone(musicGain, hz(a), t, .09, { type: 'square', vol: .018, cutoff: 2200 });
+    // horn: from the second time round, every time in the bonus
+    const h = hornAt[s];
+    if (h && (loop >= 2 || bonusMode)) {
+      voice(hz(h[0]), t, spb * h[1] * .95, { vol: .05, attack: .07, release: .18, cutoff: 1500, detune: 6, send: .35, vibrato: 12 });
+      voice(hz(h[0] - 12), t, spb * h[1] * .95, { type: 'triangle', vol: .04, attack: .07, release: .18, cutoff: 1200, detune: 4 });
+      if (bonusMode) voice(hz(h[0] + 12), t, spb * h[1] * .9, { type: 'triangle', vol: .02, attack: .05, release: .15, cutoff: 3000, detune: 3, send: .4 });
     }
   }
   function tick() {
-    const spb = 60 / (bonusMode ? 138 : 112) / 4;
+    const spb = 60 / (bonusMode ? 112 : 92) / 4;
     if (nextTime < ctx.currentTime - .25) nextTime = ctx.currentTime + .05;  // came back from a pause
     while (nextTime < ctx.currentTime + .15) { playStep(step % 128, nextTime, spb); nextTime += spb; step++; }
   }
   function startMusic() {
     if (playing || !pref.music || !ensure()) return;
-    playing = true; step = 0; nextTime = ctx.currentTime + .08;
+    playing = true; step = 0; loop = 0; nextTime = ctx.currentTime + .08;
     timer = setInterval(tick, 25);
   }
   function stopMusic() { playing = false; clearInterval(timer); }
@@ -545,7 +603,7 @@ function clearHighlights() {
   board.classList.remove('has-win');
   cells.flat().forEach(e => { e.classList.remove('win', 'held', 'tag-stay', 'tag-down'); delete e.dataset.tag; });
 }
-function tag(c, r, stay) { const el = cells[c][r]; el.dataset.tag = stay ? 'ΜΕΝΕΙ' : '▼ ΚΑΤΩ'; el.classList.add(stay ? 'tag-stay' : 'tag-down'); }
+function tag(c, r, stay) { const el = cells[c][r]; el.dataset.tag = stay ? 'ΚΛΕΙΔΩΜΕΝΟ' : '▼ ΚΑΤΩ'; el.classList.add(stay ? 'tag-stay' : 'tag-down'); }
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // fixed: [{c, r, fromR, sym}] symbols that slide from row fromR to row r and stay still while the reel rolls
@@ -732,7 +790,7 @@ async function runBonus(n, b) {
   Sound.fanfare();
   await overlay(`<div class="kicker">Έπεσαν ${n} Στρατάρχες</div>
     <div class="big goldtext">${max ? 'Μέγιστο μπόνους' : 'Μπόνους'}</div>
-    <p>${spins} δωρεάν γυρίσματα.${max ? ' Ένα WILD που κερδίζει μένει στη θέση του. Ένα WILD χωρίς κέρδος κατεβαίνει μία σειρά.' : ' Τα WILD έρχονται πιο συχνά.'}</p>`, 'Εμπρός');
+    <p>${spins} δωρεάν γυρίσματα.${max ? ' Ένα WILD που κερδίζει κλειδώνει μέχρι το τέλος. Ένα WILD που δεν έχει κερδίσει κατεβαίνει μία σειρά.' : ' Τα WILD έρχονται πιο συχνά.'}</p>`, 'Εμπρός');
   setMode(max ? 'Μέγιστο μπόνους' : 'Μπόνους', max ? 'max' : 'bonus');
   Sound.setBonus(true);
   let wilds = [], total = 0;
@@ -744,7 +802,7 @@ async function runBonus(n, b) {
     const res = evaluate(grid);
     total = Math.min(total + res.total, MAX_WIN);
     showWins(res, b);
-    if (max) { wilds = nextWilds(grid, res); wilds.forEach(w => tag(w.c, w.fromR, w.stay)); }
+    if (max) { wilds = nextWilds(grid, res, wilds); wilds.forEach(w => tag(w.c, w.fromR, w.stay)); }
     $('fsInfo').textContent = `Γύρισμα ${i + 1} / ${spins} · Κέρδος ${fmt(total * b)}`;
     await sleep(res.total > 0 ? (S.turbo ? 600 : 1400) : (S.turbo ? 300 : 700));
     if (total >= MAX_WIN) break;
@@ -771,11 +829,18 @@ $('turbo').onclick = e => { S.turbo = !S.turbo; e.currentTarget.setAttribute('ar
 $('auto').onclick = e => { S.auto = !S.auto; e.currentTarget.setAttribute('aria-pressed', S.auto); if (S.auto && !S.busy) spin(); };
 $('refill').onclick = () => { if (!S.busy) { S.balance += 1000; render(); } };
 $('force2').onclick = () => spin(2);
+const help = $('help');
+function openHelp() { help.hidden = false; help.scrollTop = 0; document.body.style.overflow = 'hidden'; $('helpClose').focus(); Sound.click(); }
+function closeHelp() { help.hidden = true; document.body.style.overflow = ''; $('helpBtn').focus(); }
+$('helpBtn').onclick = openHelp;
+$('helpClose').onclick = closeHelp;
+help.addEventListener('click', e => { if (e.target === help) closeHelp(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !help.hidden) closeHelp(); });
 $('force3').onclick = () => spin(3);
 $('force4').onclick = () => spin(4);
 $('force5').onclick = () => spin(5);
 document.addEventListener('keydown', e => {
-  if (e.code === 'Space' && e.target === document.body) { e.preventDefault(); if (!$('overlay').hidden) $('ovGo')?.click(); else spin(); }
+  if (e.code === 'Space' && e.target === document.body && help.hidden) { e.preventDefault(); if (!$('overlay').hidden) $('ovGo')?.click(); else spin(); }
 });
 
 function start(data) {
