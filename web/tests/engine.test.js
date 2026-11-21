@@ -134,6 +134,13 @@ test('max bonus multipliers add up: x2 and x3 in one win pay x4', () => {
   near(res.wins.find(x => x.sym === 'SGT').pay, PAY.SGT[0] * 4);
 });
 
+test('ways rule: a wild multiplier only counts on the ways that pass through it', () => {
+  // reel 2 holds a Λοχίας and a x3 wild: 2 ways, one plain (x1), one through the wild (x3) = 4
+  const g = grid([['SGT'], ['SGT', WILD], ['SGT'], [], []]);
+  const w = E.evaluate(g, { '1,1': 3 }).wins.find(x => x.sym === 'SGT');
+  assert.equal(w.ways, 2); near(w.pay, PAY.SGT[0] * 4); assert.equal(w.topMult, 3);
+});
+
 test('new wilds start at x1; carried wilds keep their multiplier', () => {
   const g = grid([[], [WILD, WILD], [], [], []]);
   const m = E.multOf(g, [{ c: 1, r: 1, m: 5 }]);

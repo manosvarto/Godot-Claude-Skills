@@ -10,7 +10,7 @@ const WILD = 'WILD', BONUS = 'BONUS';   // BONUS = Στρατηγός
 const WEIGHTS = { L10:53, LJ:50, LQ:46, LK:43, LH:40, LM:37, FRAPPE:15, CIG:14, VEST:13, PISTOL:12, RIFLE:11, TANK:10, PVT:10, SGT:9, MSG:7, LT2:6, CPT:4, MAJ:4, LTC:3, COL:2 };
 const WILD_W = [0, 12, 12, 12, 0];
 let WILD_W_FS = [0, 18, 18, 18, 0];   // more wilds in the bonus
-let WILD_W_MAX = [0, 37, 37, 37, 0];      // and more again in the max bonus (with multipliers)
+let WILD_W_MAX = [0, 45, 45, 45, 0];      // and more again in the max bonus (with multipliers)
 let BONUS_P = 0.06;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
 let PAY = {   // x bet per way for 3/4/5 of a kind
@@ -128,8 +128,8 @@ function playBase(rng) {
 }
 
 // Returns { total (x bet), wins: [{sym, len, ways, pay, cells, mult}], bonusCount }
-// mult (max bonus only): {"c,r": m} multiplier carried by each wild. A win that uses wilds is
-// multiplied by 1 + the sum of (m - 1) over those wilds, so plain x1 wilds change nothing.
+// mult (max bonus only): {"c,r": m} multiplier carried by each wild. Each way of a win is multiplied by
+// 1 + the sum of (m - 1) over the wilds on that way, so plain x1 wilds change nothing.
 function evaluate(grid, mult = null) {
   const wins = [];
   let total = 0;
@@ -147,10 +147,22 @@ function evaluate(grid, mult = null) {
     }
     if (len >= 3) {
       const used = cells.filter(([c]) => c < len);   // keep only cells on counted reels
-      let m = 1;
-      if (mult) for (const [c, r] of used) if (grid[c][r] === WILD) m += (mult[c + ',' + r] || 1) - 1;
-      const pay = PAY[s][len - 3] * ways * m;
-      wins.push({ sym: s, len, ways, pay, cells: used, mult: m });
+      // Wild multipliers apply only to the ways that pass through that wild, and add up along a way:
+      // a way through a x2 and a x3 wild pays x4 (1 + 1 + 2). Summed over all ways:
+      //   sum = ways + sum over reels of (sum of (m - 1) on that reel) * (ways on the other reels)
+      let waysPaid = ways, top = 1;
+      if (mult) {
+        for (let c = 0; c < len; c++) {
+          let extra = 0, n = 0;
+          for (let r = 0; r < ROWS; r++) {
+            const v = grid[c][r];
+            if (v === s || v === WILD) { n++; if (v === WILD) { const m = mult[c + ',' + r] || 1; extra += m - 1; if (m > top) top = m; } }
+          }
+          if (extra) waysPaid += extra * (ways / n);
+        }
+      }
+      const pay = PAY[s][len - 3] * waysPaid;
+      wins.push({ sym: s, len, ways, pay, cells: used, mult: waysPaid / ways, topMult: top });
       total += pay;
     }
   }
