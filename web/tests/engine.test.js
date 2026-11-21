@@ -159,15 +159,15 @@ test('seeded generator is reproducible', () => {
   for (let i = 0; i < 1000; i++) assert.equal(a(), b());
 });
 
-test('Βύσμα: one buy, priced at 37x its bonus bet', () => {
+test('Βύσμα: one buy, 20 at a 0,20 bet (100x)', () => {
   assert.deepEqual(Object.keys(E.BUYS), ['bonus']);
-  assert.equal(E.BUYS.bonus.priceX, 37); assert.equal(E.BUYS.bonus.min, 3);
+  assert.equal(E.BUYS.bonus.priceX, 100); assert.equal(E.BUYS.bonus.min, 3);
   assert.equal(E.MAX_BUY_EUR, 20);
   near(Object.values(E.BUYS.bonus.odds).reduce((a, b) => a + b, 0), 1);
 });
 
-test('Βύσμα: always costs 20 and plays the bonus at 20/37', () => {
-  assert.equal(E.BUY_PRICE_EUR, 20); near(E.buyBet('bonus'), 20 / 37);
+test('Βύσμα: always costs 20 and always plays the bonus at 0,20', () => {
+  assert.equal(E.BUY_PRICE_EUR, 20); near(E.buyBet('bonus'), 0.2);
   near(E.buyBet('bonus') * E.BUYS.bonus.priceX, E.BUY_PRICE_EUR);
 });
 

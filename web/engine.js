@@ -26,15 +26,14 @@ const MIN_CYCLE_MS = 3000;                   // a new paid round may start at le
 const MAX_BET = 20;                          // maximum stake per round
 // «Βύσμα»: buy a bonus straight away. Price in x bet, set so a bought bonus returns ~90% like the rest of the game.
 // A buy is a stake, so it is offered only while its price is within MAX_BUY_EUR.
-// The buy plays a real trigger spin: at least `min` Field Marshals land, with the same odds as the base game
-// of landing more (given 3+: 4 about 5% of the time, 5 about 0.2%). Line wins on that spin pay too.
+// «Βύσμα»: always costs BUY_PRICE_EUR and the bought bonus always plays at BUY_BET (0,20 €), whatever bet is selected.
+// It plays a real trigger spin with at least 3 Generals. 20 € is 100x that bet, so the buy carries a bigger chance of
+// the max bonus (4 Generals 25%, 5 Generals 1%) to return ~90%. Line and General wins on that spin pay too.
 const BUYS = {
-  bonus: { min: 3, odds: { 3: 0.948, 4: 0.05, 5: 0.002 }, priceX: 37 }
+  bonus: { min: 3, odds: { 3: 0.74, 4: 0.25, 5: 0.01 }, priceX: 100 }
 };
-// «Βύσμα» always costs BUY_PRICE_EUR. The bought bonus is played at BUY_PRICE_EUR / priceX (about 0,54 €),
-// so a buy returns ~90% whatever bet the player has selected.
-const BUY_PRICE_EUR = 20;
-const buyBet = kind => BUY_PRICE_EUR / BUYS[kind].priceX;
+const BUY_PRICE_EUR = 20, BUY_BET = 0.2;
+const buyBet = () => BUY_BET;
 const MAX_BUY_EUR = 20;
 const spinsFor = n => 10 + 2 * (n - 3);      // 3 -> 10, 4 -> 12, 5 -> 14
 
@@ -201,7 +200,7 @@ function playBonus(n, rng) {
 }
 
 if (typeof module !== 'undefined') module.exports = {
-  REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN, MAX_WIN_EUR, MIN_CYCLE_MS, MAX_BET, BUYS, MAX_BUY_EUR, BUY_PRICE_EUR, buyBet,
+  REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN, MAX_WIN_EUR, MIN_CYCLE_MS, MAX_BET, BUYS, MAX_BUY_EUR, BUY_PRICE_EUR, BUY_BET, buyBet,
   get PAY() { return PAY; }, setPay(p) { PAY = p; }, get BONUS_P() { return BONUS_P; }, get WILD_W_FS() { return WILD_W_FS; }, get WILD_W_MAX() { return WILD_W_MAX; }, setBonusP(p) { BONUS_P = p; }, setWildMax(w) { WILD_W_MAX = [0, w, w, w, 0]; }, setWildFs(w) { WILD_W_FS = [0, w, w, w, 0]; },
   spinsFor, makeRng, makeSeededRng, drawCell, spinGrid, evaluate, playBonus, playBase, buyGrid, playBuy, nextWilds, keptWilds, multOf, medalsOf, canRespin, stepDown
 };

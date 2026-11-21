@@ -284,9 +284,9 @@ h2 { margin: 0 0 4px; font-size: 26px; }
   <div class="frame"><div class="inner buy" id="buyPanel">
     <div class="buy-head"><h2 class="goldtext">Βύσμα</h2><span class="buy-note">Αγόρασε μπόνους κατευθείαν</span></div>
     <div class="buy-row">
-      <button class="gold-btn buy-btn" id="buyBonus"><span class="t">Μπόνους</span><span class="p" id="buyBonusPrice">—</span><span class="n" id="buyBonusNote">Σίγουρα 3+ Στρατηγοί, ευκαιρία για Μέγιστο · παίζεται με ~0,54 €</span></button>
+      <button class="gold-btn buy-btn" id="buyBonus"><span class="t">Μπόνους</span><span class="p" id="buyBonusPrice">—</span><span class="n" id="buyBonusNote">Σίγουρα 3+ Στρατηγοί · 25% για Μέγιστο · παίζεται με 0,20 €</span></button>
     </div>
-    <p class="buy-note">Κοστίζει πάντα 20 €, ό,τι πόνταρισμα κι αν έχεις. Οι τροχοί γυρίζουν και φέρνουν σίγουρα 3 Στρατηγοί, με ευκαιρία για 4 ή 5 (Μέγιστο μπόνους). Το μπόνους παίζεται με πόνταρισμα περίπου 0,54 €.</p>
+    <p class="buy-note">Κοστίζει πάντα 20 € και το μπόνους παίζεται πάντα με πόνταρισμα 0,20 €, ό,τι πόνταρισμα κι αν έχεις. Οι τροχοί φέρνουν σίγουρα 3 Στρατηγούς, και 1 στις 4 φορές 4 ή 5 (Μέγιστο μπόνους).</p>
   </div></div>
   <div class="demo">Μόνο μονάδες επίδειξης. Δεν παίζονται και δεν πληρώνονται πραγματικά χρήματα.</div>
 
@@ -333,7 +333,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
           <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατηγός πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατηγοί δίνουν 14.</span></li>
           <li><b>Πληρωμή Στρατηγού</b><span>Πληρώνουν όπου κι αν πέσουν: 3 πληρώνουν 1× το πόνταρισμα, 4 πληρώνουν 10×, 5 πληρώνουν 100×.</span></li>
           <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατηγό.</span></li>
-          <li><b>Βύσμα</b><span>Αγορά μπόνους κατευθείαν, πάντα για 20 €. Το μπόνους παίζεται με πόνταρισμα περίπου 0,54 € (20 € ÷ 37), ό,τι πόνταρισμα κι αν έχεις διαλέξει. Οι τροχοί γυρίζουν και φέρνουν σίγουρα τουλάχιστον 3 Στρατηγοί. Μπορεί να πέσουν 4 ή 5 και να ανοίξει το Μέγιστο μπόνους (όπως στο κανονικό παιχνίδι), και τα κέρδη του γυρίσματος πληρώνονται. Επιστρέφει περίπου 90%, όπως το υπόλοιπο παιχνίδι. Διαθέσιμο όταν η τιμή είναι έως 20.</span></li>
+          <li><b>Βύσμα</b><span>Αγορά μπόνους κατευθείαν, πάντα για 20 €, και το μπόνους παίζεται πάντα με πόνταρισμα 0,20 €. Οι τροχοί γυρίζουν και φέρνουν σίγουρα τουλάχιστον 3 Στρατηγούς. Στο 25% των αγορών πέφτουν 4 (Μέγιστο μπόνους) και στο 1% πέφτουν 5. Τα κέρδη του γυρίσματος πληρώνονται. Επιστρέφει περίπου 90%, όπως το υπόλοιπο παιχνίδι.</span></li>
           <li><b>Μέγιστο κέρδος</b><span>10.000× το πόνταρισμα ανά γύρο (γύρισμα, επαναλήψεις και μπόνους μαζί), και ποτέ πάνω από 140.000 ανά γύρο. Με πόνταρισμα 20 αυτό είναι 7.000×.</span></li>
           <li><b>Όρια</b><span>Μέγιστο πόνταρισμα 20 ανά γύρο. Κάθε νέος γύρος ξεκινάει τουλάχιστον 3 δευτερόλεπτα μετά τον προηγούμενο.</span></li>
         </ul>
@@ -383,15 +383,14 @@ const MIN_CYCLE_MS = 3000;                   // a new paid round may start at le
 const MAX_BET = 20;                          // maximum stake per round
 // «Βύσμα»: buy a bonus straight away. Price in x bet, set so a bought bonus returns ~90% like the rest of the game.
 // A buy is a stake, so it is offered only while its price is within MAX_BUY_EUR.
-// The buy plays a real trigger spin: at least `min` Field Marshals land, with the same odds as the base game
-// of landing more (given 3+: 4 about 5% of the time, 5 about 0.2%). Line wins on that spin pay too.
+// «Βύσμα»: always costs BUY_PRICE_EUR and the bought bonus always plays at BUY_BET (0,20 €), whatever bet is selected.
+// It plays a real trigger spin with at least 3 Generals. 20 € is 100x that bet, so the buy carries a bigger chance of
+// the max bonus (4 Generals 25%, 5 Generals 1%) to return ~90%. Line and General wins on that spin pay too.
 const BUYS = {
-  bonus: { min: 3, odds: { 3: 0.948, 4: 0.05, 5: 0.002 }, priceX: 37 }
+  bonus: { min: 3, odds: { 3: 0.74, 4: 0.25, 5: 0.01 }, priceX: 100 }
 };
-// «Βύσμα» always costs BUY_PRICE_EUR. The bought bonus is played at BUY_PRICE_EUR / priceX (about 0,54 €),
-// so a buy returns ~90% whatever bet the player has selected.
-const BUY_PRICE_EUR = 20;
-const buyBet = kind => BUY_PRICE_EUR / BUYS[kind].priceX;
+const BUY_PRICE_EUR = 20, BUY_BET = 0.2;
+const buyBet = () => BUY_BET;
 const MAX_BUY_EUR = 20;
 const spinsFor = n => 10 + 2 * (n - 3);      // 3 -> 10, 4 -> 12, 5 -> 14
 
@@ -1023,7 +1022,7 @@ async function buyBonus(kind) {
   if (S.balance < price) return;
   S.auto = false; $('auto').setAttribute('aria-pressed', 'false');
   S.busy = true; render();
-  const ok = await ask(`<div class="kicker">Βύσμα</div><div class="big goldtext">Μπόνους</div><p>Αγορά για ${fmt(price)}; Το μπόνους παίζεται με πόνταρισμα ${b.toLocaleString('el-GR', { minimumFractionDigits: 3 })} €.</p>`, 'Αγορά', 'Άκυρο');
+  const ok = await ask(`<div class="kicker">Βύσμα</div><div class="big goldtext">Μπόνους</div><p>Αγορά για ${fmt(price)}; Το μπόνους παίζεται με πόνταρισμα ${fmt(b)} €, με 25% πιθανότητα για Μέγιστο.</p>`, 'Αγορά', 'Άκυρο');
   if (!ok) { S.busy = false; render(); return; }
   const startedAt = performance.now();
   S.balance -= price; S.wagered += price; render();
