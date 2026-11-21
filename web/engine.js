@@ -1,22 +1,23 @@
 // Slot engine: 5 reels x 4 rows, 1024 ways. Pure logic, no DOM.
 const REELS = 5, ROWS = 4;
 // Ladder, lowest rung first. Index = rank.
-// Low pays: items Φραπές, Τσιγάρο, Αλεξίσφαιρο γιλέκο, Πιστόλι, Τυφέκιο, Άρμα μάχης.
-// High pays, the ranks: Στρατιώτης, Λοχίας, Επιλοχίας, Αρχιλοχίας, Ανθυπολοχαγός, Υπολοχαγός, Λοχαγός,
-// Ταγματάρχης, Αντισυνταγματάρχης, Συνταγματάρχης, Στρατηγός
-const SYMBOLS = ['FRAPPE','CIG','VEST','PISTOL','RIFLE','TANK','PVT','SGT','SSG','MSG','LT2','LT1','CPT','MAJ','LTC','COL','GEN'];
-const WILD = 'WILD', BONUS = 'BONUS';   // BONUS = Στρατάρχης
+// Low pays: letters 10, J, Q, K, H, M. Mid pays: items Φραπές, Τσιγάρο, Αλεξίσφαιρο γιλέκο, Πιστόλι, Τυφέκιο, Άρμα μάχης.
+// High pays, the ranks: Στρατιώτης, Λοχίας, Αρχιλοχίας, Ανθυπολοχαγός, Λοχαγός, Ταγματάρχης, Αντισυνταγματάρχης, Συνταγματάρχης.
+// The Στρατηγός (General) is the bonus symbol (BONUS).
+const SYMBOLS = ['L10','LJ','LQ','LK','LH','LM','FRAPPE','CIG','VEST','PISTOL','RIFLE','TANK','PVT','SGT','MSG','LT2','CPT','MAJ','LTC','COL'];
+const WILD = 'WILD', BONUS = 'BONUS';   // BONUS = Στρατηγός
 // Per-cell draw weights (non-bonus). Wild only on reels 2-4.
-const WEIGHTS = { FRAPPE:60, CIG:56, VEST:52, PISTOL:48, RIFLE:44, TANK:40, PVT:10, SGT:9, SSG:8, MSG:7, LT2:6, LT1:5, CPT:4, MAJ:4, LTC:3, COL:3, GEN:2 };
-const WILD_W = [0, 11, 11, 11, 0];
-let WILD_W_FS = [0, 16, 16, 16, 0];   // more wilds in the bonus
-let WILD_W_MAX = [0, 34, 34, 34, 0];      // and more again in the max bonus (with multipliers)
+const WEIGHTS = { L10:53, LJ:50, LQ:46, LK:43, LH:40, LM:37, FRAPPE:15, CIG:14, VEST:13, PISTOL:12, RIFLE:11, TANK:10, PVT:10, SGT:9, MSG:7, LT2:6, CPT:4, MAJ:4, LTC:3, COL:2 };
+const WILD_W = [0, 12, 12, 12, 0];
+let WILD_W_FS = [0, 18, 18, 18, 0];   // more wilds in the bonus
+let WILD_W_MAX = [0, 37, 37, 37, 0];      // and more again in the max bonus (with multipliers)
 let BONUS_P = 0.06;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
-let PAY = {   // = the 90% profile of the PAR sheet (web/par/par-sheet.json)
-  FRAPPE:[0.14,0.3,0.57], CIG:[0.14,0.3,0.64], VEST:[0.19,0.36,0.71], PISTOL:[0.19,0.36,0.87], RIFLE:[0.22,0.43,1.01], TANK:[0.22,0.5,1.07],
-  PVT:[0.36,0.9,1.8], SGT:[0.43,1.07,2.16], SSG:[0.54,1.26,2.7], MSG:[0.64,1.45,3.23], LT2:[0.71,1.8,3.6], LT1:[0.9,2.16,4.5],
-  CPT:[1.07,2.7,5.39], MAJ:[1.45,3.6,7.01], LTC:[1.8,4.5,8.79], COL:[2.7,7.01,14.62], GEN:[3.6,10.57,35.76]
+let PAY = {   // x bet per way for 3/4/5 of a kind
+  L10:[0.25,0.53,0.99], LJ:[0.25,0.53,1.12], LQ:[0.33,0.63,1.25], LK:[0.33,0.63,1.51], LH:[0.38,0.76,1.76], LM:[0.38,0.87,1.87],
+  FRAPPE:[0.43,0.97,2.03], CIG:[0.43,1.02,2.14], VEST:[0.48,1.07,2.25], PISTOL:[0.48,1.18,2.46], RIFLE:[0.54,1.28,2.67], TANK:[0.59,1.39,2.89],
+  PVT:[0.63,1.56,3.15], SGT:[0.76,1.87,3.77], MSG:[1.12,2.52,5.64], LT2:[1.25,3.15,6.28], CPT:[1.87,4.71,9.4], MAJ:[2.52,6.28,12.23],
+  LTC:[3.15,7.85,15.34], COL:[6.28,18.45,62.42]
 };
 const BONUS_PAY = { 3: 1, 4: 10, 5: 100 };   // x total bet
 const MAX_WIN = 10000;                       // x total bet, per game round (spin + respins + bonus)
@@ -28,9 +29,9 @@ const MAX_BET = 20;                          // maximum stake per round
 // The buy plays a real trigger spin: at least `min` Field Marshals land, with the same odds as the base game
 // of landing more (given 3+: 4 about 5% of the time, 5 about 0.2%). Line wins on that spin pay too.
 const BUYS = {
-  bonus: { min: 3, odds: { 3: 0.948, 4: 0.05, 5: 0.002 }, priceX: 32 }
+  bonus: { min: 3, odds: { 3: 0.948, 4: 0.05, 5: 0.002 }, priceX: 37 }
 };
-// «Βύσμα» always costs BUY_PRICE_EUR. The bought bonus is played at BUY_PRICE_EUR / priceX (0,625 €),
+// «Βύσμα» always costs BUY_PRICE_EUR. The bought bonus is played at BUY_PRICE_EUR / priceX (about 0,54 €),
 // so a buy returns ~90% whatever bet the player has selected.
 const BUY_PRICE_EUR = 20;
 const buyBet = kind => BUY_PRICE_EUR / BUYS[kind].priceX;

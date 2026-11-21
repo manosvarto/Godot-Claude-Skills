@@ -29,8 +29,8 @@ test('a gap breaks the line: reels 1, 2 and 4 do not pay', () => {
 });
 
 test('5 of a kind pays the 5-of-a-kind amount', () => {
-  const res = E.evaluate(grid([['GEN'], ['GEN'], ['GEN'], ['GEN'], ['GEN']]));
-  near(res.wins.find(x => x.sym === 'GEN').pay, PAY.GEN[2]);
+  const res = E.evaluate(grid([['COL'], ['COL'], ['COL'], ['COL'], ['COL']]));
+  near(res.wins.find(x => x.sym === 'COL').pay, PAY.COL[2]);
 });
 
 test('WILD stands in for a rank', () => {
@@ -159,15 +159,15 @@ test('seeded generator is reproducible', () => {
   for (let i = 0; i < 1000; i++) assert.equal(a(), b());
 });
 
-test('Βύσμα: one buy, 32x the bet, offered up to 20', () => {
+test('Βύσμα: one buy, priced at 37x its bonus bet', () => {
   assert.deepEqual(Object.keys(E.BUYS), ['bonus']);
-  assert.equal(E.BUYS.bonus.priceX, 32); assert.equal(E.BUYS.bonus.min, 3);
+  assert.equal(E.BUYS.bonus.priceX, 37); assert.equal(E.BUYS.bonus.min, 3);
   assert.equal(E.MAX_BUY_EUR, 20);
   near(Object.values(E.BUYS.bonus.odds).reduce((a, b) => a + b, 0), 1);
 });
 
-test('Βύσμα: always costs 20 and plays the bonus at 0,625', () => {
-  assert.equal(E.BUY_PRICE_EUR, 20); near(E.buyBet('bonus'), 0.625);
+test('Βύσμα: always costs 20 and plays the bonus at 20/37', () => {
+  assert.equal(E.BUY_PRICE_EUR, 20); near(E.buyBet('bonus'), 20 / 37);
   near(E.buyBet('bonus') * E.BUYS.bonus.priceX, E.BUY_PRICE_EUR);
 });
 
