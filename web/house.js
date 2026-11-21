@@ -12,9 +12,10 @@ const START = 100, BETS = [0.2, 0.5, 1, 2, 5, 10, 20];
 const rng = Math.random;
 const round = bet => {
   const b = E.playBase(rng);
-  let w = Math.min(b.total, E.MAX_WIN);
-  if (b.bonusCount >= 3) w += Math.min(E.playBonus(b.bonusCount, rng).total, E.MAX_WIN);
-  return w * bet;
+  const cap = Math.min(E.MAX_WIN, (E.MAX_WIN_EUR || Infinity) / bet);   // per-round max win
+  let w = b.total;
+  if (b.bonusCount >= 3) w += E.playBonus(b.bonusCount, rng).total;
+  return Math.min(w, cap) * bet;
 };
 const results = [];
 for (let s = 0; s < SCEN; s++) {
