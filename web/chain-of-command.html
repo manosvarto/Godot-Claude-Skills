@@ -290,7 +290,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
         <ul class="rules">
           <li><b>2 Στρατάρχες</b><span>Δωρεάν επανάληψη: οι 2 Στρατάρχες μένουν και κατεβαίνουν μία σειρά σε κάθε επανάληψη, μέχρι ένας τους να φτάσει στην κάτω σειρά. Αν πέσει τρίτος Στρατάρχης, ανοίγει το μπόνους.</span></li>
           <li><b>3 Στρατάρχες</b><span>Μπόνους: 10 δωρεάν γυρίσματα. Οι μπαλαντέρ έρχονται πιο συχνά στα δωρεάν γυρίσματα.</span></li>
-          <li><b>4 Στρατάρχες</b><span>Μέγιστο μπόνους: 12 δωρεάν γυρίσματα. Ένα WILD που μπαίνει σε κέρδος κλειδώνει στη θέση του μέχρι το τέλος του μπόνους. Ένα WILD που δεν έχει κερδίσει ακόμα κατεβαίνει μία σειρά σε κάθε γύρισμα, και από την κάτω σειρά φεύγει.</span></li>
+          <li><b>4 Στρατάρχες</b><span>Μέγιστο μπόνους: 12 δωρεάν γυρίσματα με πολύ περισσότερα WILD. Κάθε WILD που μπαίνει σε κέρδος κατεβαίνει μία σειρά και μένει για το επόμενο γύρισμα (από την κάτω σειρά φεύγει). Ένα WILD που δεν μπαίνει σε κέρδος φεύγει.</span></li>
           <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατάρχης πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατάρχες δίνουν 14.</span></li>
           <li><b>Πληρωμή Στρατάρχη</b><span>Πληρώνουν όπου κι αν πέσουν: 3 πληρώνουν 1× το πόνταρισμα, 4 πληρώνουν 10×, 5 πληρώνουν 100×.</span></li>
           <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατάρχη.</span></li>
@@ -309,7 +309,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
           <div class="stat"><div class="v">1 στα 3.190</div><div class="l">Μέγιστο μπόνους</div></div>
           <div class="stat"><div class="v" id="sessionRtp">–</div><div class="l">Η δική σου επιστροφή</div></div>
         </div>
-        <p class="hint">Προσομοίωση με 3 εκατομμύρια γύρους και 1,1 εκατομμύρια μπόνους. Το μπόνους πληρώνει κατά μέσο όρο περίπου 16× το πόνταρισμα, το μέγιστο μπόνους περίπου 550×.</p>
+        <p class="hint">Προσομοίωση με 3 εκατομμύρια γύρους και 1,1 εκατομμύρια μπόνους. Το μπόνους πληρώνει κατά μέσο όρο περίπου 16× το πόνταρισμα, το μέγιστο μπόνους περίπου 430×.</p>
       </div></div>
   </div>
 </div>
@@ -325,12 +325,13 @@ const WILD = 'WILD', BONUS = 'BONUS';   // BONUS = Στρατάρχης
 const WEIGHTS = { L10:34, LJ:32, LQ:30, LK:28, LH:26, LM:24, PVT:14, SGT:12, SSG:11, MSG:10, LT2:9, LT1:8, CPT:7, MAJ:6, LTC:5, COL:4, GEN:3 };
 const WILD_W = [0, 8, 8, 8, 0];
 const WILD_W_FS = [0, 20, 20, 20, 0];   // wilds land more often in free spins
+let WILD_W_MAX = [0, 60, 60, 60, 0];      // and even more often in the max bonus
 let BONUS_P = 0.06;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
 let PAY = {
-  L10:[0.24,0.49,0.96], LJ:[0.24,0.49,1.08], LQ:[0.3,0.6,1.2], LK:[0.3,0.6,1.44], LH:[0.36,0.73,1.68], LM:[0.36,0.84,1.79],
-  PVT:[0.6,1.49,3], SGT:[0.73,1.79,3.6], SSG:[0.9,2.11,4.5], MSG:[1.08,2.41,5.4], LT2:[1.2,3,6.01], LT1:[1.49,3.6,7.5],
-  CPT:[1.79,4.5,9], MAJ:[2.41,6.01,11.7], LTC:[3,7.5,14.6], COL:[4.5,11.7,24.4], GEN:[6.01,17.6,59.7]
+  L10:[0.25,0.52,1.01], LJ:[0.25,0.52,1.14], LQ:[0.32,0.63,1.26], LK:[0.32,0.63,1.52], LH:[0.38,0.77,1.77], LM:[0.38,0.88,1.88],
+  PVT:[0.63,1.57,3.16], SGT:[0.77,1.88,3.79], SSG:[0.95,2.22,4.74], MSG:[1.14,2.54,5.68], LT2:[1.26,3.16,6.33], LT1:[1.57,3.79,7.89],
+  CPT:[1.88,4.74,9.47], MAJ:[2.54,6.33,12.3], LTC:[3.16,7.89,15.4], COL:[4.74,12.3,25.7], GEN:[6.33,18.5,62.8]
 };
 const BONUS_PAY = { 3: 1, 4: 10, 5: 100 };   // x total bet
 const MAX_WIN = 10000;                       // x total bet, per spin/feature
@@ -345,7 +346,7 @@ function makeRng() {
 }
 
 function drawCell(reel, rng, fs) {
-  const wild = (fs ? WILD_W_FS : WILD_W)[reel];
+  const wild = (fs === 'max' ? WILD_W_MAX : fs ? WILD_W_FS : WILD_W)[reel];
   let total = wild;
   for (const s of SYMBOLS) total += WEIGHTS[s];
   let r = rng() * total;
@@ -376,21 +377,21 @@ const medalsOf = grid => { const out = []; for (let c = 0; c < REELS; c++) for (
 const canRespin = pos => pos.length === 2 && Math.max(...pos.map(p => p.r)) < ROWS - 1;
 const stepDown = (pos, sym) => pos.map(p => ({ c: p.c, r: p.r + 1, fromR: p.r, sym }));
 
-// Max bonus: a wild that is part of a win locks for the rest of the bonus; a wild that has never
-// been part of a win moves one row down (and leaves the board from the bottom row).
-// prev: the moves returned last spin (to know which wilds are already locked).
-// Returns every move, including r === ROWS (leaving).
-function nextWilds(grid, res, prev = []) {
-  const hit = new Set(), was = new Set(prev.filter(w => w.stay && w.r < ROWS).map(w => w.c + ',' + w.r));
+// Max bonus: a wild that is part of a win moves one row down for the next spin (and leaves from the
+// bottom row); a wild that is not part of a win leaves the board. Nothing locks.
+// Returns every wild's move: {c, r, fromR, sym, hit, gone}. gone = leaving (r === ROWS or no win).
+function nextWilds(grid, res) {
+  const hit = new Set();
   for (const w of res.wins) for (const [c, r] of w.cells) if (grid[c][r] === WILD) hit.add(c + ',' + r);
-  const out = new Map();
-  for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++) if (grid[c][r] === WILD) {
-    const k = c + ',' + r, stay = was.has(k) || hit.has(k), nr = stay ? r : r + 1;
-    const key = c + ',' + nr;
-    if (!out.has(key) || stay) out.set(key, { c, r: nr, fromR: r, sym: WILD, stay });
+  const out = [];
+  for (let c = 0; c < REELS; c++) for (let r = ROWS - 1; r >= 0; r--) if (grid[c][r] === WILD) {
+    const h = hit.has(c + ',' + r);
+    out.push(h ? { c, r: r + 1, fromR: r, sym: WILD, hit: true, gone: r + 1 >= ROWS } : { c, r, fromR: r, sym: WILD, hit: false, gone: true });
   }
-  return [...out.values()];
+  return out;
 }
+// Wilds that are still on the board for the next spin
+const keptWilds = moves => moves.filter(w => !w.gone);
 
 // One paid base-game round: the spin plus any medal respins. Returns total (x bet) and bonusCount.
 function playBase(rng) {
@@ -444,10 +445,10 @@ function playBonus(n, rng) {
   const max = n >= 4, spins = spinsFor(n);
   let wilds = [], total = 0;
   for (let i = 0; i < spins; i++) {
-    const grid = spinGrid(rng, { allowBonus: false, fixed: max ? wilds.filter(w => w.r < ROWS) : [], fs: true });
+    const grid = spinGrid(rng, { allowBonus: false, fixed: max ? keptWilds(wilds) : [], fs: max ? 'max' : true });
     const res = evaluate(grid);
     total += res.total;
-    if (max) wilds = nextWilds(grid, res, wilds);
+    if (max) wilds = nextWilds(grid, res);
     if (total >= MAX_WIN) return { total: MAX_WIN, max, spins };
   }
   return { total, max, spins };
@@ -742,7 +743,7 @@ function clearHighlights() {
   board.classList.remove('has-win');
   cells.flat().forEach(e => { e.classList.remove('win', 'held', 'tag-stay', 'tag-down'); delete e.dataset.tag; });
 }
-function tag(c, r, stay) { const el = cells[c][r]; el.dataset.tag = stay ? 'ΚΛΕΙΔΩΜΕΝΟ' : '▼ ΚΑΤΩ'; el.classList.add(stay ? 'tag-stay' : 'tag-down'); }
+function tag(c, r, text, good) { const el = cells[c][r]; el.dataset.tag = text; el.classList.add(good ? 'tag-stay' : 'tag-down'); }
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // fixed: [{c, r, fromR, sym}] symbols that slide from row fromR to row r and stay still while the reel rolls
@@ -778,7 +779,7 @@ function animateTo(grid, fixed = []) {
         const el = lock.lastElementChild; el.classList.add('held');
         const from = (f.fromR ?? f.r) * pitch, to = f.r * pitch;
         el.style.transform = `translateY(${to}px)`;
-        if (from !== to) el.animate([{ transform: `translateY(${from}px)`, opacity: 1 }, { transform: `translateY(${to}px)`, opacity: f.r >= ROWS ? 0 : 1 }],
+        if (from !== to || f.gone) el.animate([{ transform: `translateY(${from}px)`, opacity: 1 }, { transform: `translateY(${to}px)`, opacity: f.gone ? 0 : 1 }],
           { duration: reduceMotion ? 1 : (S.turbo ? 220 : 420), easing: 'cubic-bezier(.45,0,.3,1.25)', fill: 'forwards' });
       }
     }
@@ -804,7 +805,7 @@ function animateTo(grid, fixed = []) {
       reel.style.height = '';
       cells[c] = [...strip.children];
       lock.hidden = true;
-      items.forEach(f => { if (f.r < ROWS) cells[c][f.r].classList.add('held'); });
+      items.forEach(f => { if (!f.gone) cells[c][f.r].classList.add('held'); });
     }));
     bonusBefore += grid[c].filter(s => s === BONUS).length;
     prevStop = dur;
@@ -897,7 +898,7 @@ async function spin(force = 0) {
   if (res.bonusCount < 3 && canRespin(pos)) {
     const total = ROWS - 1 - Math.max(...pos.map(p => p.r));
     setMode('2 Στρατάρχες · Επανάληψη', 'bonus');
-    pos.forEach(p => tag(p.c, p.r, false));
+    pos.forEach(p => tag(p.c, p.r, '▼ ΚΑΤΩ', true));
     await sleep(S.turbo ? 500 : 1200);
     for (let k = 1; res.bonusCount < 3 && canRespin(pos); k++) {
       $('fsInfo').textContent = `Επανάληψη ${k} / ${total}`;
@@ -908,7 +909,7 @@ async function spin(force = 0) {
       res = evaluate(grid);
       showWins(res, b); pay(res); render();
       pos = medalsOf(grid);
-      if (res.bonusCount < 3 && canRespin(pos)) pos.forEach(p => tag(p.c, p.r, false));
+      if (res.bonusCount < 3 && canRespin(pos)) pos.forEach(p => tag(p.c, p.r, '▼ ΚΑΤΩ', true));
       await sleep(res.total > 0 ? (S.turbo ? 500 : 1100) : (S.turbo ? 300 : 700));
     }
     setMode('Βασικό παιχνίδι'); $('fsInfo').textContent = '';
@@ -929,19 +930,19 @@ async function runBonus(n, b) {
   Sound.fanfare();
   await overlay(`<div class="kicker">Έπεσαν ${n} Στρατάρχες</div>
     <div class="big goldtext">${max ? 'Μέγιστο μπόνους' : 'Μπόνους'}</div>
-    <p>${spins} δωρεάν γυρίσματα.${max ? ' Ένα WILD που κερδίζει κλειδώνει μέχρι το τέλος. Ένα WILD που δεν έχει κερδίσει κατεβαίνει μία σειρά.' : ' Τα WILD έρχονται πιο συχνά.'}</p>`, 'Εμπρός');
+    <p>${spins} δωρεάν γυρίσματα.${max ? ' Πολλά WILD! Κάθε WILD που κερδίζει κατεβαίνει μία σειρά και ξαναπαίζει. Όποιο δεν κερδίσει φεύγει.' : ' Τα WILD έρχονται πιο συχνά.'}</p>`, 'Εμπρός');
   setMode(max ? 'Μέγιστο μπόνους' : 'Μπόνους', max ? 'max' : 'bonus');
   Sound.setBonus(true);
   let wilds = [], total = 0;
   for (let i = 0; i < spins; i++) {
     $('fsInfo').textContent = `Γύρισμα ${i + 1} / ${spins} · Κέρδος ${fmt(total * b)}`;
-    const grid = spinGrid(rng, { allowBonus: false, fixed: wilds.filter(w => w.r < ROWS), fs: true });
-    if (wilds.some(w => w.r !== w.fromR)) Sound.step();
+    const grid = spinGrid(rng, { allowBonus: false, fixed: keptWilds(wilds), fs: max ? 'max' : true });
+    if (wilds.some(w => w.hit)) Sound.step();
     await animateTo(grid, wilds);
     const res = evaluate(grid);
     total = Math.min(total + res.total, MAX_WIN);
     showWins(res, b);
-    if (max) { wilds = nextWilds(grid, res, wilds); wilds.forEach(w => tag(w.c, w.fromR, w.stay)); }
+    if (max) { wilds = nextWilds(grid, res); wilds.forEach(w => tag(w.c, w.fromR, w.hit ? (w.gone ? 'ΦΕΥΓΕΙ ▼' : '▼ ΚΑΤΩ') : 'ΦΕΥΓΕΙ', w.hit)); }
     $('fsInfo').textContent = `Γύρισμα ${i + 1} / ${spins} · Κέρδος ${fmt(total * b)}`;
     await sleep(res.total > 0 ? (S.turbo ? 600 : 1400) : (S.turbo ? 300 : 700));
     if (total >= MAX_WIN) break;
