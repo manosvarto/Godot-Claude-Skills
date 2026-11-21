@@ -11,4 +11,4 @@ Greek Army themed 5x4, 1024-ways slot in the "card edition" art style. Demo cred
 - `build.js` – `node web/build.js` writes `chain-of-command.html`.
 - `players.js` – player simulation (100 players per bet, start 100, no refill): `node web/players.js 100 20000`; `players-report.js` summarises `players-result.json`.
 
-Current tuning: ~96% RTP, medal respin 1 in 60 rounds, bonus 1 in 164 (~21x avg), max bonus 1 in 3,190 (~370x avg). In both bonuses a winning wild steps down one row and a non-winning wild leaves; max bonus wilds gain +1 multiplier per win.
+Current tuning: ~90% RTP (89.8% measured), medal respin 1 in 60 rounds, bonus 1 in 164 (~19x avg), max bonus 1 in 3,190 (~345x avg). Limits (Greek rules found online, to be confirmed with a specialist): max bet 20, 3 s minimum between paid rounds, max win 10,000x bet and at most 140,000 per round.

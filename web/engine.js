@@ -13,12 +13,15 @@ let WILD_W_MAX = [0, 25, 25, 25, 0];      // and more again in the max bonus (wi
 let BONUS_P = 0.06;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
 let PAY = {
-  L10:[0.25,0.52,1], LJ:[0.25,0.52,1.13], LQ:[0.32,0.63,1.25], LK:[0.32,0.63,1.51], LH:[0.38,0.76,1.76], LM:[0.38,0.87,1.87],
-  PVT:[0.63,1.56,3.14], SGT:[0.76,1.87,3.76], SSG:[0.94,2.2,4.7], MSG:[1.13,2.52,5.64], LT2:[1.25,3.14,6.28], LT1:[1.56,3.76,7.83],
-  CPT:[1.87,4.7,9.4], MAJ:[2.52,6.28,12.2], LTC:[3.14,7.83,15.3], COL:[4.7,12.2,25.5], GEN:[6.28,18.4,62.3]
+  L10:[0.23,0.49,0.93], LJ:[0.23,0.49,1.05], LQ:[0.3,0.59,1.17], LK:[0.3,0.59,1.41], LH:[0.35,0.71,1.64], LM:[0.35,0.81,1.75],
+  PVT:[0.59,1.46,2.93], SGT:[0.71,1.75,3.51], SSG:[0.88,2.05,4.39], MSG:[1.05,2.35,5.26], LT2:[1.17,2.93,5.86], LT1:[1.46,3.51,7.31],
+  CPT:[1.75,4.39,8.77], MAJ:[2.35,5.86,11.4], LTC:[2.93,7.31,14.3], COL:[4.39,11.4,23.8], GEN:[5.86,17.2,58.2]
 };
 const BONUS_PAY = { 3: 1, 4: 10, 5: 100 };   // x total bet
-const MAX_WIN = 10000;                       // x total bet, per spin/feature
+const MAX_WIN = 10000;                       // x total bet, per game round (spin + respins + bonus)
+const MAX_WIN_EUR = 140000;                  // and never more than this per game round (Greek rule, 2022)
+const MIN_CYCLE_MS = 3000;                   // a new paid round may start at least 3 s after the last one
+const MAX_BET = 20;                          // maximum stake per round
 const spinsFor = n => 10 + 2 * (n - 3);      // 3 -> 10, 4 -> 12, 5 -> 14
 
 function makeRng() {
@@ -154,7 +157,7 @@ function playBonus(n, rng) {
 }
 
 if (typeof module !== 'undefined') module.exports = {
-  REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN,
+  REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN, MAX_WIN_EUR, MIN_CYCLE_MS, MAX_BET,
   get PAY() { return PAY; }, setPay(p) { PAY = p; }, setBonusP(p) { BONUS_P = p; }, setWildMax(w) { WILD_W_MAX = [0, w, w, w, 0]; }, setWildFs(w) { WILD_W_FS = [0, w, w, w, 0]; },
   spinsFor, makeRng, spinGrid, evaluate, playBonus, playBase, nextWilds, keptWilds, multOf, medalsOf, canRespin, stepDown
 };

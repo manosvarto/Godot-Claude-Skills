@@ -314,22 +314,23 @@ h2 { margin: 0 0 4px; font-size: 26px; }
           <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατάρχης πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατάρχες δίνουν 14.</span></li>
           <li><b>Πληρωμή Στρατάρχη</b><span>Πληρώνουν όπου κι αν πέσουν: 3 πληρώνουν 1× το πόνταρισμα, 4 πληρώνουν 10×, 5 πληρώνουν 100×.</span></li>
           <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατάρχη.</span></li>
-          <li><b>Μέγιστο κέρδος</b><span>10.000× το πόνταρισμα ανά γύρισμα ή ανά μπόνους.</span></li>
+          <li><b>Μέγιστο κέρδος</b><span>10.000× το πόνταρισμα ανά γύρο (γύρισμα, επαναλήψεις και μπόνους μαζί), και ποτέ πάνω από 140.000 ανά γύρο. Με πόνταρισμα 20 αυτό είναι 7.000×.</span></li>
+          <li><b>Όρια</b><span>Μέγιστο πόνταρισμα 20 ανά γύρο. Κάθε νέος γύρος ξεκινάει τουλάχιστον 3 δευτερόλεπτα μετά τον προηγούμενο.</span></li>
         </ul>
       </div></div>
 
       <div class="frame"><div class="inner panel-body">
         <h2 class="goldtext">Μαθηματικά παιχνιδιού</h2>
-        <p class="hint">Κάθε θέση επιλέγεται με κρυπτογραφική γεννήτρια τυχαίων αριθμών. Οι πιθανότητες είναι ρυθμισμένες ώστε το παιχνίδι να κρατά περίπου 4% μακροπρόθεσμα.</p>
+        <p class="hint">Κάθε θέση επιλέγεται με κρυπτογραφική γεννήτρια τυχαίων αριθμών. Οι πιθανότητες είναι ρυθμισμένες ώστε το παιχνίδι να κρατά περίπου 10% μακροπρόθεσμα.</p>
         <div class="stats">
-          <div class="stat"><div class="v">96,0%</div><div class="l">Επιστροφή στον παίκτη</div></div>
+          <div class="stat"><div class="v">90%</div><div class="l">Επιστροφή στον παίκτη</div></div>
           <div class="stat"><div class="v">40%</div><div class="l">Γυρίσματα με κέρδος</div></div>
           <div class="stat"><div class="v">1 στα 60</div><div class="l">Επανάληψη</div></div>
           <div class="stat"><div class="v">1 στα 164</div><div class="l">Μπόνους</div></div>
           <div class="stat"><div class="v">1 στα 3.190</div><div class="l">Μέγιστο μπόνους</div></div>
           <div class="stat"><div class="v" id="sessionRtp">–</div><div class="l">Η δική σου επιστροφή</div></div>
         </div>
-        <p class="hint">Προσομοίωση με 3 εκατομμύρια γύρους και 1,1 εκατομμύρια μπόνους. Το μπόνους πληρώνει κατά μέσο όρο περίπου 21× το πόνταρισμα, το μέγιστο μπόνους περίπου 370×.</p>
+        <p class="hint">Προσομοίωση με 3 εκατομμύρια γύρους και 1,1 εκατομμύρια μπόνους. Το μπόνους πληρώνει κατά μέσο όρο περίπου 20× το πόνταρισμα, το μέγιστο μπόνους περίπου 345×.</p>
       </div></div>
   </div>
 </div>
@@ -421,14 +422,14 @@ const cellHTML = sym => `<div class="cell s-${sym}" data-sym="${sym}"><div class
 document.querySelectorAll('.frame').forEach(f => ['tl', 'tr', 'bl', 'br'].forEach(p => { const g = document.createElement('span'); g.className = 'gem ' + p; f.appendChild(g); }));
 
 // ---------- State ----------
-const BETS = [0.2, 0.5, 1, 2, 5, 10, 20];
+const BETS = [0.2, 0.5, 1, 2, 5, 10, 20].filter(v => v <= MAX_BET);
 const rng = makeRng();
 const store = {
   get(k, d) { try { const v = localStorage.getItem('ier.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem('ier.' + k, JSON.stringify(v)); } catch {} }
 };
 const START_BALANCE = 100, REFILL = 100;
-const S = { balance: START_BALANCE, betIdx: 2, busy: false, turbo: false, auto: false, wagered: 0, returned: 0 };
+const S = { balance: START_BALANCE, betIdx: 2, busy: false, cooling: false, turbo: false, auto: false, wagered: 0, returned: 0 };
 const $ = id => document.getElementById(id);
 const fmt = n => n.toLocaleString('el-GR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -739,7 +740,7 @@ function render() {
   $('bet').textContent = fmt(bet());
   $('betDown').disabled = S.busy || S.betIdx === 0;
   $('betUp').disabled = S.busy || S.betIdx === BETS.length - 1;
-  $('spinBtn').disabled = S.busy || S.balance < bet();
+  $('spinBtn').disabled = S.busy || S.balance < bet() || S.cooling;
   ['force2', 'force3', 'force4', 'force5'].forEach(id => $(id).disabled = S.busy);
   $('sessionRtp').textContent = S.wagered ? (100 * S.returned / S.wagered).toFixed(1).replace('.', ',') + '%' : '–';
   renderLadder();
@@ -793,19 +794,30 @@ async function drama(level) {
 }
 function setMode(text, cls = '') { $('mode').textContent = text; $('mode').className = 'mode ' + cls; }
 
+// Greek rule: a new paid round can start at least MIN_CYCLE_MS after the previous one started
+function coolDown(startedAt) {
+  const left = MIN_CYCLE_MS - (performance.now() - startedAt);
+  if (left <= 0) return;
+  S.cooling = true; render();
+  setTimeout(() => { S.cooling = false; render(); }, left);
+}
 async function spin(force = 0) {
-  if (S.busy) return;
+  if (S.busy || (S.cooling && !force)) return;
   Sound.unlock();
   const b = bet();
   if (!force && S.balance < b) return;
   S.busy = true;
+  const startedAt = performance.now();
+  // max win per round: 10.000x the bet, and never more than MAX_WIN_EUR
+  const capX = Math.min(MAX_WIN, MAX_WIN_EUR / b);
+  let roundX = 0;
   if (!force) { S.balance -= b; S.wagered += b; }
   render();
   $('winbar').innerHTML = '<span class="idle">Γυρίζει…</span>';
   let grid = force ? forcedGrid(force) : spinGrid(rng);
   await animateTo(grid);
   let res = evaluate(grid);
-  const pay = r => { const w = Math.min(r.total, MAX_WIN) * b; S.balance += w; if (!force) S.returned += w; };
+  const pay = r => { const x = Math.max(0, Math.min(r.total, capX - roundX)); roundX += x; const w = x * b; S.balance += w; if (!force) S.returned += w; };
   showWins(res, b); pay(res); render();
 
   // 2 medals: free respins, both step down one row each time, until one reaches the bottom row
@@ -834,15 +846,22 @@ async function spin(force = 0) {
 
   if (res.bonusCount >= 3) {
     await sleep(S.turbo ? 500 : 1300);
-    const fsWin = await runBonus(res.bonusCount, b);
+    const fsWin = await runBonus(res.bonusCount, b, capX - roundX);
     S.balance += fsWin; if (!force) S.returned += fsWin;
   }
-  S.busy = false; render();
-  if (S.auto && S.balance >= bet()) { await sleep(S.turbo ? 250 : 600); if (S.auto) spin(); }
+  if (roundX >= capX) $('winbar').insertAdjacentHTML('beforeend', '<div class="detail">Μέγιστο κέρδος γύρου</div>');
+  S.busy = false;
+  if (!force) coolDown(startedAt);
+  render();
+  if (S.auto && S.balance >= bet()) {
+    await sleep(S.turbo ? 250 : 600);
+    while (S.cooling) await sleep(40);
+    if (S.auto) spin();
+  }
   else if (S.auto) { S.auto = false; $('auto').setAttribute('aria-pressed', 'false'); }
 }
 
-async function runBonus(n, b) {
+async function runBonus(n, b, capLeft = MAX_WIN) {
   const max = n >= 4, spins = spinsFor(n);
   Sound.fanfare();
   await overlay(`<div class="kicker">Έπεσαν ${n} Στρατάρχες</div>
@@ -860,14 +879,14 @@ async function runBonus(n, b) {
     const mult = max ? multOf(grid, kept) : null;
     if (mult) for (const [k, m] of Object.entries(mult)) if (m > 1) { const [c, r] = k.split(',').map(Number); cells[c][r].dataset.mult = '×' + m; }
     const res = evaluate(grid, mult);
-    total = Math.min(total + res.total, MAX_WIN);
+    total = Math.min(total + res.total, capLeft);
     showWins(res, b);
     wilds = nextWilds(grid, res, mult);
     wilds.forEach(w => tag(w.c, w.fromR, w.hit ? (w.gone ? 'ΦΕΥΓΕΙ ▼' : '▼ ΚΑΤΩ') : 'ΦΕΥΓΕΙ', w.hit));
     if (mult) wilds.forEach(w => { if (w.hit && !w.gone) { const el = cells[w.c][w.fromR]; el.dataset.mult = '×' + w.m; el.classList.add('mult-up'); } });
     $('fsInfo').textContent = `Γύρισμα ${i + 1} / ${spins} · Κέρδος ${fmt(total * b)}`;
     await sleep(res.total > 0 ? (S.turbo ? 600 : 1400) : (S.turbo ? 300 : 700));
-    if (total >= MAX_WIN) break;
+    if (total >= capLeft) break;
   }
   Sound.setBonus(false);
   setMode('Βασικό παιχνίδι'); $('fsInfo').textContent = '';
