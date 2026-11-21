@@ -1,21 +1,23 @@
 // Slot engine: 5 reels x 4 rows, 1024 ways. Pure logic, no DOM.
 const REELS = 5, ROWS = 4;
 // Ladder, lowest rung first. Index = rank.
-// Low pays: letters 10, J, Q, K, H, M. Then ranks: Στρατιώτης, Λοχίας, Επιλοχίας, Αρχιλοχίας,
-// Ανθυπολοχαγός, Υπολοχαγός, Λοχαγός, Ταγματάρχης, Αντισυνταγματάρχης, Συνταγματάρχης, Στρατηγός
-const SYMBOLS = ['L10','LJ','LQ','LK','LH','LM','PVT','SGT','SSG','MSG','LT2','LT1','CPT','MAJ','LTC','COL','GEN'];
+// Low pays: letters 10, J, Q, K, H, M. Mid pays: items Φραπές, Τσιγάρο, Αλεξίσφαιρο γιλέκο, Πιστόλι, Τυφέκιο, Άρμα μάχης.
+// High pays, the ranks: Στρατιώτης, Λοχίας, Επιλοχίας, Αρχιλοχίας, Ανθυπολοχαγός, Υπολοχαγός, Λοχαγός,
+// Ταγματάρχης, Αντισυνταγματάρχης, Συνταγματάρχης, Στρατηγός
+const SYMBOLS = ['L10','LJ','LQ','LK','LH','LM','FRAPPE','CIG','VEST','PISTOL','RIFLE','TANK','PVT','SGT','SSG','MSG','LT2','LT1','CPT','MAJ','LTC','COL','GEN'];
 const WILD = 'WILD', BONUS = 'BONUS';   // BONUS = Στρατάρχης
 // Per-cell draw weights (non-bonus). Wild only on reels 2-4.
-const WEIGHTS = { L10:34, LJ:32, LQ:30, LK:28, LH:26, LM:24, PVT:14, SGT:12, SSG:11, MSG:10, LT2:9, LT1:8, CPT:7, MAJ:6, LTC:5, COL:4, GEN:3 };
-const WILD_W = [0, 8, 8, 8, 0];
-let WILD_W_FS = [0, 12, 12, 12, 0];   // more wilds in the bonus
-let WILD_W_MAX = [0, 25, 25, 25, 0];      // and more again in the max bonus (with multipliers)
+const WEIGHTS = { L10:53, LJ:50, LQ:46, LK:43, LH:40, LM:37, FRAPPE:15, CIG:14, VEST:13, PISTOL:12, RIFLE:11, TANK:10, PVT:10, SGT:9, SSG:8, MSG:7, LT2:6, LT1:5, CPT:4, MAJ:4, LTC:3, COL:3, GEN:2 };
+const WILD_W = [0, 12, 12, 12, 0];
+let WILD_W_FS = [0, 18, 18, 18, 0];   // more wilds in the bonus
+let WILD_W_MAX = [0, 38, 38, 38, 0];      // and more again in the max bonus (with multipliers)
 let BONUS_P = 0.06;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
 let PAY = {   // = the 90% profile of the PAR sheet (web/par/par-sheet.json)
-  L10:[0.23,0.49,0.93], LJ:[0.23,0.49,1.05], LQ:[0.3,0.59,1.17], LK:[0.3,0.59,1.41], LH:[0.35,0.71,1.64], LM:[0.35,0.81,1.75],
-  PVT:[0.59,1.46,2.94], SGT:[0.71,1.75,3.52], SSG:[0.88,2.05,4.4], MSG:[1.05,2.36,5.27], LT2:[1.17,2.94,5.87], LT1:[1.46,3.52,7.33],
-  CPT:[1.75,4.4,8.79], MAJ:[2.36,5.87,11.43], LTC:[2.94,7.33,14.33], COL:[4.4,11.43,23.85], GEN:[5.87,17.24,58.33]
+  L10:[0.28,0.6,1.13], LJ:[0.28,0.6,1.28], LQ:[0.37,0.72,1.42], LK:[0.37,0.72,1.72], LH:[0.43,0.86,2.0], LM:[0.43,0.99,2.13],
+  FRAPPE:[0.49,1.1,2.31], CIG:[0.49,1.16,2.44], VEST:[0.55,1.22,2.56], PISTOL:[0.55,1.34,2.8], RIFLE:[0.61,1.46,3.04], TANK:[0.67,1.58,3.29],
+  PVT:[0.72,1.78,3.58], SGT:[0.86,2.13,4.29], SSG:[1.07,2.5,5.36], MSG:[1.28,2.87,6.42], LT2:[1.42,3.58,7.15], LT1:[1.78,4.29,8.93],
+  CPT:[2.13,5.36,10.7], MAJ:[2.87,7.15,13.92], LTC:[3.58,8.93,17.45], COL:[5.36,13.92,29.04], GEN:[7.15,20.99,71.02]
 };
 const BONUS_PAY = { 3: 1, 4: 10, 5: 100 };   // x total bet
 const MAX_WIN = 10000;                       // x total bet, per game round (spin + respins + bonus)
