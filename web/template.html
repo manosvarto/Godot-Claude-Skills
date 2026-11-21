@@ -248,7 +248,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
     <div class="inner controls">
       <div class="readout">
         <span class="label">Υπόλοιπο</span>
-        <span class="value" id="balance">1.000,00</span>
+        <span class="value" id="balance">100,00</span>
       </div>
       <button class="spin" id="spinBtn" aria-label="Γύρισμα">ΓΥΡΝΑ</button>
       <div class="readout right">
@@ -262,7 +262,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
       <div class="toggles">
         <button class="gold-btn" id="turbo" aria-pressed="false">Γρήγορο</button>
         <button class="gold-btn" id="auto" aria-pressed="false">Αυτόματο</button>
-        <button class="gold-btn" id="refill">Γέμισμα 1.000</button>
+        <button class="gold-btn" id="refill">Γέμισμα 100</button>
         <button class="gold-btn" id="music" aria-pressed="true">Μουσική</button>
         <button class="gold-btn" id="sfx" aria-pressed="true">Ήχοι</button>
         <button class="gold-btn help-btn" id="helpBtn" aria-haspopup="dialog">Πώς παίζεται</button>
@@ -427,7 +427,8 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem('ier.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem('ier.' + k, JSON.stringify(v)); } catch {} }
 };
-const S = { balance: 1000, betIdx: 2, busy: false, turbo: false, auto: false, wagered: 0, returned: 0 };
+const START_BALANCE = 100, REFILL = 100;
+const S = { balance: START_BALANCE, betIdx: 2, busy: false, turbo: false, auto: false, wagered: 0, returned: 0 };
 const $ = id => document.getElementById(id);
 const fmt = n => n.toLocaleString('el-GR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -742,7 +743,7 @@ function render() {
   ['force2', 'force3', 'force4', 'force5'].forEach(id => $(id).disabled = S.busy);
   $('sessionRtp').textContent = S.wagered ? (100 * S.returned / S.wagered).toFixed(1).replace('.', ',') + '%' : '–';
   renderLadder();
-  store.set('balance', S.balance); store.set('betIdx', S.betIdx);
+  store.set('balance100', S.balance); store.set('betIdx', S.betIdx);
 }
 let ladderBet = null;
 function renderLadder() {
@@ -888,7 +889,7 @@ $('sfx').onclick = e => { const on = e.currentTarget.getAttribute('aria-pressed'
 document.addEventListener('pointerdown', () => Sound.unlock(), { once: true });
 $('turbo').onclick = e => { S.turbo = !S.turbo; e.currentTarget.setAttribute('aria-pressed', S.turbo); };
 $('auto').onclick = e => { S.auto = !S.auto; e.currentTarget.setAttribute('aria-pressed', S.auto); if (S.auto && !S.busy) spin(); };
-$('refill').onclick = () => { if (!S.busy) { S.balance += 1000; render(); } };
+$('refill').onclick = () => { if (!S.busy) { S.balance += REFILL; render(); } };
 $('force2').onclick = () => spin(2);
 const help = $('help');
 function openHelp() { help.hidden = false; help.scrollTop = 0; document.body.style.overflow = 'hidden'; $('helpClose').focus(); Sound.click(); }
@@ -905,13 +906,14 @@ document.addEventListener('keydown', e => {
 });
 
 function start(data) {
-  S.balance = data.balance ?? store.get('balance', 1000);
+  // 'balance100' starts everyone (including old saves) at 100
+  S.balance = (data.v === 2 ? data.balance : null) ?? store.get('balance100', START_BALANCE);
   S.betIdx = data.betIdx ?? store.get('betIdx', 2);
   if (!(S.betIdx >= 0 && S.betIdx < BETS.length)) S.betIdx = 2;
   const g = spinGrid(rng, { allowBonus: false });
   for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++) setCell(c, r, g[c][r]);
   render();
 }
-window.claude?.hot?.snapshot?.(() => ({ balance: S.balance, betIdx: S.betIdx }));
+window.claude?.hot?.snapshot?.(() => ({ v: 2, balance: S.balance, betIdx: S.betIdx }));
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 </script>
