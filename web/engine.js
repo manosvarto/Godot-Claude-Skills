@@ -28,8 +28,7 @@ const MAX_BET = 20;                          // maximum stake per round
 // The buy plays a real trigger spin: at least `min` Field Marshals land, with the same odds as the base game
 // of landing more (given 3+: 4 about 5% of the time, 5 about 0.2%). Line wins on that spin pay too.
 const BUYS = {
-  bonus: { min: 3, odds: { 3: 0.948, 4: 0.05, 5: 0.002 }, priceX: 32 },
-  max:   { min: 4, odds: { 4: 0.98, 5: 0.02 }, priceX: 260 }
+  bonus: { min: 3, odds: { 3: 0.948, 4: 0.05, 5: 0.002 }, priceX: 32 }
 };
 const MAX_BUY_EUR = 20;
 const spinsFor = n => 10 + 2 * (n - 3);      // 3 -> 10, 4 -> 12, 5 -> 14
