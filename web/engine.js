@@ -12,10 +12,10 @@ let WILD_W_FS = [0, 12, 12, 12, 0];   // more wilds in the bonus
 let WILD_W_MAX = [0, 25, 25, 25, 0];      // and more again in the max bonus (with multipliers)
 let BONUS_P = 0.06;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
-let PAY = {
+let PAY = {   // = the 90% profile of the PAR sheet (web/par/par-sheet.json)
   L10:[0.23,0.49,0.93], LJ:[0.23,0.49,1.05], LQ:[0.3,0.59,1.17], LK:[0.3,0.59,1.41], LH:[0.35,0.71,1.64], LM:[0.35,0.81,1.75],
-  PVT:[0.59,1.46,2.93], SGT:[0.71,1.75,3.51], SSG:[0.88,2.05,4.39], MSG:[1.05,2.35,5.26], LT2:[1.17,2.93,5.86], LT1:[1.46,3.51,7.31],
-  CPT:[1.75,4.39,8.77], MAJ:[2.35,5.86,11.4], LTC:[2.93,7.31,14.3], COL:[4.39,11.4,23.8], GEN:[5.86,17.2,58.2]
+  PVT:[0.59,1.46,2.94], SGT:[0.71,1.75,3.52], SSG:[0.88,2.05,4.4], MSG:[1.05,2.36,5.27], LT2:[1.17,2.94,5.87], LT1:[1.46,3.52,7.33],
+  CPT:[1.75,4.4,8.79], MAJ:[2.36,5.87,11.43], LTC:[2.94,7.33,14.33], COL:[4.4,11.43,23.85], GEN:[5.87,17.24,58.33]
 };
 const BONUS_PAY = { 3: 1, 4: 10, 5: 100 };   // x total bet
 const MAX_WIN = 10000;                       // x total bet, per game round (spin + respins + bonus)

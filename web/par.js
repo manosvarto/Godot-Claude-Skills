@@ -10,9 +10,10 @@ if (SCALE !== 1) {
   E.setPay(p);
 }
 const rng = E.makeSeededRng(SEED);
+const PAYTABLE = JSON.parse(JSON.stringify(E.PAY));   // the exact paytable this chunk ran with
 const EDGES = [0, 1, 2, 5, 10, 20, 50, 100, 250, 500, 1000, 2500, 5000, 10000];   // win buckets, x bet
 const out = {
-  rounds: 0, seed: SEED, scale: SCALE,
+  rounds: 0, seed: SEED, scale: SCALE, paytable: PAYTABLE,
   sum: 0, sumSq: 0, max: 0, hits: 0, capped: 0,
   baseSum: 0, featSum: 0,
   respinRounds: 0, respinTriggers: 0,

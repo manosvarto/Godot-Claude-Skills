@@ -15,7 +15,7 @@ for (const [target, chunks] of Object.entries(groups).sort((a, b) => b[0] - a[0]
     a.max = Math.max(a.max || 0, c.max);
     for (const k of [3, 4, 5]) { a.trig[k] = (a.trig[k] || 0) + c.trig[k]; a.featBy[k] = (a.featBy[k] || 0) + c.featBy[k]; }
     a.buckets = a.buckets ? a.buckets.map((v, i) => v + c.buckets[i]) : c.buckets.slice();
-    a.edges = c.edges; a.scale = c.scale; a.seeds = [...(a.seeds || []), c.seed];
+    a.edges = c.edges; a.scale = c.scale; a.paytable = c.paytable; a.seeds = [...(a.seeds || []), c.seed];
     return a;
   }, { trig: {}, featBy: {} });
   const n = m.rounds, rtp = m.sum / n, sd = Math.sqrt(m.sumSq / n - rtp * rtp), se = sd / Math.sqrt(n);
@@ -34,7 +34,8 @@ for (const [target, chunks] of Object.entries(groups).sort((a, b) => b[0] - a[0]
     bonusOneIn: oneIn(bonusN / n), maxBonusOneIn: oneIn(maxN / n),
     avgBonus: m.featBy[3] / m.trig[3], avgMaxBonus: (m.featBy[4] + m.featBy[5]) / maxN,
     trig: m.trig, distribution: dist,
-    paytable: Object.fromEntries(Object.entries(E.PAY).map(([k, v]) => [k, v.map(x => +(x * m.scale).toFixed(2))]))
+    // chunks from before the paytable was recorded ran on base-paytable-v1 x scale
+    paytable: m.paytable || Object.fromEntries(Object.entries(require('./par/base-paytable-v1.json')).map(([k, v]) => [k, v.map(x => +(x * m.scale).toFixed(4))]))
   });
 }
 fs.mkdirSync(outDir, { recursive: true });
