@@ -92,6 +92,8 @@ h1.goldtext { margin: 0; font-size: clamp(50px, 14vw, 84px); line-height: .95; t
 
 /* Symbol cell: picture + optional name strip + frame overlay */
 .cell { position: relative; aspect-ratio: 1; max-width: 100%; container-type: inline-size; transition: opacity .25s, filter .25s; }
+.cell .anim { position: absolute; inset: 6%; border-radius: 2px; opacity: 0; background-size: 3000% 100%; background-repeat: no-repeat; background-position: 0 0; transition: opacity .15s; }
+@keyframes sprite { from { background-position: 0 0; } to { background-position: 100% 0; } }
 .cell .pic { position: absolute; inset: 6%; background-color: #223; background-position: center; background-size: cover; background-repeat: no-repeat; border-radius: 2px; }
 .cell .fr { position: absolute; inset: 0; background: var(--frame) center / 100% 100% no-repeat; pointer-events: none; }
 .cell.s-BONUS .fr { background-image: var(--frame-gold); }
@@ -301,7 +303,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
     </div></div>
       <div class="frame"><div class="inner panel-body">
         <h2 class="goldtext">Κλίμακα συμβόλων</h2>
-        <p class="hint">Κέρδη για το τρέχον πόνταρισμα, ανά τρόπο, για 3, 4 ή 5 συνεχόμενους τροχούς από αριστερά. Οι τρόποι πολλαπλασιάζονται: δύο Λοχίες στον 1ο τροχό και ένας στον 2ο και στον 3ο μετράνε 2 τρόπους. Τα γράμματα είναι τα πιο συχνά και πληρώνουν λίγο.</p>
+        <p class="hint">Κέρδη για το τρέχον πόνταρισμα, ανά τρόπο, για 3, 4 ή 5 συνεχόμενους τροχούς από αριστερά. Οι τρόποι πολλαπλασιάζονται: δύο Λοχίες στον 1ο τροχό και ένας στον 2ο και στον 3ο μετράνε 2 τρόπους. Τα γράμματα είναι τα πιο συχνά και πληρώνουν λίγο, ο εξοπλισμός πληρώνει μεσαία και οι βαθμοί τα περισσότερα. Όταν ο εξοπλισμός κερδίζει, ζωντανεύει.</p>
         <div class="ladder" id="ladder"></div>
       </div></div>
 
@@ -404,6 +406,7 @@ const WILD_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
 
 
 const NAMES = { L10:'Δέκα', LJ:'Βαλές (J)', LQ:'Ντάμα (Q)', LK:'Ρήγας (K)', LH:'Γράμμα H', LM:'Γράμμα M',
+  FRAPPE:'Φραπές', CIG:'Τσιγάρο', VEST:'Αλεξίσφαιρο γιλέκο', PISTOL:'Πιστόλι', RIFLE:'Τυφέκιο', TANK:'Άρμα μάχης',
   PVT:'Στρατιώτης', SGT:'Λοχίας', SSG:'Επιλοχίας', MSG:'Αρχιλοχίας', LT2:'Ανθυπολοχαγός', LT1:'Υπολοχαγός', CPT:'Λοχαγός',
   MAJ:'Ταγματάρχης', LTC:'Αντισυνταγματάρχης', COL:'Συνταγματάρχης', GEN:'Στρατηγός', WILD:'WILD', BONUS:'Στρατάρχης' };
 const LABEL = {};   // no text strips: the pictures speak for themselves, WILD is written on its own art
@@ -414,11 +417,14 @@ const GROUP = { PVT:'Οπλίτης', SGT:'Υπαξιωματικός', SSG:'Υ�
 (() => {
   const css = [`:root{--frame:${svgURI(FRAME)};--frame-gold:${svgURI(FRAME_GOLD)}}`];
   for (const [k, v] of Object.entries(CARD_IMG)) css.push(`.cell.s-${k} .pic{background-image:url("${v}")}`);
+  // items play their animation (3 s loop, 30 frames) while they are part of a win
+  const motion = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  for (const [k, v] of Object.entries(SPRITE_IMG)) css.push(`.cell.s-${k} .anim{background-image:url("${v}")}`, `.cell.win.s-${k} .anim{opacity:1;${motion ? 'animation:sprite 3s steps(29,jump-none) infinite' : ''}}`);
   css.push(`.cell.s-BONUS .pic{background-image:${svgURI(BONUS_SVG)}}`, `.cell.s-WILD .pic{background-image:${svgURI(WILD_SVG)}}`);
   const st = document.createElement('style'); st.textContent = css.join('\n'); document.body.appendChild(st);
 })();
 document.documentElement.style.setProperty('--scene', `url("${SCENE_IMG}")`);
-const cellHTML = sym => `<div class="cell s-${sym}" data-sym="${sym}"><div class="pic"></div><span class="lbl">${LABEL[sym] || ''}</span><div class="fr"></div></div>`;
+const cellHTML = sym => `<div class="cell s-${sym}" data-sym="${sym}"><div class="pic"></div><div class="anim"></div><span class="lbl">${LABEL[sym] || ''}</span><div class="fr"></div></div>`;
 document.querySelectorAll('.frame').forEach(f => ['tl', 'tr', 'bl', 'br'].forEach(p => { const g = document.createElement('span'); g.className = 'gem ' + p; f.appendChild(g); }));
 
 // ---------- State ----------
@@ -753,9 +759,11 @@ function renderLadder() {
   const pays = p => `<div class="pays"><span>3</span><b>${fmt(p[0] * b)}</b><span>4</span><b>${fmt(p[1] * b)}</b><span>5</span><b>${fmt(p[2] * b)}</b></div>`;
   rows.push(`<div class="pt top">${cellHTML('BONUS')}<div><div class="rank">ΚΟΡΥΦΗ · ΜΠΟΝΟΥΣ</div><div class="name">Στρατάρχης</div>
     <div class="pays"><span>3</span><b>${fmt(BONUS_PAY[3] * b)}</b><span>4</span><b>${fmt(BONUS_PAY[4] * b)}</b><span>5</span><b>${fmt(BONUS_PAY[5] * b)}</b></div></div></div>`);
-  const ranks = SYMBOLS.filter(s => !s.startsWith('L') || s.startsWith('LT'));
-  const letters = SYMBOLS.filter(s => !ranks.includes(s));
+  const ranks = SYMBOLS.filter(s => GROUP[s]);
+  const items = SYMBOLS.filter(s => SPRITE_IMG[s]);
+  const letters = SYMBOLS.filter(s => !ranks.includes(s) && !items.includes(s));
   [...ranks].reverse().forEach((s, i) => rows.push(`<div class="pt">${cellHTML(s)}<div><div class="rank">ΒΑΘΜΙΔΑ ${ranks.length - i}</div><div class="name">${NAMES[s]}</div>${pays(PAY[s])}</div></div>`));
+  [...items].reverse().forEach(s => rows.push(`<div class="pt">${cellHTML(s)}<div><div class="rank">ΕΞΟΠΛΙΣΜΟΣ</div><div class="name">${NAMES[s]}</div>${pays(PAY[s])}</div></div>`));
   [...letters].reverse().forEach(s => rows.push(`<div class="pt">${cellHTML(s)}<div><div class="rank">ΓΡΑΜΜΑ</div><div class="name">${NAMES[s]}</div>${pays(PAY[s])}</div></div>`));
   rows.push(`<div class="pt">${cellHTML('WILD')}<div><div class="rank">ΜΠΑΛΑΝΤΕΡ</div><div class="name">WILD</div><div class="pays" style="display:block;color:var(--muted)">Τροχοί 2–4</div></div></div>`);
   $('ladder').innerHTML = rows.join('');
