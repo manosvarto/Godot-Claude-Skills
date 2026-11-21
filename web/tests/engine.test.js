@@ -5,7 +5,7 @@ const E = require('../engine.js');
 const { REELS, ROWS, WILD, BONUS, PAY, BONUS_PAY, SYMBOLS } = E;
 
 // Build a grid from columns; '.' fills with a symbol that can't win (different letter per reel).
-const FILL = ['L10', 'LJ', 'LQ', 'LK', 'LH'];
+const FILL = ['FRAPPE', 'CIG', 'VEST', 'PISTOL', 'RIFLE'];
 function grid(cols) {
   return cols.map((col, c) => Array.from({ length: ROWS }, (_, r) => (col[r] && col[r] !== '.') ? col[r] : FILL[c]));
 }
@@ -159,8 +159,8 @@ test('seeded generator is reproducible', () => {
   for (let i = 0; i < 1000; i++) assert.equal(a(), b());
 });
 
-test('Βύσμα: prices are 20x and 330x the bet and only offered up to 20', () => {
-  assert.equal(E.BUYS.bonus.priceX, 20); assert.equal(E.BUYS.max.priceX, 330);
+test('Βύσμα: prices are 18x and 245x the bet and only offered up to 20', () => {
+  assert.equal(E.BUYS.bonus.priceX, 18); assert.equal(E.BUYS.max.priceX, 245);
   assert.equal(E.BUYS.bonus.medals, 3); assert.equal(E.BUYS.max.medals, 4);
   assert.equal(E.MAX_BUY_EUR, 20);
   assert.ok(E.BUYS.bonus.priceX * 1 <= E.MAX_BUY_EUR && E.BUYS.bonus.priceX * 2 > E.MAX_BUY_EUR);

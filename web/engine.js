@@ -1,23 +1,22 @@
 // Slot engine: 5 reels x 4 rows, 1024 ways. Pure logic, no DOM.
 const REELS = 5, ROWS = 4;
 // Ladder, lowest rung first. Index = rank.
-// Low pays: letters 10, J, Q, K, H, M. Mid pays: items Φραπές, Τσιγάρο, Αλεξίσφαιρο γιλέκο, Πιστόλι, Τυφέκιο, Άρμα μάχης.
+// Low pays: items Φραπές, Τσιγάρο, Αλεξίσφαιρο γιλέκο, Πιστόλι, Τυφέκιο, Άρμα μάχης.
 // High pays, the ranks: Στρατιώτης, Λοχίας, Επιλοχίας, Αρχιλοχίας, Ανθυπολοχαγός, Υπολοχαγός, Λοχαγός,
 // Ταγματάρχης, Αντισυνταγματάρχης, Συνταγματάρχης, Στρατηγός
-const SYMBOLS = ['L10','LJ','LQ','LK','LH','LM','FRAPPE','CIG','VEST','PISTOL','RIFLE','TANK','PVT','SGT','SSG','MSG','LT2','LT1','CPT','MAJ','LTC','COL','GEN'];
+const SYMBOLS = ['FRAPPE','CIG','VEST','PISTOL','RIFLE','TANK','PVT','SGT','SSG','MSG','LT2','LT1','CPT','MAJ','LTC','COL','GEN'];
 const WILD = 'WILD', BONUS = 'BONUS';   // BONUS = Στρατάρχης
 // Per-cell draw weights (non-bonus). Wild only on reels 2-4.
-const WEIGHTS = { L10:53, LJ:50, LQ:46, LK:43, LH:40, LM:37, FRAPPE:15, CIG:14, VEST:13, PISTOL:12, RIFLE:11, TANK:10, PVT:10, SGT:9, SSG:8, MSG:7, LT2:6, LT1:5, CPT:4, MAJ:4, LTC:3, COL:3, GEN:2 };
-const WILD_W = [0, 12, 12, 12, 0];
-let WILD_W_FS = [0, 18, 18, 18, 0];   // more wilds in the bonus
-let WILD_W_MAX = [0, 38, 38, 38, 0];      // and more again in the max bonus (with multipliers)
+const WEIGHTS = { FRAPPE:60, CIG:56, VEST:52, PISTOL:48, RIFLE:44, TANK:40, PVT:10, SGT:9, SSG:8, MSG:7, LT2:6, LT1:5, CPT:4, MAJ:4, LTC:3, COL:3, GEN:2 };
+const WILD_W = [0, 11, 11, 11, 0];
+let WILD_W_FS = [0, 16, 16, 16, 0];   // more wilds in the bonus
+let WILD_W_MAX = [0, 34, 34, 34, 0];      // and more again in the max bonus (with multipliers)
 let BONUS_P = 0.06;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
 let PAY = {   // = the 90% profile of the PAR sheet (web/par/par-sheet.json)
-  L10:[0.28,0.6,1.13], LJ:[0.28,0.6,1.28], LQ:[0.37,0.72,1.42], LK:[0.37,0.72,1.72], LH:[0.43,0.86,2.0], LM:[0.43,0.99,2.13],
-  FRAPPE:[0.49,1.1,2.31], CIG:[0.49,1.16,2.44], VEST:[0.55,1.22,2.56], PISTOL:[0.55,1.34,2.8], RIFLE:[0.61,1.46,3.04], TANK:[0.67,1.58,3.29],
-  PVT:[0.72,1.78,3.58], SGT:[0.86,2.13,4.29], SSG:[1.07,2.5,5.36], MSG:[1.28,2.87,6.42], LT2:[1.42,3.58,7.15], LT1:[1.78,4.29,8.93],
-  CPT:[2.13,5.36,10.7], MAJ:[2.87,7.15,13.92], LTC:[3.58,8.93,17.45], COL:[5.36,13.92,29.04], GEN:[7.15,20.99,71.02]
+  FRAPPE:[0.14,0.3,0.57], CIG:[0.14,0.3,0.64], VEST:[0.19,0.36,0.71], PISTOL:[0.19,0.36,0.87], RIFLE:[0.22,0.43,1.01], TANK:[0.22,0.5,1.07],
+  PVT:[0.36,0.9,1.8], SGT:[0.43,1.07,2.16], SSG:[0.54,1.26,2.7], MSG:[0.64,1.45,3.23], LT2:[0.71,1.8,3.6], LT1:[0.9,2.16,4.5],
+  CPT:[1.07,2.7,5.39], MAJ:[1.45,3.6,7.01], LTC:[1.8,4.5,8.79], COL:[2.7,7.01,14.62], GEN:[3.6,10.57,35.76]
 };
 const BONUS_PAY = { 3: 1, 4: 10, 5: 100 };   // x total bet
 const MAX_WIN = 10000;                       // x total bet, per game round (spin + respins + bonus)
@@ -26,7 +25,7 @@ const MIN_CYCLE_MS = 3000;                   // a new paid round may start at le
 const MAX_BET = 20;                          // maximum stake per round
 // «Βύσμα»: buy a bonus straight away. Price in x bet, set so a bought bonus returns ~90% like the rest of the game.
 // A buy is a stake, so it is offered only while its price is within MAX_BUY_EUR.
-const BUYS = { bonus: { medals: 3, priceX: 20 }, max: { medals: 4, priceX: 330 } };
+const BUYS = { bonus: { medals: 3, priceX: 18 }, max: { medals: 4, priceX: 245 } };
 const MAX_BUY_EUR = 20;
 const spinsFor = n => 10 + 2 * (n - 3);      // 3 -> 10, 4 -> 12, 5 -> 14
 
