@@ -159,9 +159,20 @@ test('seeded generator is reproducible', () => {
   for (let i = 0; i < 1000; i++) assert.equal(a(), b());
 });
 
-test('Βύσμα: prices are 18x and 245x the bet and only offered up to 20', () => {
-  assert.equal(E.BUYS.bonus.priceX, 18); assert.equal(E.BUYS.max.priceX, 245);
-  assert.equal(E.BUYS.bonus.medals, 3); assert.equal(E.BUYS.max.medals, 4);
+test('Βύσμα: prices are 32x and 260x the bet and only offered up to 20', () => {
+  assert.equal(E.BUYS.bonus.priceX, 32); assert.equal(E.BUYS.max.priceX, 260);
+  assert.equal(E.BUYS.bonus.min, 3); assert.equal(E.BUYS.max.min, 4);
   assert.equal(E.MAX_BUY_EUR, 20);
-  assert.ok(E.BUYS.bonus.priceX * 1 <= E.MAX_BUY_EUR && E.BUYS.bonus.priceX * 2 > E.MAX_BUY_EUR);
+  for (const k of ['bonus', 'max']) near(Object.values(E.BUYS[k].odds).reduce((a, b) => a + b, 0), 1);
+});
+
+test('Βύσμα: the trigger spin always lands at least the minimum medals, one per reel at most', () => {
+  const rng = E.makeSeededRng(21), seen = { 3: 0, 4: 0, 5: 0 };
+  for (const kind of ['bonus', 'max']) for (let i = 0; i < 20000; i++) {
+    const g = E.buyGrid(kind, rng), n = E.evaluate(g).bonusCount;
+    assert.ok(n >= E.BUYS[kind].min && n <= 5);
+    for (let c = 0; c < E.REELS; c++) assert.ok(g[c].filter(s => s === BONUS).length <= 1);
+    if (kind === 'bonus') seen[n]++;
+  }
+  assert.ok(seen[4] > 0, 'a bonus buy can land 4');
 });

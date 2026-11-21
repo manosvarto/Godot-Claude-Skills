@@ -284,10 +284,10 @@ h2 { margin: 0 0 4px; font-size: 26px; }
   <div class="frame"><div class="inner buy" id="buyPanel">
     <div class="buy-head"><h2 class="goldtext">Βύσμα</h2><span class="buy-note">Αγόρασε μπόνους κατευθείαν</span></div>
     <div class="buy-row">
-      <button class="gold-btn buy-btn" id="buyBonus"><span class="t">Μπόνους</span><span class="p" id="buyBonusPrice">—</span><span class="n" id="buyBonusNote">10 δωρεάν γυρίσματα</span></button>
-      <button class="gold-btn buy-btn max" id="buyMax"><span class="t">Μέγιστο μπόνους</span><span class="p" id="buyMaxPrice">—</span><span class="n" id="buyMaxNote">12 γυρίσματα, πολλαπλασιαστές</span></button>
+      <button class="gold-btn buy-btn" id="buyBonus"><span class="t">Μπόνους</span><span class="p" id="buyBonusPrice">—</span><span class="n" id="buyBonusNote">Σίγουρα 3+ Στρατάρχες</span></button>
+      <button class="gold-btn buy-btn max" id="buyMax"><span class="t">Μέγιστο μπόνους</span><span class="p" id="buyMaxPrice">—</span><span class="n" id="buyMaxNote">Σίγουρα 4+ Στρατάρχες</span></button>
     </div>
-    <p class="buy-note">Η τιμή είναι 18× (Μπόνους) και 245× (Μέγιστο) το πόνταρισμα. Μια αγορά μετράει ως πόνταρισμα, γι' αυτό επιτρέπεται έως 20.</p>
+    <p class="buy-note">Οι τροχοί γυρίζουν και φέρνουν σίγουρα 3 Στρατάρχες (4 στο Μέγιστο), με ευκαιρία για περισσότερους. Τιμή 32× και 260× το πόνταρισμα. Μια αγορά μετράει ως πόνταρισμα, γι' αυτό επιτρέπεται έως 20.</p>
   </div></div>
   <div class="demo">Μόνο μονάδες επίδειξης. Δεν παίζονται και δεν πληρώνονται πραγματικά χρήματα.</div>
 
@@ -334,7 +334,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
           <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατάρχης πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατάρχες δίνουν 14.</span></li>
           <li><b>Πληρωμή Στρατάρχη</b><span>Πληρώνουν όπου κι αν πέσουν: 3 πληρώνουν 1× το πόνταρισμα, 4 πληρώνουν 10×, 5 πληρώνουν 100×.</span></li>
           <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατάρχη.</span></li>
-          <li><b>Βύσμα</b><span>Αγορά μπόνους κατευθείαν: Μπόνους για 18× το πόνταρισμα, Μέγιστο μπόνους για 245×. Επιστρέφουν περίπου 90%, όπως το υπόλοιπο παιχνίδι. Διαθέσιμο όταν η τιμή είναι έως 20.</span></li>
+          <li><b>Βύσμα</b><span>Αγορά μπόνους κατευθείαν: οι τροχοί γυρίζουν και φέρνουν σίγουρα τουλάχιστον 3 Στρατάρχες για 32× το πόνταρισμα, ή τουλάχιστον 4 για 260×. Μπορεί να πέσουν και περισσότεροι (όπως στο κανονικό παιχνίδι), και τα κέρδη του γυρίσματος πληρώνονται. Επιστρέφουν περίπου 90%, όπως το υπόλοιπο παιχνίδι. Διαθέσιμο όταν η τιμή είναι έως 20.</span></li>
           <li><b>Μέγιστο κέρδος</b><span>10.000× το πόνταρισμα ανά γύρο (γύρισμα, επαναλήψεις και μπόνους μαζί), και ποτέ πάνω από 140.000 ανά γύρο. Με πόνταρισμα 20 αυτό είναι 7.000×.</span></li>
           <li><b>Όρια</b><span>Μέγιστο πόνταρισμα 20 ανά γύρο. Κάθε νέος γύρος ξεκινάει τουλάχιστον 3 δευτερόλεπτα μετά τον προηγούμενο.</span></li>
         </ul>
@@ -383,7 +383,12 @@ const MIN_CYCLE_MS = 3000;                   // a new paid round may start at le
 const MAX_BET = 20;                          // maximum stake per round
 // «Βύσμα»: buy a bonus straight away. Price in x bet, set so a bought bonus returns ~90% like the rest of the game.
 // A buy is a stake, so it is offered only while its price is within MAX_BUY_EUR.
-const BUYS = { bonus: { medals: 3, priceX: 18 }, max: { medals: 4, priceX: 245 } };
+// The buy plays a real trigger spin: at least `min` Field Marshals land, with the same odds as the base game
+// of landing more (given 3+: 4 about 5% of the time, 5 about 0.2%). Line wins on that spin pay too.
+const BUYS = {
+  bonus: { min: 3, odds: { 3: 0.948, 4: 0.05, 5: 0.002 }, priceX: 32 },
+  max:   { min: 4, odds: { 4: 0.98, 5: 0.02 }, priceX: 260 }
+};
 const MAX_BUY_EUR = 20;
 const spinsFor = n => 10 + 2 * (n - 3);      // 3 -> 10, 4 -> 12, 5 -> 14
 
@@ -514,6 +519,23 @@ function evaluate(grid, mult = null) {
     total += pay;
   }
   return { total, wins, bonusCount };
+}
+
+// The trigger spin of a «Βύσμα» buy: a base grid with the chosen number of medals on distinct reels.
+function buyGrid(kind, rng) {
+  const buy = BUYS[kind];
+  let r = rng(), n = buy.min;
+  for (const [k, p] of Object.entries(buy.odds)) { if (r < p) { n = +k; break; } r -= p; }
+  const grid = spinGrid(rng, { allowBonus: false });
+  const reels = [0, 1, 2, 3, 4];
+  for (let i = reels.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [reels[i], reels[j]] = [reels[j], reels[i]]; }
+  for (const c of reels.slice(0, n)) grid[c][Math.floor(rng() * ROWS)] = BONUS;
+  return grid;
+}
+// A whole buy: trigger spin + bonus. Returns total (x bet).
+function playBuy(kind, rng) {
+  const grid = buyGrid(kind, rng), res = evaluate(grid);
+  return { total: Math.min(res.total + playBonus(res.bonusCount, rng).total, MAX_WIN), medals: res.bonusCount };
 }
 
 // Plays a whole bonus. Wilds walk in both bonuses; the max bonus has more wilds and multipliers.
@@ -947,7 +969,7 @@ function render() {
   for (const [kind, id] of [['bonus', 'buyBonus'], ['max', 'buyMax']]) {
     const price = BUYS[kind].priceX * bet(), over = price > MAX_BUY_EUR + 1e-9;
     $(id + 'Price').textContent = fmt(price);
-    $(id + 'Note').textContent = over ? `Πάνω από το όριο των ${fmt(MAX_BUY_EUR)}` : kind === 'max' ? '12 γυρίσματα, πολλαπλασιαστές' : '10 δωρεάν γυρίσματα';
+    $(id + 'Note').textContent = over ? `Πάνω από το όριο των ${fmt(MAX_BUY_EUR)}` : kind === 'max' ? 'Σίγουρα 4+ Στρατάρχες' : 'Σίγουρα 3+ Στρατάρχες';
     $(id).disabled = S.busy || S.cooling || over || S.balance < price;
   }
   $('sessionRtp').textContent = S.wagered ? (100 * S.returned / S.wagered).toFixed(1).replace('.', ',') + '%' : '–';
@@ -1027,7 +1049,16 @@ async function buyBonus(kind) {
   const startedAt = performance.now();
   S.balance -= price; S.wagered += price; render();
   const capX = Math.min(MAX_WIN, MAX_WIN_EUR / b);
-  const win = await runBonus(BUYS[kind].medals, b, capX);
+  // the reels really spin and land the Field Marshals, with a chance of more than the minimum
+  $('winbar').innerHTML = '<span class="idle">Γυρίζει…</span>';
+  const grid = buyGrid(kind, rng);
+  await animateTo(grid);
+  const res = evaluate(grid);
+  const lineX = Math.min(res.total, capX);
+  showWins(res, b);
+  S.balance += lineX * b; S.returned += lineX * b; render();
+  await sleep(S.turbo ? 500 : 1300);
+  const win = await runBonus(res.bonusCount, b, capX - lineX);
   S.balance += win; S.returned += win;
   S.busy = false; coolDown(startedAt); render();
 }

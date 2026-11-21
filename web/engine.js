@@ -25,7 +25,12 @@ const MIN_CYCLE_MS = 3000;                   // a new paid round may start at le
 const MAX_BET = 20;                          // maximum stake per round
 // «Βύσμα»: buy a bonus straight away. Price in x bet, set so a bought bonus returns ~90% like the rest of the game.
 // A buy is a stake, so it is offered only while its price is within MAX_BUY_EUR.
-const BUYS = { bonus: { medals: 3, priceX: 18 }, max: { medals: 4, priceX: 245 } };
+// The buy plays a real trigger spin: at least `min` Field Marshals land, with the same odds as the base game
+// of landing more (given 3+: 4 about 5% of the time, 5 about 0.2%). Line wins on that spin pay too.
+const BUYS = {
+  bonus: { min: 3, odds: { 3: 0.948, 4: 0.05, 5: 0.002 }, priceX: 32 },
+  max:   { min: 4, odds: { 4: 0.98, 5: 0.02 }, priceX: 260 }
+};
 const MAX_BUY_EUR = 20;
 const spinsFor = n => 10 + 2 * (n - 3);      // 3 -> 10, 4 -> 12, 5 -> 14
 
@@ -158,6 +163,23 @@ function evaluate(grid, mult = null) {
   return { total, wins, bonusCount };
 }
 
+// The trigger spin of a «Βύσμα» buy: a base grid with the chosen number of medals on distinct reels.
+function buyGrid(kind, rng) {
+  const buy = BUYS[kind];
+  let r = rng(), n = buy.min;
+  for (const [k, p] of Object.entries(buy.odds)) { if (r < p) { n = +k; break; } r -= p; }
+  const grid = spinGrid(rng, { allowBonus: false });
+  const reels = [0, 1, 2, 3, 4];
+  for (let i = reels.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [reels[i], reels[j]] = [reels[j], reels[i]]; }
+  for (const c of reels.slice(0, n)) grid[c][Math.floor(rng() * ROWS)] = BONUS;
+  return grid;
+}
+// A whole buy: trigger spin + bonus. Returns total (x bet).
+function playBuy(kind, rng) {
+  const grid = buyGrid(kind, rng), res = evaluate(grid);
+  return { total: Math.min(res.total + playBonus(res.bonusCount, rng).total, MAX_WIN), medals: res.bonusCount };
+}
+
 // Plays a whole bonus. Wilds walk in both bonuses; the max bonus has more wilds and multipliers.
 function playBonus(n, rng) {
   const max = n >= 4, spins = spinsFor(n);
@@ -177,5 +199,5 @@ function playBonus(n, rng) {
 if (typeof module !== 'undefined') module.exports = {
   REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN, MAX_WIN_EUR, MIN_CYCLE_MS, MAX_BET, BUYS, MAX_BUY_EUR,
   get PAY() { return PAY; }, setPay(p) { PAY = p; }, get BONUS_P() { return BONUS_P; }, get WILD_W_FS() { return WILD_W_FS; }, get WILD_W_MAX() { return WILD_W_MAX; }, setBonusP(p) { BONUS_P = p; }, setWildMax(w) { WILD_W_MAX = [0, w, w, w, 0]; }, setWildFs(w) { WILD_W_FS = [0, w, w, w, 0]; },
-  spinsFor, makeRng, makeSeededRng, drawCell, spinGrid, evaluate, playBonus, playBase, nextWilds, keptWilds, multOf, medalsOf, canRespin, stepDown
+  spinsFor, makeRng, makeSeededRng, drawCell, spinGrid, evaluate, playBonus, playBase, buyGrid, playBuy, nextWilds, keptWilds, multOf, medalsOf, canRespin, stepDown
 };
