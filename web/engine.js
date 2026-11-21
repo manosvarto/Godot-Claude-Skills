@@ -1,19 +1,20 @@
 // Slot engine: 5 reels x 4 rows, 1024 ways. Pure logic, no DOM.
 const REELS = 5, ROWS = 4;
 // Ladder, lowest rung first. Index = rank.
-// Λοχίας, Επιλοχίας, Αρχιλοχίας, Ανθυπολοχαγός, Υπολοχαγός, Λοχαγός,
-// Ταγματάρχης, Αντισυνταγματάρχης, Συνταγματάρχης, Στρατηγός
-const SYMBOLS = ['SGT','SSG','MSG','LT2','LT1','CPT','MAJ','LTC','COL','GEN'];
+// Low pays: letters 10, J, Q, K, H, M. Then ranks: Στρατιώτης, Λοχίας, Επιλοχίας, Αρχιλοχίας,
+// Ανθυπολοχαγός, Υπολοχαγός, Λοχαγός, Ταγματάρχης, Αντισυνταγματάρχης, Συνταγματάρχης, Στρατηγός
+const SYMBOLS = ['L10','LJ','LQ','LK','LH','LM','PVT','SGT','SSG','MSG','LT2','LT1','CPT','MAJ','LTC','COL','GEN'];
 const WILD = 'WILD', BONUS = 'BONUS';   // BONUS = Στρατάρχης
 // Per-cell draw weights (non-bonus). Wild only on reels 2-4.
-const WEIGHTS = { SGT:28, SSG:26, MSG:24, LT2:20, LT1:17, CPT:15, MAJ:12, LTC:10, COL:7, GEN:4 };
-const WILD_W = [0, 5, 5, 5, 0];
-const WILD_W_FS = [0, 12, 12, 12, 0];   // wilds land more often in free spins
+const WEIGHTS = { L10:34, LJ:32, LQ:30, LK:28, LH:26, LM:24, PVT:14, SGT:12, SSG:11, MSG:10, LT2:9, LT1:8, CPT:7, MAJ:6, LTC:5, COL:4, GEN:3 };
+const WILD_W = [0, 8, 8, 8, 0];
+const WILD_W_FS = [0, 20, 20, 20, 0];   // wilds land more often in free spins
 const BONUS_P = 0.09;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
 let PAY = {
-  SGT:[0.12,0.24,0.59], SSG:[0.12,0.24,0.71], MSG:[0.19,0.35,0.82], LT2:[0.24,0.47,0.94], LT1:[0.24,0.59,1.18],
-  CPT:[0.35,0.71,1.41], MAJ:[0.47,0.94,1.88], LTC:[0.59,1.41,2.83], COL:[0.94,2.35,4.71], GEN:[1.41,4.71,14.1]
+  L10:[0.25,0.49,0.98], LJ:[0.25,0.49,1.11], LQ:[0.31,0.61,1.23], LK:[0.31,0.61,1.47], LH:[0.37,0.74,1.72], LM:[0.37,0.86,1.84],
+  PVT:[0.61,1.53,3.07], SGT:[0.74,1.84,3.68], SSG:[0.92,2.15,4.6], MSG:[1.11,2.46,5.53], LT2:[1.23,3.07,6.14], LT1:[1.53,3.68,7.67],
+  CPT:[1.84,4.6,9.21], MAJ:[2.46,6.14,12], LTC:[3.07,7.67,15], COL:[4.6,12,25], GEN:[6.14,18,61]
 };
 const BONUS_PAY = { 3: 1, 4: 10, 5: 100 };   // x total bet
 const MAX_WIN = 10000;                       // x total bet, per spin/feature
