@@ -1,23 +1,18 @@
+// RTP simulator. node web/sim.js [base rounds] [bonuses per type] [bonusP]
 const E = require('./engine.js');
 const rng = Math.random;
 const N = +process.argv[2] || 2e6, NB = +process.argv[3] || 2e5;
-// Base game line wins (bonus symbols can appear, scatter pay counted separately below)
-let base = 0, hits = 0;
+if (process.argv[4]) E.setBonusP(+process.argv[4]);
+let base = 0, hits = 0, respinRounds = 0;
+const trig = { 3: 0, 4: 0, 5: 0 };
 for (let i = 0; i < N; i++) {
-  const res = E.evaluate(E.spinGrid(rng));
-  if (res.wins.length) hits++;
-  for (const w of res.wins) if (w.sym !== E.BONUS) base += w.pay;
+  const r = E.playBase(rng);
+  base += Math.min(r.total, E.MAX_WIN); if (r.total > 0) hits++; if (r.respins) respinRounds++;
+  if (r.bonusCount) trig[Math.min(r.bonusCount, 5)]++;
 }
-base /= N;
-const p = E.BONUS_P, C = (n, k) => [1,5,10,10,5,1][k];
-const P = k => C(5, k) * p ** k * (1 - p) ** (5 - k);
-let scatter = 0; for (const k of [3,4,5]) scatter += P(k) * E.BONUS_PAY[k];
 const ev = {};
-for (const k of [3,4,5]) {
-  let t = 0; const n = k === 5 ? NB / 4 : NB;
-  for (let i = 0; i < n; i++) t += Math.min(E.playBonus(k, rng).total, E.MAX_WIN);
-  ev[k] = t / n;
-}
-let feat = 0; for (const k of [3,4,5]) feat += P(k) * ev[k];
-console.log(JSON.stringify({ base, scatter, feat, total: base + scatter + feat,
-  ev, hitRate: hits / N, trigger3: 1 / P(3), trigger4plus: 1 / (P(4) + P(5)) }, null, 1));
+for (const k of [3, 4, 5]) { let t = 0; const n = k === 5 ? NB / 4 : NB; for (let i = 0; i < n; i++) t += E.playBonus(k, rng).total; ev[k] = t / n; }
+let feat = 0; for (const k of [3, 4, 5]) feat += trig[k] / N * ev[k];
+base /= N;
+console.log(JSON.stringify({ base, feat, total: base + feat, ev, hitRate: hits / N,
+  respinEvery: N / respinRounds, bonusEvery: N / (trig[3] + trig[4] + trig[5]), maxEvery: N / (trig[4] + trig[5]) }, null, 1));

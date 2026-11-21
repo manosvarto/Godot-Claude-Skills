@@ -53,9 +53,6 @@ body {
 }
 header { display: grid; gap: 6px; justify-items: center; text-align: center; position: relative; }
 /* Soldier: beside the board when the screen has room, beside the title on phones */
-.trooper { display: block; pointer-events: none; filter: drop-shadow(0 10px 14px rgba(0,0,0,.6)); }
-.trooper-side { position: absolute; right: calc(100% + 18px); bottom: -14px; width: min(320px, calc((100vw - 660px) / 2 - 22px)); height: auto; }
-@media (max-width: 939px) { .trooper-side { display: none; } }
 .eyebrow { font-weight: 700; letter-spacing: .24em; text-transform: uppercase; font-size: 13px; color: var(--gold-hi); }
 h1 { margin: 0; font-size: clamp(46px, 13vw, 78px); line-height: .95; text-transform: uppercase; text-wrap: balance; }
 .ribbon { display: inline-block; padding: 4px 16px; border-radius: 4px; font-weight: 800; letter-spacing: .2em; font-size: 13px; text-transform: uppercase;
@@ -88,7 +85,7 @@ h1.goldtext { margin: 0; font-size: clamp(50px, 14vw, 84px); line-height: .95; t
 .board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 6px; border-radius: 6px; background: #0b0e15; box-shadow: inset 0 0 0 2px #000, inset 0 0 24px rgba(0,0,0,.9); }
 .reel { position: relative; overflow: hidden; border-radius: 6px; }
 .strip { display: grid; gap: 6px; will-change: transform; backface-visibility: hidden; }
-.locks { position: absolute; inset: 0; display: grid; gap: 6px; align-content: start; z-index: 3; pointer-events: none; }
+.locks { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 .locks[hidden] { display: none; }
 .reel.tension { box-shadow: 0 0 0 2px var(--gold-hi), 0 0 20px rgba(255,230,138,.7); animation: tension .5s ease-in-out infinite alternate; }
 @keyframes tension { from { box-shadow: 0 0 0 2px var(--gold), 0 0 8px rgba(255,230,138,.3); } to { box-shadow: 0 0 0 2px var(--gold-hi), 0 0 24px rgba(255,230,138,.9); } }
@@ -103,12 +100,14 @@ h1.goldtext { margin: 0; font-size: clamp(50px, 14vw, 84px); line-height: .95; t
   white-space: nowrap; overflow: hidden; text-overflow: clip; }
 .cell .lbl:empty { display: none; }
 .cell.s-BONUS { filter: drop-shadow(0 0 6px rgba(255,214,90,.75)); }
-.board.has-win .cell:not(.win) { opacity: .3; filter: grayscale(.75); }
+.board.has-win .cell:not(.win):not(.held):not([data-tag]) { opacity: .3; filter: grayscale(.75); }
 .cell.win { animation: pulse .9s ease-in-out infinite; z-index: 1; }
 @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); filter: drop-shadow(0 0 10px rgba(255,230,138,.95)); } }
-.cell.locked::after { content: "ΚΛΕΙΔΩΜΕΝΟ"; position: absolute; left: 7%; right: 7%; top: 7%; padding: 1.5cqi 0; text-align: center;
-  font: 800 10cqi/1 var(--font-ui); color: #fff; background: rgba(224,50,44,.92); z-index: 2; }
-.cell.locked .pic { box-shadow: inset 0 0 0 3px var(--gem-red); }
+.cell.held .pic { box-shadow: inset 0 0 0 3px var(--gold-hi), inset 0 0 14px rgba(255,230,138,.6); }
+.cell[data-tag]::after { content: attr(data-tag); position: absolute; left: 7%; right: 7%; top: 7%; padding: 1.5cqi 0; text-align: center;
+  font: 800 10cqi/1 var(--font-ui); color: #fff; z-index: 2; background: rgba(224,50,44,.92); }
+.cell.tag-stay::after { background: rgba(47,184,69,.95); }
+.locks .cell { position: absolute; left: 0; top: 0; width: 100%; }
 
 .winbar { text-align: center; min-height: 58px; display: grid; place-items: center; padding-top: 10px; }
 .winbar .amount { font-size: 32px; font-variant-numeric: tabular-nums; }
@@ -181,7 +180,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
 
 @media (max-width: 480px) {
   .inner { padding: 10px; }
-  .board { gap: 4px; padding: 4px; } .strip, .locks { gap: 4px; }
+  .board { gap: 4px; padding: 4px; } .strip { gap: 4px; }
   .controls { gap: 8px; }
   .spin { width: 80px; height: 80px; font-size: 16px; }
   .readout .value { font-size: 20px; }
@@ -202,7 +201,6 @@ h2 { margin: 0 0 4px; font-size: 26px; }
   </header>
 
   <div class="frame stage">
-    <img class="trooper trooper-side" alt="" aria-hidden="true">
     <div class="inner" id="machine">
       <div class="status">
         <span class="mode" id="mode">Βασικό παιχνίδι</span>
@@ -249,8 +247,9 @@ h2 { margin: 0 0 4px; font-size: 26px; }
   <div class="frame"><div class="inner panel-body">
     <h2 class="goldtext">Διαταγές μπόνους</h2>
     <ul class="rules">
+      <li><b>2 Στρατάρχες</b><span>Δωρεάν επανάληψη: οι 2 Στρατάρχες μένουν και κατεβαίνουν μία σειρά σε κάθε επανάληψη, μέχρι ένας τους να φτάσει στην κάτω σειρά. Αν πέσει τρίτος Στρατάρχης, ανοίγει το μπόνους.</span></li>
       <li><b>3 Στρατάρχες</b><span>Μπόνους: 10 δωρεάν γυρίσματα. Οι μπαλαντέρ έρχονται πιο συχνά στα δωρεάν γυρίσματα.</span></li>
-      <li><b>4 Στρατάρχες</b><span>Μέγιστο μπόνους: 12 δωρεάν γυρίσματα, και κάθε μπαλαντέρ που πέφτει κλειδώνει στη θέση του μέχρι το τέλος του μπόνους.</span></li>
+      <li><b>4 Στρατάρχες</b><span>Μέγιστο μπόνους: 12 δωρεάν γυρίσματα. Ένα WILD που μπαίνει σε κέρδος μένει στη θέση του για το επόμενο γύρισμα. Ένα WILD χωρίς κέρδος κατεβαίνει μία σειρά, και από την κάτω σειρά φεύγει.</span></li>
       <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατάρχης πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατάρχες δίνουν 14.</span></li>
       <li><b>Πληρωμή Στρατάρχη</b><span>Πληρώνουν όπου κι αν πέσουν: 3 πληρώνουν 1× το πόνταρισμα, 4 πληρώνουν 10×, 5 πληρώνουν 100×.</span></li>
       <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατάρχη.</span></li>
@@ -264,17 +263,19 @@ h2 { margin: 0 0 4px; font-size: 26px; }
     <div class="stats">
       <div class="stat"><div class="v">96,0%</div><div class="l">Επιστροφή στον παίκτη</div></div>
       <div class="stat"><div class="v">40%</div><div class="l">Γυρίσματα με κέρδος</div></div>
-      <div class="stat"><div class="v">1 στα 166</div><div class="l">Μπόνους</div></div>
-      <div class="stat"><div class="v">1 στα 3.285</div><div class="l">Μέγιστο μπόνους</div></div>
+      <div class="stat"><div class="v">1 στα 60</div><div class="l">Επανάληψη</div></div>
+      <div class="stat"><div class="v">1 στα 164</div><div class="l">Μπόνους</div></div>
+      <div class="stat"><div class="v">1 στα 3.190</div><div class="l">Μέγιστο μπόνους</div></div>
       <div class="stat"><div class="v" id="sessionRtp">–</div><div class="l">Η δική σου επιστροφή</div></div>
     </div>
-    <p class="hint">Προσομοίωση με 5 εκατομμύρια γυρίσματα και 1,3 εκατομμύρια μπόνους. Το μπόνους πληρώνει κατά μέσο όρο περίπου 16× το πόνταρισμα, το μέγιστο μπόνους περίπου 600×.</p>
+    <p class="hint">Προσομοίωση με 3 εκατομμύρια γύρους και 1,1 εκατομμύρια μπόνους. Το μπόνους πληρώνει κατά μέσο όρο περίπου 16× το πόνταρισμα, το μέγιστο μπόνους περίπου 525×.</p>
   </div></div>
 
   <div class="frame"><div class="inner panel-body">
     <h2 class="goldtext">Εργαλεία δοκιμής</h2>
-    <p class="hint">Για να δοκιμάσεις το παιχνίδι. Αναγκάζουν το επόμενο γύρισμα να φέρει Στρατάρχες, χωρίς χρέωση.</p>
+    <p class="hint">Για να δοκιμάσεις το παιχνίδι. Αναγκάζουν το επόμενο γύρισμα να φέρει 2 έως 5 Στρατάρχες, χωρίς χρέωση.</p>
     <div class="testbar">
+      <button class="gold-btn" id="force2">Επανάληψη (2)</button>
       <button class="gold-btn" id="force3">Μπόνους (3)</button>
       <button class="gold-btn" id="force4">Μέγιστο μπόνους (4)</button>
       <button class="gold-btn" id="force5">Μέγιστο μπόνους (5)</button>
@@ -349,93 +350,6 @@ const WILD_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
         fill="none" stroke="#fff6c2" stroke-width=".8" opacity=".7" textLength="84" lengthAdjust="spacingAndGlyphs">WILD</text>
     </g></svg>`;
 
-// Full-body cartoon soldier: Greek camouflage, saluting, holding the Greek flag. Same thick-outline style as the cards.
-const TROOPER_SVG = (() => {
-  const O = '#1a1206';            // outline
-  const skin = '#f2c49b', skinSh = '#d9a277';
-  // Greek flag (9 stripes, canton with cross), gently waving via skewY slices
-  let flag = '';
-  const fx = 206, fy = 22, fw = 92, fh = 60, sh = fh / 9;
-  for (let i = 0; i < 9; i++) flag += `<rect x="${fx}" y="${(fy + i * sh).toFixed(2)}" width="${fw}" height="${(sh + .4).toFixed(2)}" fill="${i % 2 ? '#ffffff' : '#1d5fbf'}"/>`;
-  flag += `<rect x="${fx}" y="${fy}" width="${sh * 5}" height="${sh * 5}" fill="#1d5fbf"/>
-    <rect x="${fx + sh * 2}" y="${fy}" width="${sh}" height="${sh * 5}" fill="#fff"/><rect x="${fx}" y="${fy + sh * 2}" width="${sh * 5}" height="${sh}" fill="#fff"/>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 450">
-  <defs>
-    <pattern id="camo" width="48" height="48" patternUnits="userSpaceOnUse">
-      <rect width="48" height="48" fill="#6f7d47"/>
-      <path d="M2 6 q8 -6 16 0 q6 6 -2 10 q-8 4 -14 -2 z" fill="#3f4b28"/>
-      <path d="M26 2 q10 2 14 8 q-2 8 -12 6 q-6 -6 -2 -14 z" fill="#8f9a5e"/>
-      <path d="M30 24 q8 -4 14 2 q2 8 -8 10 q-10 0 -6 -12 z" fill="#3f4b28"/>
-      <path d="M4 28 q10 -2 14 6 q0 8 -10 8 q-8 -4 -4 -14 z" fill="#4e3b25"/>
-      <path d="M16 18 q6 -2 8 4 q-2 4 -8 2 z" fill="#8f9a5e"/>
-      <path d="M18 40 q8 -2 10 4 l-10 4 z" fill="#3f4b28"/>
-    </pattern>
-    <linearGradient id="pole" x1="0" x2="1"><stop offset="0" stop-color="#fff0b0"/><stop offset=".5" stop-color="#d8a43a"/><stop offset="1" stop-color="#8a5a10"/></linearGradient>
-    <clipPath id="wave"><path d="M206 22 C230 14 250 30 274 22 C286 18 294 20 298 22 L298 82 C290 80 282 78 274 82 C250 90 230 74 206 82 Z"/></clipPath>
-  </defs>
-  <!-- ground shadow -->
-  <ellipse cx="128" cy="436" rx="92" ry="10" fill="#000" opacity=".35"/>
-  <!-- flag + pole -->
-  <g clip-path="url(#wave)">${flag}</g>
-  <path d="M206 22 C230 14 250 30 274 22 C286 18 294 20 298 22 L298 82 C290 80 282 78 274 82 C250 90 230 74 206 82 Z" fill="none" stroke="${O}" stroke-width="3"/>
-  <rect x="199" y="14" width="9" height="420" rx="4" fill="url(#pole)" stroke="${O}" stroke-width="3"/>
-  <circle cx="203.5" cy="12" r="7" fill="#f2b62f" stroke="${O}" stroke-width="3"/>
-  <!-- legs -->
-  <path d="M76 286 L124 286 L120 404 L84 404 Z" fill="url(#camo)" stroke="${O}" stroke-width="3.5" stroke-linejoin="round"/>
-  <path d="M128 286 L178 286 L170 404 L134 404 Z" fill="url(#camo)" stroke="${O}" stroke-width="3.5" stroke-linejoin="round"/>
-  <path d="M84 380 L120 380 M134 380 L170 380" stroke="${O}" stroke-width="2.5" opacity=".6"/>
-  <!-- boots -->
-  <path d="M82 400 h40 v20 q0 9 -9 9 h-44 q-8 0 -6 -9 q2 -8 12 -10 z" fill="#232019" stroke="${O}" stroke-width="3.5" stroke-linejoin="round"/>
-  <path d="M132 400 h40 l3 18 q2 11 -9 11 h-34 q-6 0 -4 -8 z" fill="#232019" stroke="${O}" stroke-width="3.5" stroke-linejoin="round"/>
-  <path d="M70 422 h48 M136 422 h36" stroke="#4a443a" stroke-width="3"/>
-  <!-- arms (outline stroke, then camo stroke) -->
-  <path d="M168 168 L188 222 L201 256" fill="none" stroke="${O}" stroke-width="31" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M168 168 L188 222 L201 256" fill="none" stroke="url(#camo)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M84 168 L40 134 L80 88" fill="none" stroke="${O}" stroke-width="31" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M84 168 L40 134 L80 88" fill="none" stroke="url(#camo)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- torso -->
-  <path d="M74 156 Q127 140 180 156 L186 282 Q127 294 68 282 Z" fill="url(#camo)" stroke="${O}" stroke-width="3.5" stroke-linejoin="round"/>
-  <path d="M104 150 L127 182 L150 150" fill="#55633a" stroke="${O}" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M127 182 L127 276" stroke="${O}" stroke-width="2.5"/>
-  <rect x="88" y="200" width="28" height="22" rx="3" fill="none" stroke="${O}" stroke-width="2.5"/>
-  <rect x="138" y="200" width="28" height="22" rx="3" fill="none" stroke="${O}" stroke-width="2.5"/>
-  <!-- Greek flag patch on the arm + gold chevrons -->
-  <g transform="translate(172 178) rotate(68)"><rect x="0" y="-9" width="22" height="14" fill="#1d5fbf" stroke="${O}" stroke-width="2"/>
-    <rect x="0" y="-5.6" width="22" height="1.6" fill="#fff"/><rect x="0" y="-2.4" width="22" height="1.6" fill="#fff"/><rect x="0" y=".8" width="22" height="1.6" fill="#fff"/>
-    <rect x="0" y="-9" width="8" height="8" fill="#1d5fbf"/><rect x="3.2" y="-9" width="1.6" height="8" fill="#fff"/><rect x="0" y="-5.8" width="8" height="1.6" fill="#fff"/></g>
-  <path d="M86 166 l14 8 l14 -8 M86 174 l14 8 l14 -8" fill="none" stroke="#f2b62f" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M86 166 l14 8 l14 -8 M86 174 l14 8 l14 -8" fill="none" stroke="${O}" stroke-width="1" stroke-linejoin="round"/>
-  <!-- belt -->
-  <rect x="68" y="272" width="118" height="16" rx="2" fill="#2e2b22" stroke="${O}" stroke-width="3"/>
-  <rect x="117" y="270" width="20" height="20" rx="3" fill="#f2b62f" stroke="${O}" stroke-width="3"/>
-  <!-- neck + head -->
-  <rect x="113" y="128" width="28" height="26" fill="${skinSh}" stroke="${O}" stroke-width="3"/>
-  <ellipse cx="88" cy="100" rx="9" ry="12" fill="${skin}" stroke="${O}" stroke-width="3"/>
-  <ellipse cx="166" cy="100" rx="9" ry="12" fill="${skin}" stroke="${O}" stroke-width="3"/>
-  <path d="M90 92 Q90 50 127 50 Q164 50 164 92 Q166 132 127 140 Q88 132 90 92 Z" fill="${skin}" stroke="${O}" stroke-width="3.5"/>
-  <!-- face -->
-  <ellipse cx="112" cy="98" rx="8.5" ry="9.5" fill="#fff" stroke="${O}" stroke-width="2.5"/>
-  <ellipse cx="142" cy="98" rx="8.5" ry="9.5" fill="#fff" stroke="${O}" stroke-width="2.5"/>
-  <circle cx="113" cy="100" r="4.8" fill="#6b3f1d"/><circle cx="141" cy="100" r="4.8" fill="#6b3f1d"/>
-  <circle cx="113" cy="100" r="2.3" fill="${O}"/><circle cx="141" cy="100" r="2.3" fill="${O}"/>
-  <circle cx="114.6" cy="98" r="1.4" fill="#fff"/><circle cx="142.6" cy="98" r="1.4" fill="#fff"/>
-  <path d="M101 84 Q112 78 121 84 M133 84 Q142 78 153 84" fill="none" stroke="#3a2412" stroke-width="4.5" stroke-linecap="round"/>
-  <path d="M127 104 Q123 114 128 116" fill="none" stroke="${O}" stroke-width="2.5" stroke-linecap="round"/>
-  <path d="M110 122 Q127 134 144 122 Q127 128 110 122 Z" fill="#fff" stroke="${O}" stroke-width="2.5" stroke-linejoin="round"/>
-  <path d="M98 112 q4 3 8 0 M148 112 q4 3 8 0" stroke="#e8987a" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7"/>
-  <!-- patrol cap with gold grenade -->
-  <path d="M90 82 Q88 42 127 38 Q166 42 164 82 Z" fill="url(#camo)" stroke="${O}" stroke-width="3.5" stroke-linejoin="round"/>
-  <path d="M86 82 Q127 72 168 82 Q172 92 160 92 Q127 84 94 92 Q82 92 86 82 Z" fill="#4c5a2e" stroke="${O}" stroke-width="3.5" stroke-linejoin="round"/>
-  <g transform="translate(127 58)" stroke="${O}" stroke-width="1.6">
-    <path d="M-4 -4 C-8 -9 -5 -13 -2 -16 C-2 -12 0 -12 1 -13 C1 -17 3 -20 5 -22 C5 -17 7 -14 6 -11 C9 -13 9 -15 9 -16 C11 -11 9 -7 4 -4 Z" fill="#ffe68a"/>
-    <circle cx="0" cy="3" r="7" fill="#f2b62f"/></g>
-  <!-- saluting hand at the cap brim, and the hand on the pole -->
-  <path d="M70 92 Q72 76 92 78 Q100 80 98 88 Q90 92 80 96 Q72 98 70 92 Z" fill="${skin}" stroke="${O}" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M80 84 L94 82 M78 89 L92 87" stroke="${skinSh}" stroke-width="2"/>
-  <ellipse cx="203" cy="258" rx="13" ry="11" fill="${skin}" stroke="${O}" stroke-width="3"/>
-  <path d="M195 254 h16 M195 260 h16" stroke="${skinSh}" stroke-width="2"/>
-</svg>`;
-})();
 
 const NAMES = { L10:'Δέκα', LJ:'Βαλές (J)', LQ:'Ντάμα (Q)', LK:'Ρήγας (K)', LH:'Γράμμα H', LM:'Γράμμα M',
   PVT:'Στρατιώτης', SGT:'Λοχίας', SSG:'Επιλοχίας', MSG:'Αρχιλοχίας', LT2:'Ανθυπολοχαγός', LT1:'Υπολοχαγός', CPT:'Λοχαγός',
@@ -451,7 +365,6 @@ const GROUP = { PVT:'Οπλίτης', SGT:'Υπαξιωματικός', SSG:'Υ�
   css.push(`.cell.s-BONUS .pic{background-image:${svgURI(BONUS_SVG)}}`, `.cell.s-WILD .pic{background-image:${svgURI(WILD_SVG)}}`);
   const st = document.createElement('style'); st.textContent = css.join('\n'); document.body.appendChild(st);
 })();
-document.querySelectorAll('.trooper').forEach(i => i.src = 'data:image/svg+xml,' + encodeURIComponent(TROOPER_SVG));
 document.documentElement.style.setProperty('--scene', `url("${SCENE_IMG}")`);
 const cellHTML = sym => `<div class="cell s-${sym}" data-sym="${sym}"><div class="pic"></div><span class="lbl">${LABEL[sym] || ''}</span><div class="fr"></div></div>`;
 document.querySelectorAll('.frame').forEach(f => ['tl', 'tr', 'bl', 'br'].forEach(p => { const g = document.createElement('span'); g.className = 'gem ' + p; f.appendChild(g); }));
@@ -602,7 +515,8 @@ const Sound = (() => {
       });
       for (let i = 0; i < 8; i++) noise(sfxGain, t + i * .06, .1, { vol: .14, freq: 1800 });
     }),
-    click: () => fx(t => tone(sfxGain, 1400, t, .04, { type: 'square', vol: .06 }))
+    click: () => fx(t => tone(sfxGain, 1400, t, .04, { type: 'square', vol: .06 })),
+    step: () => fx(t => { tone(sfxGain, 260, t, .12, { type: 'triangle', vol: .35, slideTo: 150 }); noise(sfxGain, t, .06, { vol: .12, freq: 900, type: 'lowpass' }); })
   };
 })();
 
@@ -616,7 +530,6 @@ for (let c = 0; c < REELS; c++) {
   const lock = document.createElement('div'); lock.className = 'locks'; lock.hidden = true;
   const col = [];
   for (let r = 0; r < ROWS; r++) { strip.insertAdjacentHTML('beforeend', cellHTML('L10')); col.push(strip.lastElementChild); }
-  for (let r = 0; r < ROWS; r++) lock.insertAdjacentHTML('beforeend', cellHTML('WILD'));
   reel.append(strip, lock); board.appendChild(reel);
   cells.push(col); strips.push(strip); locks.push(lock);
 }
@@ -628,10 +541,15 @@ function setCell(c, r, sym) {
   el.querySelector('.lbl').textContent = LABEL[sym] || '';
 }
 const randomSym = c => drawCell(c, rng, false);
-function clearHighlights() { board.classList.remove('has-win'); cells.flat().forEach(e => e.classList.remove('win', 'locked')); }
+function clearHighlights() {
+  board.classList.remove('has-win');
+  cells.flat().forEach(e => { e.classList.remove('win', 'held', 'tag-stay', 'tag-down'); delete e.dataset.tag; });
+}
+function tag(c, r, stay) { const el = cells[c][r]; el.dataset.tag = stay ? 'ΜΕΝΕΙ' : '▼ ΚΑΤΩ'; el.classList.add(stay ? 'tag-stay' : 'tag-down'); }
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function animateTo(grid, sticky) {
+// fixed: [{c, r, fromR, sym}] symbols that slide from row fromR to row r and stay still while the reel rolls
+function animateTo(grid, fixed = []) {
   clearHighlights();
   Sound.spinStart();
   const t = S.turbo ? { base: 420, step: 110, tension: 500 } : { base: 900, step: 240, tension: 1100 };
@@ -652,11 +570,20 @@ function animateTo(grid, sticky) {
     reel.style.height = reel.offsetHeight + 'px';
     strip.insertAdjacentHTML('afterbegin', html.join(''));
     const travel = (ROWS + filler) * pitch;
-    // locked wilds stay still on top while the strip rolls underneath
+    // held symbols step down (or stay) on top while the strip rolls underneath
     const lock = locks[c];
-    if (sticky && sticky[c].some(Boolean)) {
-      [...lock.children].forEach((el, r) => { el.style.visibility = sticky[c][r] ? 'visible' : 'hidden'; el.classList.add('locked'); });
+    lock.innerHTML = '';
+    const items = fixed.filter(f => f.c === c);
+    if (items.length) {
       lock.hidden = false;
+      for (const f of items) {
+        lock.insertAdjacentHTML('beforeend', cellHTML(f.sym));
+        const el = lock.lastElementChild; el.classList.add('held');
+        const from = (f.fromR ?? f.r) * pitch, to = f.r * pitch;
+        el.style.transform = `translateY(${to}px)`;
+        if (from !== to) el.animate([{ transform: `translateY(${from}px)`, opacity: 1 }, { transform: `translateY(${to}px)`, opacity: f.r >= ROWS ? 0 : 1 }],
+          { duration: reduceMotion ? 1 : (S.turbo ? 220 : 420), easing: 'cubic-bezier(.45,0,.3,1.25)', fill: 'forwards' });
+      }
     }
     const startDelay = c * (S.turbo ? 25 : 55);
     const anim = reduceMotion
@@ -680,7 +607,7 @@ function animateTo(grid, sticky) {
       reel.style.height = '';
       cells[c] = [...strip.children];
       lock.hidden = true;
-      if (sticky) cells[c].forEach((el, r) => el.classList.toggle('locked', !!sticky[c][r]));
+      items.forEach(f => { if (f.r < ROWS) cells[c][f.r].classList.add('held'); });
     }));
     bonusBefore += grid[c].filter(s => s === BONUS).length;
     prevStop = dur;
@@ -712,7 +639,7 @@ function render() {
   $('betDown').disabled = S.busy || S.betIdx === 0;
   $('betUp').disabled = S.busy || S.betIdx === BETS.length - 1;
   $('spinBtn').disabled = S.busy || S.balance < bet();
-  ['force3', 'force4', 'force5'].forEach(id => $(id).disabled = S.busy);
+  ['force2', 'force3', 'force4', 'force5'].forEach(id => $(id).disabled = S.busy);
   $('sessionRtp').textContent = S.wagered ? (100 * S.returned / S.wagered).toFixed(1).replace('.', ',') + '%' : '–';
   renderLadder();
   store.set('balance', S.balance); store.set('betIdx', S.betIdx);
@@ -746,9 +673,12 @@ function overlay(html, btnText) {
 
 function forcedGrid(n) {
   const grid = spinGrid(rng, { allowBonus: false });
-  [0, 1, 2, 3, 4].sort(() => rng() - 0.5).slice(0, n).forEach(c => grid[c][Math.floor(rng() * ROWS)] = BONUS);
+  // 2 medals land high up so the respins have room to walk down
+  [0, 1, 2, 3, 4].sort(() => rng() - 0.5).slice(0, n).forEach(c => grid[c][n === 2 ? Math.floor(rng() * 2) : Math.floor(rng() * ROWS)] = BONUS);
   return grid;
 }
+
+function setMode(text, cls = '') { $('mode').textContent = text; $('mode').className = 'mode ' + cls; }
 
 async function spin(force = 0) {
   if (S.busy) return;
@@ -759,13 +689,34 @@ async function spin(force = 0) {
   if (!force) { S.balance -= b; S.wagered += b; }
   render();
   $('winbar').innerHTML = '<span class="idle">Γυρίζει…</span>';
-  const grid = force ? forcedGrid(force) : spinGrid(rng);
-  await animateTo(grid, null);
-  const res = evaluate(grid);
-  const win = Math.min(res.total, MAX_WIN) * b;
-  showWins(res, b);
-  S.balance += win; if (!force) S.returned += win;
-  render();
+  let grid = force ? forcedGrid(force) : spinGrid(rng);
+  await animateTo(grid);
+  let res = evaluate(grid);
+  const pay = r => { const w = Math.min(r.total, MAX_WIN) * b; S.balance += w; if (!force) S.returned += w; };
+  showWins(res, b); pay(res); render();
+
+  // 2 medals: free respins, both step down one row each time, until one reaches the bottom row
+  let pos = medalsOf(grid);
+  if (res.bonusCount < 3 && canRespin(pos)) {
+    const total = ROWS - 1 - Math.max(...pos.map(p => p.r));
+    setMode('2 Στρατάρχες · Επανάληψη', 'bonus');
+    pos.forEach(p => tag(p.c, p.r, false));
+    await sleep(S.turbo ? 500 : 1200);
+    for (let k = 1; res.bonusCount < 3 && canRespin(pos); k++) {
+      $('fsInfo').textContent = `Επανάληψη ${k} / ${total}`;
+      const fixed = stepDown(pos, BONUS);
+      grid = spinGrid(rng, { fixed });
+      Sound.step();
+      await animateTo(grid, fixed);
+      res = evaluate(grid);
+      showWins(res, b); pay(res); render();
+      pos = medalsOf(grid);
+      if (res.bonusCount < 3 && canRespin(pos)) pos.forEach(p => tag(p.c, p.r, false));
+      await sleep(res.total > 0 ? (S.turbo ? 500 : 1100) : (S.turbo ? 300 : 700));
+    }
+    setMode('Βασικό παιχνίδι'); $('fsInfo').textContent = '';
+  }
+
   if (res.bonusCount >= 3) {
     await sleep(S.turbo ? 500 : 1300);
     const fsWin = await runBonus(res.bonusCount, b);
@@ -781,28 +732,25 @@ async function runBonus(n, b) {
   Sound.fanfare();
   await overlay(`<div class="kicker">Έπεσαν ${n} Στρατάρχες</div>
     <div class="big goldtext">${max ? 'Μέγιστο μπόνους' : 'Μπόνους'}</div>
-    <p>${spins} δωρεάν γυρίσματα.${max ? ' Κάθε μπαλαντέρ που πέφτει κλειδώνει στη θέση του μέχρι το τέλος.' : ' Οι μπαλαντέρ έρχονται πιο συχνά.'}</p>`, 'Εμπρός');
-  $('mode').textContent = max ? 'Μέγιστο μπόνους' : 'Μπόνους';
-  $('mode').className = 'mode ' + (max ? 'max' : 'bonus');
+    <p>${spins} δωρεάν γυρίσματα.${max ? ' Ένα WILD που κερδίζει μένει στη θέση του. Ένα WILD χωρίς κέρδος κατεβαίνει μία σειρά.' : ' Τα WILD έρχονται πιο συχνά.'}</p>`, 'Εμπρός');
+  setMode(max ? 'Μέγιστο μπόνους' : 'Μπόνους', max ? 'max' : 'bonus');
   Sound.setBonus(true);
-  const sticky = Array.from({ length: REELS }, () => Array(ROWS).fill(false));
-  let total = 0;
+  let wilds = [], total = 0;
   for (let i = 0; i < spins; i++) {
     $('fsInfo').textContent = `Γύρισμα ${i + 1} / ${spins} · Κέρδος ${fmt(total * b)}`;
-    const grid = spinGrid(rng, { allowBonus: false, sticky: max ? sticky : null, fs: true });
-    await animateTo(grid, max ? sticky : null);
-    if (max) for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++)
-      if (grid[c][r] === WILD && !sticky[c][r]) { sticky[c][r] = true; cells[c][r].classList.add('locked'); }
+    const grid = spinGrid(rng, { allowBonus: false, fixed: wilds.filter(w => w.r < ROWS), fs: true });
+    if (wilds.some(w => w.r !== w.fromR)) Sound.step();
+    await animateTo(grid, wilds);
     const res = evaluate(grid);
     total = Math.min(total + res.total, MAX_WIN);
     showWins(res, b);
+    if (max) { wilds = nextWilds(grid, res); wilds.forEach(w => tag(w.c, w.fromR, w.stay)); }
     $('fsInfo').textContent = `Γύρισμα ${i + 1} / ${spins} · Κέρδος ${fmt(total * b)}`;
-    await sleep(res.total > 0 ? (S.turbo ? 500 : 1300) : (S.turbo ? 200 : 500));
+    await sleep(res.total > 0 ? (S.turbo ? 600 : 1400) : (S.turbo ? 300 : 700));
     if (total >= MAX_WIN) break;
   }
-  cells.flat().forEach(e => e.classList.remove('locked'));
   Sound.setBonus(false);
-  $('mode').textContent = 'Βασικό παιχνίδι'; $('mode').className = 'mode'; $('fsInfo').textContent = '';
+  setMode('Βασικό παιχνίδι'); $('fsInfo').textContent = '';
   await overlay(`<div class="kicker">Αποστολή εξετελέσθη</div><div class="big goldtext">${fmt(total * b)}</div>
     <p>${total.toFixed(1).replace('.', ',')}× το πόνταρισμα σε ${spins} δωρεάν γυρίσματα.</p>`, 'Είσπραξη');
   clearHighlights();
@@ -822,6 +770,7 @@ document.addEventListener('pointerdown', () => Sound.unlock(), { once: true });
 $('turbo').onclick = e => { S.turbo = !S.turbo; e.currentTarget.setAttribute('aria-pressed', S.turbo); };
 $('auto').onclick = e => { S.auto = !S.auto; e.currentTarget.setAttribute('aria-pressed', S.auto); if (S.auto && !S.busy) spin(); };
 $('refill').onclick = () => { if (!S.busy) { S.balance += 1000; render(); } };
+$('force2').onclick = () => spin(2);
 $('force3').onclick = () => spin(3);
 $('force4').onclick = () => spin(4);
 $('force5').onclick = () => spin(5);
