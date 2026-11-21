@@ -14,3 +14,11 @@ Greek Army themed 5x4, 1024-ways slot in the "card edition" art style. Demo cred
 - `daily.js` – 365 days x 1000 new players a day, sessions up to 300 rounds, cash out at 200 (results: `daily-result.json`).
 
 Current tuning: ~90% RTP (89.8% measured), medal respin 1 in 60 rounds, bonus 1 in 164 (~19x avg), max bonus 1 in 3,190 (~345x avg). Limits (Greek rules found online, to be confirmed with a specialist): max bet 20, 3 s minimum between paid rounds, max win 10,000x bet and at most 140,000 per round.
+
+## Evidence for studios / aggregators
+
+- `node --test web/tests/engine.test.js` – 24 rule tests (all passing).
+- `node web/rngtest.js 10000000` – RNG statistical pre-checks (results: `par/rng-tests.json`).
+- `node web/par.js <rounds> <seed> <payScale>` + `node web/par-report.js web/par/chunks web/par` – PAR sheet.
+  Current sheet: 5 RTP profiles (96/94/92/90/88) x 100M rounds, seeded and reproducible (`par/par-sheet.json`).
+  The 90% profile is the paytable shipped in the game.
