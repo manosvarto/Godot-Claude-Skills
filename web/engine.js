@@ -1,19 +1,21 @@
 // Slot engine: 5 reels x 4 rows, 1024 ways. Pure logic, no DOM.
 const REELS = 5, ROWS = 4;
 // Ladder, lowest rung first. Index = rank.
-const SYMBOLS = ['PVT','CPL','SGT','LT','CPT','MAJ','COL','GEN'];
-const WILD = 'WILD', BONUS = 'BONUS';
+// Λοχίας, Επιλοχίας, Αρχιλοχίας, Ανθυπολοχαγός, Υπολοχαγός, Λοχαγός,
+// Ταγματάρχης, Αντισυνταγματάρχης, Συνταγματάρχης, Στρατηγός
+const SYMBOLS = ['SGT','SSG','MSG','LT2','LT1','CPT','MAJ','LTC','COL','GEN'];
+const WILD = 'WILD', BONUS = 'BONUS';   // BONUS = Στρατάρχης
 // Per-cell draw weights (non-bonus). Wild only on reels 2-4.
-const WEIGHTS = { PVT:30, CPL:28, SGT:25, LT:18, CPT:15, MAJ:11, COL:8, GEN:5 };
-const WILD_W = [0, 4, 4, 4, 0];
-const WILD_W_FS = [0, 10, 10, 10, 0];   // wilds land more often in free spins
+const WEIGHTS = { SGT:28, SSG:26, MSG:24, LT2:20, LT1:17, CPT:15, MAJ:12, LTC:10, COL:7, GEN:4 };
+const WILD_W = [0, 5, 5, 5, 0];
+const WILD_W_FS = [0, 12, 12, 12, 0];   // wilds land more often in free spins
 const BONUS_P = 0.09;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
 let PAY = {
-  PVT:[.07,.13,.33], CPL:[.07,.13,.40], SGT:[.13,.26,.53], LT:[.13,.33,.66],
-  CPT:[.20,.40,1.0], MAJ:[.26,.66,1.32], COL:[.40,1.0,2.0], GEN:[.66,2.0,5.3]
+  SGT:[0.12,0.24,0.59], SSG:[0.12,0.24,0.71], MSG:[0.19,0.35,0.82], LT2:[0.24,0.47,0.94], LT1:[0.24,0.59,1.18],
+  CPT:[0.35,0.71,1.41], MAJ:[0.47,0.94,1.88], LTC:[0.59,1.41,2.83], COL:[0.94,2.35,4.71], GEN:[1.41,4.71,14.1]
 };
-const BONUS_PAY = { 3: 2, 4: 10, 5: 100 };   // x total bet
+const BONUS_PAY = { 3: 1, 4: 10, 5: 100 };   // x total bet
 const MAX_WIN = 10000;                       // x total bet, per spin/feature
 const spinsFor = n => 10 + 2 * (n - 3);      // 3 -> 10, 4 -> 12, 5 -> 14
 
