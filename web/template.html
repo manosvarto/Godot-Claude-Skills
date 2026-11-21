@@ -1,4 +1,4 @@
-<title>Ιεραρχία</title>
+<title>Greek Army</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@800;900&family=Fira+Sans+Condensed:wght@500;600;700;800&display=swap">
@@ -51,13 +51,9 @@ header { display: grid; gap: 6px; justify-items: center; text-align: center; pos
 /* Soldier: beside the board when the screen has room, beside the title on phones */
 .trooper { display: block; pointer-events: none; filter: drop-shadow(0 10px 14px rgba(0,0,0,.6)); }
 .trooper-side { position: absolute; right: calc(100% + 18px); bottom: -14px; width: min(320px, calc((100vw - 660px) / 2 - 22px)); height: auto; }
-.trooper-head { display: none; }
-@media (max-width: 939px) {
-  .trooper-side { display: none; }
-  .trooper-head { display: block; position: absolute; left: -6px; top: 26px; width: 92px; height: auto; }
-  header { padding-left: 70px; }
-}
-@media (max-width: 480px) { .trooper-head { width: 78px; top: 34px; left: -10px; } header { padding-left: 56px; } }
+@media (max-width: 939px) { .trooper-side { display: none; } }
+.logo-frame { width: min(400px, 82vw); padding: 6px; }
+.logo { display: block; width: 100%; height: auto; aspect-ratio: 1; border-radius: 4px; }
 .eyebrow { font-weight: 700; letter-spacing: .24em; text-transform: uppercase; font-size: 13px; color: var(--gold-hi); }
 h1 { margin: 0; font-size: clamp(46px, 13vw, 78px); line-height: .95; text-transform: uppercase; text-wrap: balance; }
 .ribbon { display: inline-block; padding: 4px 16px; border-radius: 4px; font-weight: 800; letter-spacing: .2em; font-size: 13px; text-transform: uppercase;
@@ -85,7 +81,10 @@ h1 { margin: 0; font-size: clamp(46px, 13vw, 78px); line-height: .95; text-trans
 .status .mode.max { color: #ff9b6a; }
 .status .fs { font-weight: 800; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
 .board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 6px; border-radius: 6px; background: #0b0e15; box-shadow: inset 0 0 0 2px #000, inset 0 0 24px rgba(0,0,0,.9); }
-.reel { display: grid; gap: 6px; border-radius: 6px; }
+.reel { position: relative; overflow: hidden; border-radius: 6px; }
+.strip { display: grid; gap: 6px; will-change: transform; backface-visibility: hidden; }
+.locks { position: absolute; inset: 0; display: grid; gap: 6px; align-content: start; z-index: 3; pointer-events: none; }
+.locks[hidden] { display: none; }
 .reel.tension { box-shadow: 0 0 0 2px var(--gold-hi), 0 0 20px rgba(255,230,138,.7); animation: tension .5s ease-in-out infinite alternate; }
 @keyframes tension { from { box-shadow: 0 0 0 2px var(--gold), 0 0 8px rgba(255,230,138,.3); } to { box-shadow: 0 0 0 2px var(--gold-hi), 0 0 24px rgba(255,230,138,.9); } }
 
@@ -99,9 +98,6 @@ h1 { margin: 0; font-size: clamp(46px, 13vw, 78px); line-height: .95; text-trans
   white-space: nowrap; overflow: hidden; text-overflow: clip; }
 .cell .lbl:empty { display: none; }
 .cell.s-BONUS { filter: drop-shadow(0 0 6px rgba(255,214,90,.75)); }
-.reel.spinning .cell .pic { filter: blur(1.8px) brightness(1.05); transform: translateY(3px); }
-.cell.land { animation: land .22s ease-out; }
-@keyframes land { 0% { transform: translateY(-10%); } 70% { transform: translateY(3%); } 100% { transform: none; } }
 .board.has-win .cell:not(.win) { opacity: .3; filter: grayscale(.75); }
 .cell.win { animation: pulse .9s ease-in-out infinite; z-index: 1; }
 @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); filter: drop-shadow(0 0 10px rgba(255,230,138,.95)); } }
@@ -180,7 +176,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
 
 @media (max-width: 480px) {
   .inner { padding: 10px; }
-  .board { gap: 4px; padding: 4px; } .reel { gap: 4px; }
+  .board { gap: 4px; padding: 4px; } .strip, .locks { gap: 4px; }
   .controls { gap: 8px; }
   .spin { width: 80px; height: 80px; font-size: 16px; }
   .readout .value { font-size: 20px; }
@@ -190,15 +186,13 @@ h2 { margin: 0 0 4px; font-size: 26px; }
   .pt { grid-template-columns: 46px minmax(0,1fr); gap: 8px; padding: 6px; } .pt .cell { width: 46px; }
   .pt.top .pays { grid-template-columns: repeat(3, auto 1fr); }
 }
-@media (prefers-reduced-motion: reduce) { .cell.win, .reel.tension, .cell.land { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .cell.win, .reel.tension { animation: none; } }
 </style>
 
 <div class="wrap" lang="el">
   <header>
-    <img class="trooper trooper-head" alt="" aria-hidden="true">
     <div class="eyebrow">Ελληνικός Στρατός Ξηράς · 5 τροχοί · 1024 τρόποι</div>
-    <h1 class="goldtext">Ιεραρχία</h1>
-    <span class="ribbon">Έκδοση καρτών</span>
+    <h1 class="frame logo-frame"><img class="logo" id="logo" alt="Greek Army" width="720" height="720"></h1>
     <div class="sub">Ανέβα από Στρατιώτη σε Στρατηγό. 3 Στρατάρχες ανοίγουν το μπόνους.</div>
   </header>
 
@@ -234,6 +228,8 @@ h2 { margin: 0 0 4px; font-size: 26px; }
         <button class="gold-btn" id="turbo" aria-pressed="false">Γρήγορο</button>
         <button class="gold-btn" id="auto" aria-pressed="false">Αυτόματο</button>
         <button class="gold-btn" id="refill">Γέμισμα 1.000</button>
+        <button class="gold-btn" id="music" aria-pressed="true">Μουσική</button>
+        <button class="gold-btn" id="sfx" aria-pressed="true">Ήχοι</button>
       </div>
     </div>
   </div>
@@ -445,6 +441,7 @@ const GROUP = { PVT:'Οπλίτης', SGT:'Υπαξιωματικός', SSG:'Υ�
   const st = document.createElement('style'); st.textContent = css.join('\n'); document.body.appendChild(st);
 })();
 document.querySelectorAll('.trooper').forEach(i => i.src = 'data:image/svg+xml,' + encodeURIComponent(TROOPER_SVG));
+document.getElementById('logo').src = LOGO_IMG;
 const cellHTML = sym => `<div class="cell s-${sym}" data-sym="${sym}"><div class="pic"></div><span class="lbl">${LABEL[sym] || ''}</span><div class="fr"></div></div>`;
 document.querySelectorAll('.frame').forEach(f => ['tl', 'tr', 'bl', 'br'].forEach(p => { const g = document.createElement('span'); g.className = 'gem ' + p; f.appendChild(g); }));
 
@@ -461,14 +458,156 @@ const fmt = n => n.toLocaleString('el-GR', { minimumFractionDigits: 2, maximumFr
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const bet = () => BETS[S.betIdx];
 
-// ---------- Board ----------
+// ---------- Sound: march music + effects, all synthesized with Web Audio ----------
+const Sound = (() => {
+  let ctx = null, comp, musicGain, sfxGain, noiseBuf;
+  const pref = { music: store.get('music', true), sfx: store.get('sfx', true) };
+  const MUSIC_VOL = 0.30, SFX_VOL = 0.55;
+  const hz = m => 440 * Math.pow(2, (m - 69) / 12);
+
+  function ensure() {
+    if (!ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      try { ctx = new AC(); } catch { return null; }
+      comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
+      const master = ctx.createGain(); master.gain.value = 0.9;
+      comp.connect(master); master.connect(ctx.destination);
+      musicGain = ctx.createGain(); musicGain.gain.value = pref.music ? MUSIC_VOL : 0; musicGain.connect(comp);
+      sfxGain = ctx.createGain(); sfxGain.gain.value = pref.sfx ? SFX_VOL : 0; sfxGain.connect(comp);
+      noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+      const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    return ctx;
+  }
+
+  // --- building blocks ---
+  function tone(dest, freq, t, dur, { type = 'square', vol = .2, attack = .005, cutoff = 0, slideTo = 0 } = {}) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    let node = o;
+    if (cutoff) { const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = cutoff; o.connect(f); node = f; }
+    node.connect(g); g.connect(dest);
+    o.start(t); o.stop(t + dur + .05);
+  }
+  function noise(dest, t, dur, { vol = .2, type = 'highpass', freq = 1500, q = .7, sweepTo = 0 } = {}) {
+    const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    s.buffer = noiseBuf; f.type = type; f.frequency.setValueAtTime(freq, t); f.Q.value = q;
+    if (sweepTo) f.frequency.exponentialRampToValueAtTime(sweepTo, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(dest);
+    s.start(t, Math.random() * .5); s.stop(t + dur + .05);
+  }
+  const snare = (t, v) => { noise(musicGain, t, .14, { vol: .32 * v, freq: 1800 }); tone(musicGain, 190, t, .08, { type: 'triangle', vol: .18 * v }); };
+  const kick = t => tone(musicGain, 120, t, .22, { type: 'sine', vol: .7, slideTo: 42 });
+  const crash = t => noise(musicGain, t, 1.2, { vol: .10, freq: 6000 });
+
+  // --- march: Bb major, 8 bars of 16th-note steps ---
+  const MEL = [ // [step, midi, length in steps]
+    [0,65,2],[2,70,2],[4,74,4],[8,70,2],[10,74,2],[12,77,4],
+    [16,79,3],[19,77,1],[20,75,4],[24,67,2],[26,70,2],[28,75,4],
+    [32,77,2],[34,75,2],[36,74,2],[38,72,2],[40,69,4],[44,72,2],[46,77,2],
+    [48,74,6],[54,70,2],[56,65,4],
+    [64,70,2],[66,74,2],[68,77,4],[72,82,4],[76,77,4],
+    [80,79,3],[83,77,1],[84,74,4],[88,70,4],[92,67,4],
+    [96,75,2],[98,79,2],[100,82,4],[104,81,2],[106,77,2],[108,72,4],
+    [112,70,8]
+  ];
+  const melAt = {}; MEL.forEach(([s, m, l]) => melAt[s] = [m, l]);
+  const CHORDS = [[46,58,62,65],[51,58,63,67],[53,57,60,65],[46,58,62,65],[46,58,62,65],[43,58,62,67],[51,55,58,63],[46,58,62,65]];
+  const CHORD_B7 = [53, 57, 60, 65]; // F for the second half of bar 7
+  const SNARE = [1,0,0,0, .6,0,.5,.5, 1,0,0,0, .6,0,.5,0];
+  let playing = false, step = 0, nextTime = 0, timer = null, bonusMode = false;
+
+  function playStep(s, t, spb) {
+    const bar = s >> 4, inBar = s & 15;
+    const chord = bar === 6 && inBar >= 8 ? CHORD_B7 : CHORDS[bar];
+    if (s === 0) crash(t);
+    if (inBar === 0 || inBar === 8) kick(t);
+    const sv = bar === 7 && inBar >= 12 ? .8 : SNARE[inBar];
+    if (sv) snare(t, sv);
+    if (bar === 7 && inBar >= 12) snare(t + spb / 2, .55);           // roll into the loop
+    if (inBar === 0 || inBar === 8) tone(musicGain, hz(chord[0] - 12 + (inBar === 8 ? 7 : 0)), t, spb * 3.5, { type: 'triangle', vol: .42 });
+    if (inBar === 4 || inBar === 12) chord.slice(1).forEach(m => tone(musicGain, hz(m - 12), t, spb * 1.6, { type: 'sawtooth', vol: .045, cutoff: 1300 }));
+    const n = melAt[s];
+    if (n) {
+      tone(musicGain, hz(n[0]), t, spb * n[1] * .92, { type: 'square', vol: .085, attack: .012, cutoff: 2400 });
+      tone(musicGain, hz(n[0] - 12), t, spb * n[1] * .92, { type: 'sawtooth', vol: .04, attack: .02, cutoff: 1500 });
+      if (bonusMode) tone(musicGain, hz(n[0] + 12), t, spb * n[1] * .8, { type: 'triangle', vol: .05 });
+    }
+  }
+  function tick() {
+    const spb = 60 / (bonusMode ? 138 : 112) / 4;
+    if (nextTime < ctx.currentTime - .25) nextTime = ctx.currentTime + .05;  // came back from a pause
+    while (nextTime < ctx.currentTime + .15) { playStep(step % 128, nextTime, spb); nextTime += spb; step++; }
+  }
+  function startMusic() {
+    if (playing || !pref.music || !ensure()) return;
+    playing = true; step = 0; nextTime = ctx.currentTime + .08;
+    timer = setInterval(tick, 25);
+  }
+  function stopMusic() { playing = false; clearInterval(timer); }
+  document.addEventListener('visibilitychange', () => {
+    if (!ctx) return;
+    if (document.hidden) ctx.suspend().catch(() => {}); else ctx.resume().catch(() => {});
+  });
+
+  // --- effects ---
+  const fx = f => { if (pref.sfx && ensure()) f(ctx.currentTime); };
+  return {
+    pref,
+    unlock() { if (ensure() && pref.music) startMusic(); },
+    setMusic(on) {
+      pref.music = on; store.set('music', on);
+      if (!ensure()) return;
+      musicGain.gain.setTargetAtTime(on ? MUSIC_VOL : 0, ctx.currentTime, .05);
+      if (on) startMusic(); else stopMusic();
+    },
+    setSfx(on) { pref.sfx = on; store.set('sfx', on); if (ensure()) sfxGain.gain.setTargetAtTime(on ? SFX_VOL : 0, ctx.currentTime, .05); },
+    setBonus(on) { bonusMode = on; },
+    spinStart: () => fx(t => noise(sfxGain, t, .3, { vol: .18, type: 'bandpass', freq: 500, sweepTo: 2200, q: 1.2 })),
+    reelStop: (delay = 0) => fx(t => { t += delay;
+      tone(sfxGain, 95, t, .13, { type: 'sine', vol: .55, slideTo: 48 });
+      noise(sfxGain, t, .05, { vol: .2, freq: 2500 }); }),
+    medal: (n, delay = 0) => fx(t => { t += delay; const b = 76 + n * 3;
+      tone(sfxGain, hz(b), t, .7, { type: 'sine', vol: .3 }); tone(sfxGain, hz(b + 7), t + .06, .6, { type: 'sine', vol: .2 });
+      tone(sfxGain, hz(b + 12), t + .12, .8, { type: 'triangle', vol: .15 }); }),
+    win: x => fx(t => {
+      const notes = [70, 74, 77, 82, 86, 89, 94, 98], n = x >= 20 ? 8 : x >= 5 ? 6 : x >= 1 ? 4 : 3;
+      for (let i = 0; i < n; i++) tone(sfxGain, hz(notes[i]), t + i * .075, .28, { type: 'square', vol: .12, cutoff: 3200 });
+      if (x >= 5) tone(sfxGain, hz(notes[n - 1]), t + n * .075, .9, { type: 'triangle', vol: .2 });
+    }),
+    fanfare: () => fx(t => {
+      musicGain.gain.setTargetAtTime(pref.music ? MUSIC_VOL * .25 : 0, t, .05);
+      musicGain.gain.setTargetAtTime(pref.music ? MUSIC_VOL : 0, t + 2.2, .3);
+      [[65,0,.14],[65,.16,.14],[65,.32,.14],[70,.48,.45],[74,.98,.3],[77,1.3,.3],[82,1.62,1.1]].forEach(([m, dt, d]) => {
+        tone(sfxGain, hz(m), t + dt, d, { type: 'sawtooth', vol: .16, attack: .02, cutoff: 2600 });
+        tone(sfxGain, hz(m - 12), t + dt, d, { type: 'square', vol: .07, attack: .02, cutoff: 1400 });
+      });
+      for (let i = 0; i < 8; i++) noise(sfxGain, t + i * .06, .1, { vol: .14, freq: 1800 });
+    }),
+    click: () => fx(t => tone(sfxGain, 1400, t, .04, { type: 'square', vol: .06 }))
+  };
+})();
+
+// ---------- Board: each reel is a window over a strip that really rolls ----------
 const board = $('board');
-const cells = [];
+const cells = [];   // cells[c][r] = the visible cell elements
+const strips = [], locks = [];
 for (let c = 0; c < REELS; c++) {
   const reel = document.createElement('div'); reel.className = 'reel';
+  const strip = document.createElement('div'); strip.className = 'strip';
+  const lock = document.createElement('div'); lock.className = 'locks'; lock.hidden = true;
   const col = [];
-  for (let r = 0; r < ROWS; r++) { reel.insertAdjacentHTML('beforeend', cellHTML('L10')); col.push(reel.lastElementChild); }
-  board.appendChild(reel); cells.push(col);
+  for (let r = 0; r < ROWS; r++) { strip.insertAdjacentHTML('beforeend', cellHTML('L10')); col.push(strip.lastElementChild); }
+  for (let r = 0; r < ROWS; r++) lock.insertAdjacentHTML('beforeend', cellHTML('WILD'));
+  reel.append(strip, lock); board.appendChild(reel);
+  cells.push(col); strips.push(strip); locks.push(lock);
 }
 const reels = [...board.children];
 function setCell(c, r, sym) {
@@ -478,33 +617,64 @@ function setCell(c, r, sym) {
   el.querySelector('.lbl').textContent = LABEL[sym] || '';
 }
 const randomSym = c => drawCell(c, rng, false);
-function clearHighlights() { board.classList.remove('has-win'); cells.flat().forEach(e => e.classList.remove('win')); }
+function clearHighlights() { board.classList.remove('has-win'); cells.flat().forEach(e => e.classList.remove('win', 'locked')); }
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-async function animateTo(grid, sticky) {
+function animateTo(grid, sticky) {
   clearHighlights();
-  const t = S.turbo ? { base: 220, step: 70, tick: 45, tension: 450 } : { base: 650, step: 190, tick: 70, tension: 900 };
-  const stopped = Array(REELS).fill(false);
-  reels.forEach(r => r.classList.add('spinning'));
-  const timer = setInterval(() => {
-    for (let c = 0; c < REELS; c++) if (!stopped[c])
-      for (let r = 0; r < ROWS; r++) if (!(sticky && sticky[c][r])) setCell(c, r, randomSym(c));
-  }, t.tick);
-  let bonusSeen = 0;
+  Sound.spinStart();
+  const t = S.turbo ? { base: 420, step: 110, tension: 500 } : { base: 900, step: 240, tension: 1100 };
+  const SPEED = S.turbo ? 34 : 24;          // symbols per second at full speed
+  const pitch = cells[0][1].offsetTop - cells[0][0].offsetTop;
+  let bonusBefore = 0, prevStop = 0;
+  const jobs = [];
   for (let c = 0; c < REELS; c++) {
-    let wait = c === 0 ? t.base : t.step;
-    if (bonusSeen >= 2) { reels[c].classList.add('tension'); wait += t.tension; }
-    await sleep(wait);
-    stopped[c] = true;
-    reels[c].classList.remove('spinning', 'tension');
-    for (let r = 0; r < ROWS; r++) {
-      setCell(c, r, grid[c][r]);
-      const el = cells[c][r];
-      el.classList.toggle('locked', !!(sticky && sticky[c][r]));
-      el.classList.remove('land'); void el.offsetWidth; el.classList.add('land');
-      if (grid[c][r] === BONUS) bonusSeen++;
+    let dur = (c === 0 ? t.base : prevStop + t.step);
+    const tense = bonusBefore >= 2;
+    if (tense) dur += t.tension;
+    const reel = reels[c], strip = strips[c];
+    const filler = Math.max(6, Math.round(dur / 1000 * SPEED));
+    // strip top to bottom: final symbols, random filler, current symbols
+    const html = [];
+    for (let r = 0; r < ROWS; r++) html.push(cellHTML(grid[c][r]));
+    for (let i = 0; i < filler; i++) html.push(cellHTML(randomSym(c)));
+    reel.style.height = reel.offsetHeight + 'px';
+    strip.insertAdjacentHTML('afterbegin', html.join(''));
+    const travel = (ROWS + filler) * pitch;
+    // locked wilds stay still on top while the strip rolls underneath
+    const lock = locks[c];
+    if (sticky && sticky[c].some(Boolean)) {
+      [...lock.children].forEach((el, r) => { el.style.visibility = sticky[c][r] ? 'visible' : 'hidden'; el.classList.add('locked'); });
+      lock.hidden = false;
     }
+    const startDelay = c * (S.turbo ? 25 : 55);
+    const anim = reduceMotion
+      ? strip.animate([{ transform: `translateY(${-travel}px)` }, { transform: 'translateY(0)' }], { duration: 1, delay: dur, fill: 'forwards' })
+      : strip.animate([
+          { transform: `translateY(${-travel}px)`, easing: 'cubic-bezier(.45,0,.55,1)' },
+          { transform: `translateY(${-travel - pitch * .18}px)`, offset: .04, easing: 'cubic-bezier(.3,.12,.35,1)' },
+          { transform: `translateY(${pitch * .12}px)`, offset: .94, easing: 'ease-out' },
+          { transform: 'translateY(0)' }
+        ], { duration: dur - startDelay, delay: startDelay, fill: 'forwards' });
+    const hasBonus = grid[c].includes(BONUS);
+    const stopAt = dur * .94;   // the moment the reel hits its stop position
+    Sound.reelStop(stopAt / 1000);
+    if (hasBonus) Sound.medal(bonusBefore + 1, stopAt / 1000);
+    if (tense) setTimeout(() => reel.classList.add('tension'), prevStop);
+    jobs.push(anim.finished.then(() => {
+      reel.classList.remove('tension');
+      // keep only the final 4 cells, back at rest
+      while (strip.children.length > ROWS) strip.lastElementChild.remove();
+      anim.cancel(); strip.style.transform = '';
+      reel.style.height = '';
+      cells[c] = [...strip.children];
+      lock.hidden = true;
+      if (sticky) cells[c].forEach((el, r) => el.classList.toggle('locked', !!sticky[c][r]));
+    }));
+    bonusBefore += grid[c].filter(s => s === BONUS).length;
+    prevStop = dur;
   }
-  clearInterval(timer);
+  return Promise.all(jobs);
 }
 
 function showWins(res, b) {
@@ -515,6 +685,7 @@ function showWins(res, b) {
   const top = res.wins.slice().sort((a, z) => z.pay - a.pay).slice(0, 3)
     .map(w => w.sym === BONUS ? `${w.len} Στρατάρχες · ${fmt(w.pay * b)}` : `${w.len}× ${NAMES[w.sym]} · ${w.ways} ${w.ways > 1 ? 'τρόποι' : 'τρόπος'} · ${fmt(w.pay * b)}`).join('  |  ');
   wb.innerHTML = `<div><div class="amount goldtext" id="winAmt">0,00</div><div class="detail">${top}</div></div>`;
+  Sound.win(res.total);
   countUp($('winAmt'), res.total * b);
 }
 function countUp(el, to) {
@@ -570,6 +741,7 @@ function forcedGrid(n) {
 
 async function spin(force = 0) {
   if (S.busy) return;
+  Sound.unlock();
   const b = bet();
   if (!force && S.balance < b) return;
   S.busy = true;
@@ -595,11 +767,13 @@ async function spin(force = 0) {
 
 async function runBonus(n, b) {
   const max = n >= 4, spins = spinsFor(n);
+  Sound.fanfare();
   await overlay(`<div class="kicker">Έπεσαν ${n} Στρατάρχες</div>
     <div class="big goldtext">${max ? 'Μέγιστο μπόνους' : 'Μπόνους'}</div>
     <p>${spins} δωρεάν γυρίσματα.${max ? ' Κάθε μπαλαντέρ που πέφτει κλειδώνει στη θέση του μέχρι το τέλος.' : ' Οι μπαλαντέρ έρχονται πιο συχνά.'}</p>`, 'Εμπρός');
   $('mode').textContent = max ? 'Μέγιστο μπόνους' : 'Μπόνους';
   $('mode').className = 'mode ' + (max ? 'max' : 'bonus');
+  Sound.setBonus(true);
   const sticky = Array.from({ length: REELS }, () => Array(ROWS).fill(false));
   let total = 0;
   for (let i = 0; i < spins; i++) {
@@ -616,6 +790,7 @@ async function runBonus(n, b) {
     if (total >= MAX_WIN) break;
   }
   cells.flat().forEach(e => e.classList.remove('locked'));
+  Sound.setBonus(false);
   $('mode').textContent = 'Βασικό παιχνίδι'; $('mode').className = 'mode'; $('fsInfo').textContent = '';
   await overlay(`<div class="kicker">Αποστολή εξετελέσθη</div><div class="big goldtext">${fmt(total * b)}</div>
     <p>${total.toFixed(1).replace('.', ',')}× το πόνταρισμα σε ${spins} δωρεάν γυρίσματα.</p>`, 'Είσπραξη');
@@ -626,8 +801,13 @@ async function runBonus(n, b) {
 
 // ---------- Wiring ----------
 $('spinBtn').onclick = () => spin();
-$('betDown').onclick = () => { if (!S.busy && S.betIdx > 0) { S.betIdx--; render(); } };
-$('betUp').onclick = () => { if (!S.busy && S.betIdx < BETS.length - 1) { S.betIdx++; render(); } };
+$('betDown').onclick = () => { if (!S.busy && S.betIdx > 0) { S.betIdx--; Sound.click(); render(); } };
+$('betUp').onclick = () => { if (!S.busy && S.betIdx < BETS.length - 1) { S.betIdx++; Sound.click(); render(); } };
+$('music').setAttribute('aria-pressed', Sound.pref.music);
+$('sfx').setAttribute('aria-pressed', Sound.pref.sfx);
+$('music').onclick = e => { const on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', on); Sound.setMusic(on); };
+$('sfx').onclick = e => { const on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', on); Sound.setSfx(on); };
+document.addEventListener('pointerdown', () => Sound.unlock(), { once: true });
 $('turbo').onclick = e => { S.turbo = !S.turbo; e.currentTarget.setAttribute('aria-pressed', S.turbo); };
 $('auto').onclick = e => { S.auto = !S.auto; e.currentTarget.setAttribute('aria-pressed', S.auto); if (S.auto && !S.busy) spin(); };
 $('refill').onclick = () => { if (!S.busy) { S.balance += 1000; render(); } };
