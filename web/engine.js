@@ -32,6 +32,19 @@ function makeRng() {
   return Math.random;
 }
 
+// Seeded generator (xoshiro128**) for reproducible simulations and PAR sheets. The game itself uses makeRng().
+function makeSeededRng(seed = 1) {
+  let a = 0x9E3779B9 ^ seed, b = 0x243F6A88 ^ (seed * 31), c = 0xB7E15162 ^ (seed * 131), d = 0xDEADBEEF ^ (seed * 1031);
+  const rotl = (x, k) => (x << k) | (x >>> (32 - k));
+  const next = () => {
+    const r = Math.imul(rotl(Math.imul(b, 5), 7), 9) >>> 0, t = b << 9;
+    c ^= a; d ^= b; b ^= c; a ^= d; c ^= t; d = rotl(d, 11);
+    return r / 4294967296;
+  };
+  for (let i = 0; i < 20; i++) next();   // warm up
+  return next;
+}
+
 function drawCell(reel, rng, fs) {
   const wild = (fs === 'max' ? WILD_W_MAX : fs ? WILD_W_FS : WILD_W)[reel];
   let total = wild;
@@ -158,6 +171,6 @@ function playBonus(n, rng) {
 
 if (typeof module !== 'undefined') module.exports = {
   REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN, MAX_WIN_EUR, MIN_CYCLE_MS, MAX_BET,
-  get PAY() { return PAY; }, setPay(p) { PAY = p; }, setBonusP(p) { BONUS_P = p; }, setWildMax(w) { WILD_W_MAX = [0, w, w, w, 0]; }, setWildFs(w) { WILD_W_FS = [0, w, w, w, 0]; },
-  spinsFor, makeRng, spinGrid, evaluate, playBonus, playBase, nextWilds, keptWilds, multOf, medalsOf, canRespin, stepDown
+  get PAY() { return PAY; }, setPay(p) { PAY = p; }, get BONUS_P() { return BONUS_P; }, get WILD_W_FS() { return WILD_W_FS; }, get WILD_W_MAX() { return WILD_W_MAX; }, setBonusP(p) { BONUS_P = p; }, setWildMax(w) { WILD_W_MAX = [0, w, w, w, 0]; }, setWildFs(w) { WILD_W_FS = [0, w, w, w, 0]; },
+  spinsFor, makeRng, makeSeededRng, drawCell, spinGrid, evaluate, playBonus, playBase, nextWilds, keptWilds, multOf, medalsOf, canRespin, stepDown
 };
