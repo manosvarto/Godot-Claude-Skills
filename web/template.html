@@ -7,8 +7,8 @@
    silver frame with gold trim and four gems (red, blue, green, purple), on a dark navy field. */
 :root {
   --bg: #121620;
-  --panel: #1d2432;
-  --panel-2: #283143;
+  --panel: rgba(20, 25, 38, .84);
+  --panel-2: rgba(44, 53, 72, .82);
   --fg: #f6f1e3;
   --muted: #a9b3c6;
   --gold: #f2b62f;
@@ -25,6 +25,10 @@
 }
 * { box-sizing: border-box; }
 html, body { background: var(--bg); color: var(--fg); }
+/* Camp scene behind everything; isolation keeps it above the body colour */
+body { isolation: isolate; }
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, rgba(12,10,26,.38) 0%, rgba(12,14,22,.30) 40%, rgba(10,12,18,.62) 100%), var(--scene, none) center 70% / cover no-repeat, var(--bg); }
 body {
   font-family: var(--font-ui);
   font-size: 17px;
@@ -52,13 +56,14 @@ header { display: grid; gap: 6px; justify-items: center; text-align: center; pos
 .trooper { display: block; pointer-events: none; filter: drop-shadow(0 10px 14px rgba(0,0,0,.6)); }
 .trooper-side { position: absolute; right: calc(100% + 18px); bottom: -14px; width: min(320px, calc((100vw - 660px) / 2 - 22px)); height: auto; }
 @media (max-width: 939px) { .trooper-side { display: none; } }
-.logo-frame { width: min(400px, 82vw); padding: 6px; }
-.logo { display: block; width: 100%; height: auto; aspect-ratio: 1; border-radius: 4px; }
 .eyebrow { font-weight: 700; letter-spacing: .24em; text-transform: uppercase; font-size: 13px; color: var(--gold-hi); }
 h1 { margin: 0; font-size: clamp(46px, 13vw, 78px); line-height: .95; text-transform: uppercase; text-wrap: balance; }
 .ribbon { display: inline-block; padding: 4px 16px; border-radius: 4px; font-weight: 800; letter-spacing: .2em; font-size: 13px; text-transform: uppercase;
   color: var(--ink); background: linear-gradient(var(--gold-hi), var(--gold) 55%, var(--gold-dk)); border: 2px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
-.sub { color: var(--muted); font-size: 15px; max-width: 46ch; }
+.sub { color: var(--fg); font-size: 15px; max-width: 46ch; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,.85); }
+.eyebrow { text-shadow: 0 2px 4px rgba(0,0,0,.85); }
+.demo { text-shadow: 0 1px 3px rgba(0,0,0,.9); }
+h1.goldtext { margin: 0; font-size: clamp(50px, 14vw, 84px); line-height: .95; text-transform: uppercase; text-wrap: balance; }
 
 /* The frame used everywhere */
 .frame { position: relative; padding: 7px; border-radius: 9px;
@@ -138,7 +143,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .gold-btn[aria-pressed="true"] { background: linear-gradient(#a8f0a0, var(--gem-green) 55%, #17752a); color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.5); }
 .gold-btn:disabled { filter: grayscale(.7) brightness(.6); cursor: default; }
 .gold-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 2px 0 rgba(255,255,255,.55), 0 1px 0 var(--ink); }
-.demo { text-align: center; color: var(--muted); font-size: 13px; letter-spacing: .04em; }
+.demo { text-align: center; color: var(--fg); font-size: 13px; letter-spacing: .04em; }
 
 /* Overlay */
 .overlay { position: absolute; inset: 0; display: grid; place-items: center; z-index: 5; padding: 18px; text-align: center;
@@ -192,7 +197,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
 <div class="wrap" lang="el">
   <header>
     <div class="eyebrow">Ελληνικός Στρατός Ξηράς · 5 τροχοί · 1024 τρόποι</div>
-    <h1 class="frame logo-frame"><img class="logo" id="logo" alt="Greek Army" width="720" height="720"></h1>
+    <h1 class="goldtext">Greek Army</h1>
     <div class="sub">Ανέβα από Στρατιώτη σε Στρατηγό. 3 Στρατάρχες ανοίγουν το μπόνους.</div>
   </header>
 
@@ -441,7 +446,7 @@ const GROUP = { PVT:'Οπλίτης', SGT:'Υπαξιωματικός', SSG:'Υ�
   const st = document.createElement('style'); st.textContent = css.join('\n'); document.body.appendChild(st);
 })();
 document.querySelectorAll('.trooper').forEach(i => i.src = 'data:image/svg+xml,' + encodeURIComponent(TROOPER_SVG));
-document.getElementById('logo').src = LOGO_IMG;
+document.documentElement.style.setProperty('--scene', `url("${SCENE_IMG}")`);
 const cellHTML = sym => `<div class="cell s-${sym}" data-sym="${sym}"><div class="pic"></div><span class="lbl">${LABEL[sym] || ''}</span><div class="fr"></div></div>`;
 document.querySelectorAll('.frame').forEach(f => ['tl', 'tr', 'bl', 'br'].forEach(p => { const g = document.createElement('span'); g.className = 'gem ' + p; f.appendChild(g); }));
 
