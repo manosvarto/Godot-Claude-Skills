@@ -8,14 +8,14 @@ const WILD = 'WILD', BONUS = 'BONUS';   // BONUS = Στρατάρχης
 // Per-cell draw weights (non-bonus). Wild only on reels 2-4.
 const WEIGHTS = { L10:34, LJ:32, LQ:30, LK:28, LH:26, LM:24, PVT:14, SGT:12, SSG:11, MSG:10, LT2:9, LT1:8, CPT:7, MAJ:6, LTC:5, COL:4, GEN:3 };
 const WILD_W = [0, 8, 8, 8, 0];
-const WILD_W_FS = [0, 20, 20, 20, 0];   // wilds land more often in free spins
-let WILD_W_MAX = [0, 60, 60, 60, 0];      // and even more often in the max bonus
+let WILD_W_FS = [0, 12, 12, 12, 0];   // more wilds in the bonus
+let WILD_W_MAX = [0, 25, 25, 25, 0];      // and more again in the max bonus (with multipliers)
 let BONUS_P = 0.06;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
 let PAY = {
-  L10:[0.25,0.52,1.01], LJ:[0.25,0.52,1.14], LQ:[0.32,0.63,1.26], LK:[0.32,0.63,1.52], LH:[0.38,0.77,1.77], LM:[0.38,0.88,1.88],
-  PVT:[0.63,1.57,3.16], SGT:[0.77,1.88,3.79], SSG:[0.95,2.22,4.74], MSG:[1.14,2.54,5.68], LT2:[1.26,3.16,6.33], LT1:[1.57,3.79,7.89],
-  CPT:[1.88,4.74,9.47], MAJ:[2.54,6.33,12.3], LTC:[3.16,7.89,15.4], COL:[4.74,12.3,25.7], GEN:[6.33,18.5,62.8]
+  L10:[0.25,0.52,1], LJ:[0.25,0.52,1.13], LQ:[0.32,0.63,1.25], LK:[0.32,0.63,1.51], LH:[0.38,0.76,1.76], LM:[0.38,0.87,1.87],
+  PVT:[0.63,1.56,3.14], SGT:[0.76,1.87,3.76], SSG:[0.94,2.2,4.7], MSG:[1.13,2.52,5.64], LT2:[1.25,3.14,6.28], LT1:[1.56,3.76,7.83],
+  CPT:[1.87,4.7,9.4], MAJ:[2.52,6.28,12.2], LTC:[3.14,7.83,15.3], COL:[4.7,12.2,25.5], GEN:[6.28,18.4,62.3]
 };
 const BONUS_PAY = { 3: 1, 4: 10, 5: 100 };   // x total bet
 const MAX_WIN = 10000;                       // x total bet, per spin/feature
@@ -61,18 +61,27 @@ const medalsOf = grid => { const out = []; for (let c = 0; c < REELS; c++) for (
 const canRespin = pos => pos.length === 2 && Math.max(...pos.map(p => p.r)) < ROWS - 1;
 const stepDown = (pos, sym) => pos.map(p => ({ c: p.c, r: p.r + 1, fromR: p.r, sym }));
 
-// Max bonus: a wild that is part of a win moves one row down for the next spin (and leaves from the
+// Bonus wilds: a wild that is part of a win moves one row down for the next spin (and leaves from the
 // bottom row); a wild that is not part of a win leaves the board. Nothing locks.
-// Returns every wild's move: {c, r, fromR, sym, hit, gone}. gone = leaving (r === ROWS or no win).
-function nextWilds(grid, res) {
+// In the max bonus (mult given) every win also raises that wild's multiplier by 1.
+// Returns every wild's move: {c, r, fromR, sym, hit, gone, m}. gone = leaving (r === ROWS or no win).
+function nextWilds(grid, res, mult = null) {
   const hit = new Set();
   for (const w of res.wins) for (const [c, r] of w.cells) if (grid[c][r] === WILD) hit.add(c + ',' + r);
   const out = [];
   for (let c = 0; c < REELS; c++) for (let r = ROWS - 1; r >= 0; r--) if (grid[c][r] === WILD) {
-    const h = hit.has(c + ',' + r);
-    out.push(h ? { c, r: r + 1, fromR: r, sym: WILD, hit: true, gone: r + 1 >= ROWS } : { c, r, fromR: r, sym: WILD, hit: false, gone: true });
+    const k = c + ',' + r, h = hit.has(k), m0 = mult ? (mult[k] || 1) : 1;
+    out.push(h ? { c, r: r + 1, fromR: r, sym: WILD, hit: true, gone: r + 1 >= ROWS, m: mult ? m0 + 1 : 1 }
+               : { c, r, fromR: r, sym: WILD, hit: false, gone: true, m: m0 });
   }
   return out;
+}
+// Multiplier of every wild on the grid: carried wilds keep theirs, new wilds start at x1
+function multOf(grid, kept) {
+  const m = {};
+  for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++) if (grid[c][r] === WILD) m[c + ',' + r] = 1;
+  for (const w of kept) m[w.c + ',' + w.r] = w.m || 1;
+  return m;
 }
 // Wilds that are still on the board for the next spin
 const keptWilds = moves => moves.filter(w => !w.gone);
@@ -89,8 +98,10 @@ function playBase(rng) {
   return { total, bonusCount: res.bonusCount >= 3 ? res.bonusCount : 0, respins };
 }
 
-// Returns { total (x bet), wins: [{sym, len, ways, pay, cells}], bonusCount }
-function evaluate(grid) {
+// Returns { total (x bet), wins: [{sym, len, ways, pay, cells, mult}], bonusCount }
+// mult (max bonus only): {"c,r": m} multiplier carried by each wild. A win that uses wilds is
+// multiplied by 1 + the sum of (m - 1) over those wilds, so plain x1 wilds change nothing.
+function evaluate(grid, mult = null) {
   const wins = [];
   let total = 0;
   for (const s of SYMBOLS) {
@@ -106,9 +117,11 @@ function evaluate(grid) {
       ways *= n; len++;
     }
     if (len >= 3) {
-      const pay = PAY[s][len - 3] * ways;
-      // keep only cells on counted reels
-      wins.push({ sym: s, len, ways, pay, cells: cells.filter(([c]) => c < len) });
+      const used = cells.filter(([c]) => c < len);   // keep only cells on counted reels
+      let m = 1;
+      if (mult) for (const [c, r] of used) if (grid[c][r] === WILD) m += (mult[c + ',' + r] || 1) - 1;
+      const pay = PAY[s][len - 3] * ways * m;
+      wins.push({ sym: s, len, ways, pay, cells: used, mult: m });
       total += pay;
     }
   }
@@ -124,15 +137,17 @@ function evaluate(grid) {
   return { total, wins, bonusCount };
 }
 
-// Plays a whole bonus. Returns total win (x bet).
+// Plays a whole bonus. Wilds walk in both bonuses; the max bonus has more wilds and multipliers.
 function playBonus(n, rng) {
   const max = n >= 4, spins = spinsFor(n);
   let wilds = [], total = 0;
   for (let i = 0; i < spins; i++) {
-    const grid = spinGrid(rng, { allowBonus: false, fixed: max ? keptWilds(wilds) : [], fs: max ? 'max' : true });
-    const res = evaluate(grid);
+    const kept = keptWilds(wilds);
+    const grid = spinGrid(rng, { allowBonus: false, fixed: kept, fs: max ? 'max' : true });
+    const mult = max ? multOf(grid, kept) : null;
+    const res = evaluate(grid, mult);
     total += res.total;
-    if (max) wilds = nextWilds(grid, res);
+    wilds = nextWilds(grid, res, mult);
     if (total >= MAX_WIN) return { total: MAX_WIN, max, spins };
   }
   return { total, max, spins };
@@ -140,6 +155,6 @@ function playBonus(n, rng) {
 
 if (typeof module !== 'undefined') module.exports = {
   REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN,
-  get PAY() { return PAY; }, setPay(p) { PAY = p; }, setBonusP(p) { BONUS_P = p; }, setWildMax(w) { WILD_W_MAX = [0, w, w, w, 0]; },
-  spinsFor, makeRng, spinGrid, evaluate, playBonus, playBase, nextWilds, keptWilds, medalsOf, canRespin, stepDown
+  get PAY() { return PAY; }, setPay(p) { PAY = p; }, setBonusP(p) { BONUS_P = p; }, setWildMax(w) { WILD_W_MAX = [0, w, w, w, 0]; }, setWildFs(w) { WILD_W_FS = [0, w, w, w, 0]; },
+  spinsFor, makeRng, spinGrid, evaluate, playBonus, playBase, nextWilds, keptWilds, multOf, medalsOf, canRespin, stepDown
 };

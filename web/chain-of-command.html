@@ -107,6 +107,11 @@ h1.goldtext { margin: 0; font-size: clamp(50px, 14vw, 84px); line-height: .95; t
 .cell[data-tag]::after { content: attr(data-tag); position: absolute; left: 7%; right: 7%; top: 7%; padding: 1.5cqi 0; text-align: center;
   font: 800 10cqi/1 var(--font-ui); color: #fff; z-index: 2; background: rgba(224,50,44,.92); }
 .cell.tag-stay::after { background: rgba(47,184,69,.95); }
+.cell[data-mult]::before { content: attr(data-mult); position: absolute; right: 5%; bottom: 5%; z-index: 3; padding: 1.5cqi 3cqi 1cqi;
+  font: 900 19cqi/1 var(--font-display); color: var(--ink); border: 2px solid var(--ink); border-radius: 5px;
+  background: linear-gradient(#fff6c2, var(--gold-hi) 35%, var(--gold) 65%, var(--gold-dk)); box-shadow: 0 2px 0 var(--ink); }
+.cell.mult-up::before { animation: multpop .6s ease-out; }
+@keyframes multpop { 0% { transform: scale(1); } 40% { transform: scale(1.6) rotate(-6deg); } 100% { transform: scale(1); } }
 .locks .cell { position: absolute; left: 0; top: 0; width: 100%; }
 
 .winbar { text-align: center; min-height: 58px; display: grid; place-items: center; padding-top: 10px; }
@@ -289,8 +294,8 @@ h2 { margin: 0 0 4px; font-size: 26px; }
         <h2 class="goldtext">Διαταγές μπόνους</h2>
         <ul class="rules">
           <li><b>2 Στρατάρχες</b><span>Δωρεάν επανάληψη: οι 2 Στρατάρχες μένουν και κατεβαίνουν μία σειρά σε κάθε επανάληψη, μέχρι ένας τους να φτάσει στην κάτω σειρά. Αν πέσει τρίτος Στρατάρχης, ανοίγει το μπόνους.</span></li>
-          <li><b>3 Στρατάρχες</b><span>Μπόνους: 10 δωρεάν γυρίσματα. Οι μπαλαντέρ έρχονται πιο συχνά στα δωρεάν γυρίσματα.</span></li>
-          <li><b>4 Στρατάρχες</b><span>Μέγιστο μπόνους: 12 δωρεάν γυρίσματα με πολύ περισσότερα WILD. Κάθε WILD που μπαίνει σε κέρδος κατεβαίνει μία σειρά και μένει για το επόμενο γύρισμα (από την κάτω σειρά φεύγει). Ένα WILD που δεν μπαίνει σε κέρδος φεύγει.</span></li>
+          <li><b>3 Στρατάρχες</b><span>Μπόνους: 10 δωρεάν γυρίσματα με περισσότερα WILD. Κάθε WILD που μπαίνει σε κέρδος κατεβαίνει μία σειρά και μένει για το επόμενο γύρισμα (από την κάτω σειρά φεύγει). Ένα WILD που δεν μπαίνει σε κέρδος φεύγει.</span></li>
+          <li><b>4 Στρατάρχες</b><span>Μέγιστο μπόνους: 12 δωρεάν γυρίσματα με ακόμα περισσότερα WILD, που κατεβαίνουν με τον ίδιο τρόπο. Κάθε φορά που ένα WILD κερδίζει, ο πολλαπλασιαστής του ανεβαίνει κατά 1 (×2, ×3, ×4...). Ένα κέρδος με WILD πολλαπλασιάζεται: με ×3 πληρώνει τριπλά, με ×2 και ×3 μαζί πληρώνει ×4.</span></li>
           <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατάρχης πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατάρχες δίνουν 14.</span></li>
           <li><b>Πληρωμή Στρατάρχη</b><span>Πληρώνουν όπου κι αν πέσουν: 3 πληρώνουν 1× το πόνταρισμα, 4 πληρώνουν 10×, 5 πληρώνουν 100×.</span></li>
           <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατάρχη.</span></li>
@@ -309,7 +314,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
           <div class="stat"><div class="v">1 στα 3.190</div><div class="l">Μέγιστο μπόνους</div></div>
           <div class="stat"><div class="v" id="sessionRtp">–</div><div class="l">Η δική σου επιστροφή</div></div>
         </div>
-        <p class="hint">Προσομοίωση με 3 εκατομμύρια γύρους και 1,1 εκατομμύρια μπόνους. Το μπόνους πληρώνει κατά μέσο όρο περίπου 16× το πόνταρισμα, το μέγιστο μπόνους περίπου 430×.</p>
+        <p class="hint">Προσομοίωση με 3 εκατομμύρια γύρους και 1,1 εκατομμύρια μπόνους. Το μπόνους πληρώνει κατά μέσο όρο περίπου 21× το πόνταρισμα, το μέγιστο μπόνους περίπου 370×.</p>
       </div></div>
   </div>
 </div>
@@ -324,14 +329,14 @@ const WILD = 'WILD', BONUS = 'BONUS';   // BONUS = Στρατάρχης
 // Per-cell draw weights (non-bonus). Wild only on reels 2-4.
 const WEIGHTS = { L10:34, LJ:32, LQ:30, LK:28, LH:26, LM:24, PVT:14, SGT:12, SSG:11, MSG:10, LT2:9, LT1:8, CPT:7, MAJ:6, LTC:5, COL:4, GEN:3 };
 const WILD_W = [0, 8, 8, 8, 0];
-const WILD_W_FS = [0, 20, 20, 20, 0];   // wilds land more often in free spins
-let WILD_W_MAX = [0, 60, 60, 60, 0];      // and even more often in the max bonus
+let WILD_W_FS = [0, 12, 12, 12, 0];   // more wilds in the bonus
+let WILD_W_MAX = [0, 25, 25, 25, 0];      // and more again in the max bonus (with multipliers)
 let BONUS_P = 0.06;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
 let PAY = {
-  L10:[0.25,0.52,1.01], LJ:[0.25,0.52,1.14], LQ:[0.32,0.63,1.26], LK:[0.32,0.63,1.52], LH:[0.38,0.77,1.77], LM:[0.38,0.88,1.88],
-  PVT:[0.63,1.57,3.16], SGT:[0.77,1.88,3.79], SSG:[0.95,2.22,4.74], MSG:[1.14,2.54,5.68], LT2:[1.26,3.16,6.33], LT1:[1.57,3.79,7.89],
-  CPT:[1.88,4.74,9.47], MAJ:[2.54,6.33,12.3], LTC:[3.16,7.89,15.4], COL:[4.74,12.3,25.7], GEN:[6.33,18.5,62.8]
+  L10:[0.25,0.52,1], LJ:[0.25,0.52,1.13], LQ:[0.32,0.63,1.25], LK:[0.32,0.63,1.51], LH:[0.38,0.76,1.76], LM:[0.38,0.87,1.87],
+  PVT:[0.63,1.56,3.14], SGT:[0.76,1.87,3.76], SSG:[0.94,2.2,4.7], MSG:[1.13,2.52,5.64], LT2:[1.25,3.14,6.28], LT1:[1.56,3.76,7.83],
+  CPT:[1.87,4.7,9.4], MAJ:[2.52,6.28,12.2], LTC:[3.14,7.83,15.3], COL:[4.7,12.2,25.5], GEN:[6.28,18.4,62.3]
 };
 const BONUS_PAY = { 3: 1, 4: 10, 5: 100 };   // x total bet
 const MAX_WIN = 10000;                       // x total bet, per spin/feature
@@ -377,18 +382,27 @@ const medalsOf = grid => { const out = []; for (let c = 0; c < REELS; c++) for (
 const canRespin = pos => pos.length === 2 && Math.max(...pos.map(p => p.r)) < ROWS - 1;
 const stepDown = (pos, sym) => pos.map(p => ({ c: p.c, r: p.r + 1, fromR: p.r, sym }));
 
-// Max bonus: a wild that is part of a win moves one row down for the next spin (and leaves from the
+// Bonus wilds: a wild that is part of a win moves one row down for the next spin (and leaves from the
 // bottom row); a wild that is not part of a win leaves the board. Nothing locks.
-// Returns every wild's move: {c, r, fromR, sym, hit, gone}. gone = leaving (r === ROWS or no win).
-function nextWilds(grid, res) {
+// In the max bonus (mult given) every win also raises that wild's multiplier by 1.
+// Returns every wild's move: {c, r, fromR, sym, hit, gone, m}. gone = leaving (r === ROWS or no win).
+function nextWilds(grid, res, mult = null) {
   const hit = new Set();
   for (const w of res.wins) for (const [c, r] of w.cells) if (grid[c][r] === WILD) hit.add(c + ',' + r);
   const out = [];
   for (let c = 0; c < REELS; c++) for (let r = ROWS - 1; r >= 0; r--) if (grid[c][r] === WILD) {
-    const h = hit.has(c + ',' + r);
-    out.push(h ? { c, r: r + 1, fromR: r, sym: WILD, hit: true, gone: r + 1 >= ROWS } : { c, r, fromR: r, sym: WILD, hit: false, gone: true });
+    const k = c + ',' + r, h = hit.has(k), m0 = mult ? (mult[k] || 1) : 1;
+    out.push(h ? { c, r: r + 1, fromR: r, sym: WILD, hit: true, gone: r + 1 >= ROWS, m: mult ? m0 + 1 : 1 }
+               : { c, r, fromR: r, sym: WILD, hit: false, gone: true, m: m0 });
   }
   return out;
+}
+// Multiplier of every wild on the grid: carried wilds keep theirs, new wilds start at x1
+function multOf(grid, kept) {
+  const m = {};
+  for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++) if (grid[c][r] === WILD) m[c + ',' + r] = 1;
+  for (const w of kept) m[w.c + ',' + w.r] = w.m || 1;
+  return m;
 }
 // Wilds that are still on the board for the next spin
 const keptWilds = moves => moves.filter(w => !w.gone);
@@ -405,8 +419,10 @@ function playBase(rng) {
   return { total, bonusCount: res.bonusCount >= 3 ? res.bonusCount : 0, respins };
 }
 
-// Returns { total (x bet), wins: [{sym, len, ways, pay, cells}], bonusCount }
-function evaluate(grid) {
+// Returns { total (x bet), wins: [{sym, len, ways, pay, cells, mult}], bonusCount }
+// mult (max bonus only): {"c,r": m} multiplier carried by each wild. A win that uses wilds is
+// multiplied by 1 + the sum of (m - 1) over those wilds, so plain x1 wilds change nothing.
+function evaluate(grid, mult = null) {
   const wins = [];
   let total = 0;
   for (const s of SYMBOLS) {
@@ -422,9 +438,11 @@ function evaluate(grid) {
       ways *= n; len++;
     }
     if (len >= 3) {
-      const pay = PAY[s][len - 3] * ways;
-      // keep only cells on counted reels
-      wins.push({ sym: s, len, ways, pay, cells: cells.filter(([c]) => c < len) });
+      const used = cells.filter(([c]) => c < len);   // keep only cells on counted reels
+      let m = 1;
+      if (mult) for (const [c, r] of used) if (grid[c][r] === WILD) m += (mult[c + ',' + r] || 1) - 1;
+      const pay = PAY[s][len - 3] * ways * m;
+      wins.push({ sym: s, len, ways, pay, cells: used, mult: m });
       total += pay;
     }
   }
@@ -440,15 +458,17 @@ function evaluate(grid) {
   return { total, wins, bonusCount };
 }
 
-// Plays a whole bonus. Returns total win (x bet).
+// Plays a whole bonus. Wilds walk in both bonuses; the max bonus has more wilds and multipliers.
 function playBonus(n, rng) {
   const max = n >= 4, spins = spinsFor(n);
   let wilds = [], total = 0;
   for (let i = 0; i < spins; i++) {
-    const grid = spinGrid(rng, { allowBonus: false, fixed: max ? keptWilds(wilds) : [], fs: max ? 'max' : true });
-    const res = evaluate(grid);
+    const kept = keptWilds(wilds);
+    const grid = spinGrid(rng, { allowBonus: false, fixed: kept, fs: max ? 'max' : true });
+    const mult = max ? multOf(grid, kept) : null;
+    const res = evaluate(grid, mult);
     total += res.total;
-    if (max) wilds = nextWilds(grid, res);
+    wilds = nextWilds(grid, res, mult);
     if (total >= MAX_WIN) return { total: MAX_WIN, max, spins };
   }
   return { total, max, spins };
@@ -741,7 +761,7 @@ function setCell(c, r, sym) {
 const randomSym = c => drawCell(c, rng, false);
 function clearHighlights() {
   board.classList.remove('has-win');
-  cells.flat().forEach(e => { e.classList.remove('win', 'held', 'tag-stay', 'tag-down'); delete e.dataset.tag; });
+  cells.flat().forEach(e => { e.classList.remove('win', 'held', 'tag-stay', 'tag-down', 'mult-up'); delete e.dataset.tag; delete e.dataset.mult; });
 }
 function tag(c, r, text, good) { const el = cells[c][r]; el.dataset.tag = text; el.classList.add(good ? 'tag-stay' : 'tag-down'); }
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -777,6 +797,7 @@ function animateTo(grid, fixed = []) {
       for (const f of items) {
         lock.insertAdjacentHTML('beforeend', cellHTML(f.sym));
         const el = lock.lastElementChild; el.classList.add('held');
+        if (f.m > 1 && !f.gone) el.dataset.mult = '×' + f.m;
         const from = (f.fromR ?? f.r) * pitch, to = f.r * pitch;
         el.style.transform = `translateY(${to}px)`;
         if (from !== to || f.gone) el.animate([{ transform: `translateY(${from}px)`, opacity: 1 }, { transform: `translateY(${to}px)`, opacity: f.gone ? 0 : 1 }],
@@ -819,7 +840,7 @@ function showWins(res, b) {
   board.classList.add('has-win');
   res.wins.forEach(w => w.cells.forEach(([c, r]) => cells[c][r].classList.add('win')));
   const top = res.wins.slice().sort((a, z) => z.pay - a.pay).slice(0, 3)
-    .map(w => w.sym === BONUS ? `${w.len} Στρατάρχες · ${fmt(w.pay * b)}` : `${w.len}× ${NAMES[w.sym]} · ${w.ways} ${w.ways > 1 ? 'τρόποι' : 'τρόπος'} · ${fmt(w.pay * b)}`).join('  |  ');
+    .map(w => w.sym === BONUS ? `${w.len} Στρατάρχες · ${fmt(w.pay * b)}` : `${w.len}× ${NAMES[w.sym]} · ${w.ways} ${w.ways > 1 ? 'τρόποι' : 'τρόπος'}${w.mult > 1 ? ' · WILD ×' + w.mult : ''} · ${fmt(w.pay * b)}`).join('  |  ');
   wb.innerHTML = `<div><div class="amount goldtext" id="winAmt">0,00</div><div class="detail">${top}</div></div>`;
   Sound.win(res.total);
   countUp($('winAmt'), res.total * b);
@@ -930,19 +951,24 @@ async function runBonus(n, b) {
   Sound.fanfare();
   await overlay(`<div class="kicker">Έπεσαν ${n} Στρατάρχες</div>
     <div class="big goldtext">${max ? 'Μέγιστο μπόνους' : 'Μπόνους'}</div>
-    <p>${spins} δωρεάν γυρίσματα.${max ? ' Πολλά WILD! Κάθε WILD που κερδίζει κατεβαίνει μία σειρά και ξαναπαίζει. Όποιο δεν κερδίσει φεύγει.' : ' Τα WILD έρχονται πιο συχνά.'}</p>`, 'Εμπρός');
+    <p>${spins} δωρεάν γυρίσματα.${max ? ' Πολλά WILD! Κάθε WILD που κερδίζει κατεβαίνει μία σειρά και ο πολλαπλασιαστής του ανεβαίνει (×2, ×3, ×4...). Όποιο δεν κερδίσει φεύγει.' : ' Κάθε WILD που κερδίζει κατεβαίνει μία σειρά και ξαναπαίζει. Όποιο δεν κερδίσει φεύγει.'}</p>`, 'Εμπρός');
   setMode(max ? 'Μέγιστο μπόνους' : 'Μπόνους', max ? 'max' : 'bonus');
   Sound.setBonus(true);
   let wilds = [], total = 0;
   for (let i = 0; i < spins; i++) {
     $('fsInfo').textContent = `Γύρισμα ${i + 1} / ${spins} · Κέρδος ${fmt(total * b)}`;
-    const grid = spinGrid(rng, { allowBonus: false, fixed: keptWilds(wilds), fs: max ? 'max' : true });
+    const kept = keptWilds(wilds);
+    const grid = spinGrid(rng, { allowBonus: false, fixed: kept, fs: max ? 'max' : true });
     if (wilds.some(w => w.hit)) Sound.step();
     await animateTo(grid, wilds);
-    const res = evaluate(grid);
+    const mult = max ? multOf(grid, kept) : null;
+    if (mult) for (const [k, m] of Object.entries(mult)) if (m > 1) { const [c, r] = k.split(',').map(Number); cells[c][r].dataset.mult = '×' + m; }
+    const res = evaluate(grid, mult);
     total = Math.min(total + res.total, MAX_WIN);
     showWins(res, b);
-    if (max) { wilds = nextWilds(grid, res); wilds.forEach(w => tag(w.c, w.fromR, w.hit ? (w.gone ? 'ΦΕΥΓΕΙ ▼' : '▼ ΚΑΤΩ') : 'ΦΕΥΓΕΙ', w.hit)); }
+    wilds = nextWilds(grid, res, mult);
+    wilds.forEach(w => tag(w.c, w.fromR, w.hit ? (w.gone ? 'ΦΕΥΓΕΙ ▼' : '▼ ΚΑΤΩ') : 'ΦΕΥΓΕΙ', w.hit));
+    if (mult) wilds.forEach(w => { if (w.hit && !w.gone) { const el = cells[w.c][w.fromR]; el.dataset.mult = '×' + w.m; el.classList.add('mult-up'); } });
     $('fsInfo').textContent = `Γύρισμα ${i + 1} / ${spins} · Κέρδος ${fmt(total * b)}`;
     await sleep(res.total > 0 ? (S.turbo ? 600 : 1400) : (S.turbo ? 300 : 700));
     if (total >= MAX_WIN) break;

@@ -107,6 +107,11 @@ h1.goldtext { margin: 0; font-size: clamp(50px, 14vw, 84px); line-height: .95; t
 .cell[data-tag]::after { content: attr(data-tag); position: absolute; left: 7%; right: 7%; top: 7%; padding: 1.5cqi 0; text-align: center;
   font: 800 10cqi/1 var(--font-ui); color: #fff; z-index: 2; background: rgba(224,50,44,.92); }
 .cell.tag-stay::after { background: rgba(47,184,69,.95); }
+.cell[data-mult]::before { content: attr(data-mult); position: absolute; right: 5%; bottom: 5%; z-index: 3; padding: 1.5cqi 3cqi 1cqi;
+  font: 900 19cqi/1 var(--font-display); color: var(--ink); border: 2px solid var(--ink); border-radius: 5px;
+  background: linear-gradient(#fff6c2, var(--gold-hi) 35%, var(--gold) 65%, var(--gold-dk)); box-shadow: 0 2px 0 var(--ink); }
+.cell.mult-up::before { animation: multpop .6s ease-out; }
+@keyframes multpop { 0% { transform: scale(1); } 40% { transform: scale(1.6) rotate(-6deg); } 100% { transform: scale(1); } }
 .locks .cell { position: absolute; left: 0; top: 0; width: 100%; }
 
 .winbar { text-align: center; min-height: 58px; display: grid; place-items: center; padding-top: 10px; }
@@ -289,8 +294,8 @@ h2 { margin: 0 0 4px; font-size: 26px; }
         <h2 class="goldtext">Διαταγές μπόνους</h2>
         <ul class="rules">
           <li><b>2 Στρατάρχες</b><span>Δωρεάν επανάληψη: οι 2 Στρατάρχες μένουν και κατεβαίνουν μία σειρά σε κάθε επανάληψη, μέχρι ένας τους να φτάσει στην κάτω σειρά. Αν πέσει τρίτος Στρατάρχης, ανοίγει το μπόνους.</span></li>
-          <li><b>3 Στρατάρχες</b><span>Μπόνους: 10 δωρεάν γυρίσματα. Οι μπαλαντέρ έρχονται πιο συχνά στα δωρεάν γυρίσματα.</span></li>
-          <li><b>4 Στρατάρχες</b><span>Μέγιστο μπόνους: 12 δωρεάν γυρίσματα με πολύ περισσότερα WILD. Κάθε WILD που μπαίνει σε κέρδος κατεβαίνει μία σειρά και μένει για το επόμενο γύρισμα (από την κάτω σειρά φεύγει). Ένα WILD που δεν μπαίνει σε κέρδος φεύγει.</span></li>
+          <li><b>3 Στρατάρχες</b><span>Μπόνους: 10 δωρεάν γυρίσματα με περισσότερα WILD. Κάθε WILD που μπαίνει σε κέρδος κατεβαίνει μία σειρά και μένει για το επόμενο γύρισμα (από την κάτω σειρά φεύγει). Ένα WILD που δεν μπαίνει σε κέρδος φεύγει.</span></li>
+          <li><b>4 Στρατάρχες</b><span>Μέγιστο μπόνους: 12 δωρεάν γυρίσματα με ακόμα περισσότερα WILD, που κατεβαίνουν με τον ίδιο τρόπο. Κάθε φορά που ένα WILD κερδίζει, ο πολλαπλασιαστής του ανεβαίνει κατά 1 (×2, ×3, ×4...). Ένα κέρδος με WILD πολλαπλασιάζεται: με ×3 πληρώνει τριπλά, με ×2 και ×3 μαζί πληρώνει ×4.</span></li>
           <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατάρχης πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατάρχες δίνουν 14.</span></li>
           <li><b>Πληρωμή Στρατάρχη</b><span>Πληρώνουν όπου κι αν πέσουν: 3 πληρώνουν 1× το πόνταρισμα, 4 πληρώνουν 10×, 5 πληρώνουν 100×.</span></li>
           <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατάρχη.</span></li>
@@ -309,7 +314,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
           <div class="stat"><div class="v">1 στα 3.190</div><div class="l">Μέγιστο μπόνους</div></div>
           <div class="stat"><div class="v" id="sessionRtp">–</div><div class="l">Η δική σου επιστροφή</div></div>
         </div>
-        <p class="hint">Προσομοίωση με 3 εκατομμύρια γύρους και 1,1 εκατομμύρια μπόνους. Το μπόνους πληρώνει κατά μέσο όρο περίπου 16× το πόνταρισμα, το μέγιστο μπόνους περίπου 430×.</p>
+        <p class="hint">Προσομοίωση με 3 εκατομμύρια γύρους και 1,1 εκατομμύρια μπόνους. Το μπόνους πληρώνει κατά μέσο όρο περίπου 21× το πόνταρισμα, το μέγιστο μπόνους περίπου 370×.</p>
       </div></div>
   </div>
 </div>
@@ -601,7 +606,7 @@ function setCell(c, r, sym) {
 const randomSym = c => drawCell(c, rng, false);
 function clearHighlights() {
   board.classList.remove('has-win');
-  cells.flat().forEach(e => { e.classList.remove('win', 'held', 'tag-stay', 'tag-down'); delete e.dataset.tag; });
+  cells.flat().forEach(e => { e.classList.remove('win', 'held', 'tag-stay', 'tag-down', 'mult-up'); delete e.dataset.tag; delete e.dataset.mult; });
 }
 function tag(c, r, text, good) { const el = cells[c][r]; el.dataset.tag = text; el.classList.add(good ? 'tag-stay' : 'tag-down'); }
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -637,6 +642,7 @@ function animateTo(grid, fixed = []) {
       for (const f of items) {
         lock.insertAdjacentHTML('beforeend', cellHTML(f.sym));
         const el = lock.lastElementChild; el.classList.add('held');
+        if (f.m > 1 && !f.gone) el.dataset.mult = '×' + f.m;
         const from = (f.fromR ?? f.r) * pitch, to = f.r * pitch;
         el.style.transform = `translateY(${to}px)`;
         if (from !== to || f.gone) el.animate([{ transform: `translateY(${from}px)`, opacity: 1 }, { transform: `translateY(${to}px)`, opacity: f.gone ? 0 : 1 }],
@@ -679,7 +685,7 @@ function showWins(res, b) {
   board.classList.add('has-win');
   res.wins.forEach(w => w.cells.forEach(([c, r]) => cells[c][r].classList.add('win')));
   const top = res.wins.slice().sort((a, z) => z.pay - a.pay).slice(0, 3)
-    .map(w => w.sym === BONUS ? `${w.len} Στρατάρχες · ${fmt(w.pay * b)}` : `${w.len}× ${NAMES[w.sym]} · ${w.ways} ${w.ways > 1 ? 'τρόποι' : 'τρόπος'} · ${fmt(w.pay * b)}`).join('  |  ');
+    .map(w => w.sym === BONUS ? `${w.len} Στρατάρχες · ${fmt(w.pay * b)}` : `${w.len}× ${NAMES[w.sym]} · ${w.ways} ${w.ways > 1 ? 'τρόποι' : 'τρόπος'}${w.mult > 1 ? ' · WILD ×' + w.mult : ''} · ${fmt(w.pay * b)}`).join('  |  ');
   wb.innerHTML = `<div><div class="amount goldtext" id="winAmt">0,00</div><div class="detail">${top}</div></div>`;
   Sound.win(res.total);
   countUp($('winAmt'), res.total * b);
@@ -790,19 +796,24 @@ async function runBonus(n, b) {
   Sound.fanfare();
   await overlay(`<div class="kicker">Έπεσαν ${n} Στρατάρχες</div>
     <div class="big goldtext">${max ? 'Μέγιστο μπόνους' : 'Μπόνους'}</div>
-    <p>${spins} δωρεάν γυρίσματα.${max ? ' Πολλά WILD! Κάθε WILD που κερδίζει κατεβαίνει μία σειρά και ξαναπαίζει. Όποιο δεν κερδίσει φεύγει.' : ' Τα WILD έρχονται πιο συχνά.'}</p>`, 'Εμπρός');
+    <p>${spins} δωρεάν γυρίσματα.${max ? ' Πολλά WILD! Κάθε WILD που κερδίζει κατεβαίνει μία σειρά και ο πολλαπλασιαστής του ανεβαίνει (×2, ×3, ×4...). Όποιο δεν κερδίσει φεύγει.' : ' Κάθε WILD που κερδίζει κατεβαίνει μία σειρά και ξαναπαίζει. Όποιο δεν κερδίσει φεύγει.'}</p>`, 'Εμπρός');
   setMode(max ? 'Μέγιστο μπόνους' : 'Μπόνους', max ? 'max' : 'bonus');
   Sound.setBonus(true);
   let wilds = [], total = 0;
   for (let i = 0; i < spins; i++) {
     $('fsInfo').textContent = `Γύρισμα ${i + 1} / ${spins} · Κέρδος ${fmt(total * b)}`;
-    const grid = spinGrid(rng, { allowBonus: false, fixed: keptWilds(wilds), fs: max ? 'max' : true });
+    const kept = keptWilds(wilds);
+    const grid = spinGrid(rng, { allowBonus: false, fixed: kept, fs: max ? 'max' : true });
     if (wilds.some(w => w.hit)) Sound.step();
     await animateTo(grid, wilds);
-    const res = evaluate(grid);
+    const mult = max ? multOf(grid, kept) : null;
+    if (mult) for (const [k, m] of Object.entries(mult)) if (m > 1) { const [c, r] = k.split(',').map(Number); cells[c][r].dataset.mult = '×' + m; }
+    const res = evaluate(grid, mult);
     total = Math.min(total + res.total, MAX_WIN);
     showWins(res, b);
-    if (max) { wilds = nextWilds(grid, res); wilds.forEach(w => tag(w.c, w.fromR, w.hit ? (w.gone ? 'ΦΕΥΓΕΙ ▼' : '▼ ΚΑΤΩ') : 'ΦΕΥΓΕΙ', w.hit)); }
+    wilds = nextWilds(grid, res, mult);
+    wilds.forEach(w => tag(w.c, w.fromR, w.hit ? (w.gone ? 'ΦΕΥΓΕΙ ▼' : '▼ ΚΑΤΩ') : 'ΦΕΥΓΕΙ', w.hit));
+    if (mult) wilds.forEach(w => { if (w.hit && !w.gone) { const el = cells[w.c][w.fromR]; el.dataset.mult = '×' + w.m; el.classList.add('mult-up'); } });
     $('fsInfo').textContent = `Γύρισμα ${i + 1} / ${spins} · Κέρδος ${fmt(total * b)}`;
     await sleep(res.total > 0 ? (S.turbo ? 600 : 1400) : (S.turbo ? 300 : 700));
     if (total >= MAX_WIN) break;
