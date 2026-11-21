@@ -24,6 +24,10 @@ const MAX_WIN = 10000;                       // x total bet, per game round (spi
 const MAX_WIN_EUR = 140000;                  // and never more than this per game round (Greek rule, 2022)
 const MIN_CYCLE_MS = 3000;                   // a new paid round may start at least 3 s after the last one
 const MAX_BET = 20;                          // maximum stake per round
+// «Βύσμα»: buy a bonus straight away. Price in x bet, set so a bought bonus returns ~90% like the rest of the game.
+// A buy is a stake, so it is offered only while its price is within MAX_BUY_EUR.
+const BUYS = { bonus: { medals: 3, priceX: 20 }, max: { medals: 4, priceX: 330 } };
+const MAX_BUY_EUR = 20;
 const spinsFor = n => 10 + 2 * (n - 3);      // 3 -> 10, 4 -> 12, 5 -> 14
 
 function makeRng() {
@@ -172,7 +176,7 @@ function playBonus(n, rng) {
 }
 
 if (typeof module !== 'undefined') module.exports = {
-  REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN, MAX_WIN_EUR, MIN_CYCLE_MS, MAX_BET,
+  REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN, MAX_WIN_EUR, MIN_CYCLE_MS, MAX_BET, BUYS, MAX_BUY_EUR,
   get PAY() { return PAY; }, setPay(p) { PAY = p; }, get BONUS_P() { return BONUS_P; }, get WILD_W_FS() { return WILD_W_FS; }, get WILD_W_MAX() { return WILD_W_MAX; }, setBonusP(p) { BONUS_P = p; }, setWildMax(w) { WILD_W_MAX = [0, w, w, w, 0]; }, setWildFs(w) { WILD_W_FS = [0, w, w, w, 0]; },
   spinsFor, makeRng, makeSeededRng, drawCell, spinGrid, evaluate, playBonus, playBase, nextWilds, keptWilds, multOf, medalsOf, canRespin, stepDown
 };

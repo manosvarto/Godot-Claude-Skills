@@ -184,6 +184,16 @@ h2 { margin: 0 0 4px; font-size: 26px; }
 .stat .v { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--gold-hi); }
 .stat .l { font-size: 12px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
 .testbar { display: flex; flex-wrap: wrap; gap: 10px; }
+.buy { display: grid; gap: 10px; }
+.buy-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.buy-head h2 { margin: 0; font-size: 24px; }
+.buy-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.buy-btn { display: grid; gap: 2px; padding: 10px 12px; text-align: left; background: linear-gradient(#ffb1a8, var(--gem-red) 55%, #8f1d18); color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.5); }
+.buy-btn.max { background: linear-gradient(#d4a8ff, var(--gem-purple) 55%, #5b1f91); }
+.buy-btn .t { font-size: 15px; } .buy-btn .p { font-family: var(--font-display); font-weight: 900; font-size: 20px; letter-spacing: 0; text-transform: none; }
+.buy-btn .n { font-size: 11px; letter-spacing: .04em; text-transform: none; font-weight: 600; opacity: .9; }
+.buy-note { margin: 0; font-size: 13px; color: var(--muted); }
+.overlay .row2 { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
 .help-btn { background: linear-gradient(#8fc2ff, var(--gem-blue) 55%, #164a91); color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.5); }
 .sheet { position: fixed; inset: 0; z-index: 50; overflow-y: auto; overscroll-behavior: contain; background: rgba(6, 8, 14, .9); backdrop-filter: blur(3px);
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(28px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
@@ -271,6 +281,14 @@ h2 { margin: 0 0 4px; font-size: 26px; }
       </div>
     </div>
   </div>
+  <div class="frame"><div class="inner buy" id="buyPanel">
+    <div class="buy-head"><h2 class="goldtext">Βύσμα</h2><span class="buy-note">Αγόρασε μπόνους κατευθείαν</span></div>
+    <div class="buy-row">
+      <button class="gold-btn buy-btn" id="buyBonus"><span class="t">Μπόνους</span><span class="p" id="buyBonusPrice">—</span><span class="n" id="buyBonusNote">10 δωρεάν γυρίσματα</span></button>
+      <button class="gold-btn buy-btn max" id="buyMax"><span class="t">Μέγιστο μπόνους</span><span class="p" id="buyMaxPrice">—</span><span class="n" id="buyMaxNote">12 γυρίσματα, πολλαπλασιαστές</span></button>
+    </div>
+    <p class="buy-note">Η τιμή είναι 20× (Μπόνους) και 330× (Μέγιστο) το πόνταρισμα. Μια αγορά μετράει ως πόνταρισμα, γι' αυτό επιτρέπεται έως 20.</p>
+  </div></div>
   <div class="demo">Μόνο μονάδες επίδειξης. Δεν παίζονται και δεν πληρώνονται πραγματικά χρήματα.</div>
 
   <div class="frame"><div class="inner panel-body">
@@ -316,6 +334,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
           <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατάρχης πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατάρχες δίνουν 14.</span></li>
           <li><b>Πληρωμή Στρατάρχη</b><span>Πληρώνουν όπου κι αν πέσουν: 3 πληρώνουν 1× το πόνταρισμα, 4 πληρώνουν 10×, 5 πληρώνουν 100×.</span></li>
           <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατάρχη.</span></li>
+          <li><b>Βύσμα</b><span>Αγορά μπόνους κατευθείαν: Μπόνους για 20× το πόνταρισμα, Μέγιστο μπόνους για 330×. Επιστρέφουν περίπου 90%, όπως το υπόλοιπο παιχνίδι. Διαθέσιμο όταν η τιμή είναι έως 20.</span></li>
           <li><b>Μέγιστο κέρδος</b><span>10.000× το πόνταρισμα ανά γύρο (γύρισμα, επαναλήψεις και μπόνους μαζί), και ποτέ πάνω από 140.000 ανά γύρο. Με πόνταρισμα 20 αυτό είναι 7.000×.</span></li>
           <li><b>Όρια</b><span>Μέγιστο πόνταρισμα 20 ανά γύρο. Κάθε νέος γύρος ξεκινάει τουλάχιστον 3 δευτερόλεπτα μετά τον προηγούμενο.</span></li>
         </ul>
@@ -363,6 +382,10 @@ const MAX_WIN = 10000;                       // x total bet, per game round (spi
 const MAX_WIN_EUR = 140000;                  // and never more than this per game round (Greek rule, 2022)
 const MIN_CYCLE_MS = 3000;                   // a new paid round may start at least 3 s after the last one
 const MAX_BET = 20;                          // maximum stake per round
+// «Βύσμα»: buy a bonus straight away. Price in x bet, set so a bought bonus returns ~90% like the rest of the game.
+// A buy is a stake, so it is offered only while its price is within MAX_BUY_EUR.
+const BUYS = { bonus: { medals: 3, priceX: 20 }, max: { medals: 4, priceX: 330 } };
+const MAX_BUY_EUR = 20;
 const spinsFor = n => 10 + 2 * (n - 3);      // 3 -> 10, 4 -> 12, 5 -> 14
 
 function makeRng() {
@@ -922,6 +945,12 @@ function render() {
   $('betUp').disabled = S.busy || S.betIdx === BETS.length - 1;
   $('spinBtn').disabled = S.busy || S.balance < bet() || S.cooling;
   ['force2', 'force3', 'force4', 'force5'].forEach(id => $(id).disabled = S.busy);
+  for (const [kind, id] of [['bonus', 'buyBonus'], ['max', 'buyMax']]) {
+    const price = BUYS[kind].priceX * bet(), over = price > MAX_BUY_EUR + 1e-9;
+    $(id + 'Price').textContent = fmt(price);
+    $(id + 'Note').textContent = over ? `Πάνω από το όριο των ${fmt(MAX_BUY_EUR)}` : kind === 'max' ? '12 γυρίσματα, πολλαπλασιαστές' : '10 δωρεάν γυρίσματα';
+    $(id).disabled = S.busy || S.cooling || over || S.balance < price;
+  }
   $('sessionRtp').textContent = S.wagered ? (100 * S.returned / S.wagered).toFixed(1).replace('.', ',') + '%' : '–';
   renderLadder();
   store.set('balance100', S.balance); store.set('betIdx', S.betIdx);
@@ -974,6 +1003,36 @@ async function drama(level) {
   setTimeout(() => { w.classList.remove('shake'); document.body.classList.remove('flash'); }, 1300);
   await sleep(S.turbo ? 350 : 650);
 }
+// Two-button question inside the machine (the viewer blocks confirm())
+function ask(html, yes, no) {
+  return new Promise(resolve => {
+    const o = $('overlay');
+    o.innerHTML = `<div class="card">${html}<div class="row2"><button class="gold-btn go" id="ovYes">${yes}</button><button class="gold-btn go" id="ovNo">${no}</button></div></div>`;
+    o.hidden = false; $('ovYes').focus();
+    const done = v => { o.hidden = true; resolve(v); };
+    $('ovYes').addEventListener('click', () => done(true), { once: true });
+    $('ovNo').addEventListener('click', () => done(false), { once: true });
+  });
+}
+
+// «Βύσμα»: pay the price, go straight into the chosen bonus
+async function buyBonus(kind) {
+  if (S.busy || S.cooling) return;
+  Sound.unlock();
+  const b = bet(), price = BUYS[kind].priceX * b;
+  if (price > MAX_BUY_EUR + 1e-9 || S.balance < price) return;
+  S.auto = false; $('auto').setAttribute('aria-pressed', 'false');
+  S.busy = true; render();
+  const ok = await ask(`<div class="kicker">Βύσμα</div><div class="big goldtext">${kind === 'max' ? 'Μέγιστο μπόνους' : 'Μπόνους'}</div><p>Αγορά για ${fmt(price)} με πόνταρισμα ${fmt(b)};</p>`, 'Αγορά', 'Άκυρο');
+  if (!ok) { S.busy = false; render(); return; }
+  const startedAt = performance.now();
+  S.balance -= price; S.wagered += price; render();
+  const capX = Math.min(MAX_WIN, MAX_WIN_EUR / b);
+  const win = await runBonus(BUYS[kind].medals, b, capX);
+  S.balance += win; S.returned += win;
+  S.busy = false; coolDown(startedAt); render();
+}
+
 function setMode(text, cls = '') { $('mode').textContent = text; $('mode').className = 'mode ' + cls; }
 
 // Greek rule: a new paid round can start at least MIN_CYCLE_MS after the previous one started
@@ -1096,6 +1155,8 @@ const help = $('help');
 function openHelp() { help.hidden = false; help.scrollTop = 0; document.body.style.overflow = 'hidden'; $('helpClose').focus(); Sound.click(); }
 function closeHelp() { help.hidden = true; document.body.style.overflow = ''; $('helpBtn').focus(); }
 $('helpBtn').onclick = openHelp;
+$('buyBonus').onclick = () => buyBonus('bonus');
+$('buyMax').onclick = () => buyBonus('max');
 $('helpClose').onclick = closeHelp;
 help.addEventListener('click', e => { if (e.target === help) closeHelp(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !help.hidden) closeHelp(); });

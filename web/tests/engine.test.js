@@ -158,3 +158,10 @@ test('seeded generator is reproducible', () => {
   const a = E.makeSeededRng(99), b = E.makeSeededRng(99);
   for (let i = 0; i < 1000; i++) assert.equal(a(), b());
 });
+
+test('Βύσμα: prices are 20x and 330x the bet and only offered up to 20', () => {
+  assert.equal(E.BUYS.bonus.priceX, 20); assert.equal(E.BUYS.max.priceX, 330);
+  assert.equal(E.BUYS.bonus.medals, 3); assert.equal(E.BUYS.max.medals, 4);
+  assert.equal(E.MAX_BUY_EUR, 20);
+  assert.ok(E.BUYS.bonus.priceX * 1 <= E.MAX_BUY_EUR && E.BUYS.bonus.priceX * 2 > E.MAX_BUY_EUR);
+});
