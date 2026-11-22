@@ -630,7 +630,8 @@ const GROUP = { PVT:'Οπλίτης', SGT:'Υπαξιωματικός', SSG:'Υ�
   const css = [`:root{--frame:${svgURI(FRAME)};--frame-gold:${svgURI(FRAME_GOLD)}}`];
   for (const [k, v] of Object.entries(CARD_IMG)) css.push(`.cell.s-${k} .pic{background-image:url("${v}")}`);
   // transparent symbols (the letters) show the dark board through, no backdrop
-  for (const [k, v] of Object.entries(CARD_IMG)) if (v.startsWith('data:image/png')) css.push(`.cell.s-${k} .pic{background-color:transparent}`);
+  // transparent symbols (the letters): no backdrop and no frame, they float on the board, a little larger
+  for (const [k, v] of Object.entries(CARD_IMG)) if (v.startsWith('data:image/png')) css.push(`.cell.s-${k} .pic{background-color:transparent;inset:1%}`, `.cell.s-${k} .fr{display:none}`, `.cell.win.s-${k}{filter:drop-shadow(0 0 8px rgba(255,230,138,.9))}`);
   // items play their animation (3 s loop, 30 frames) while they are part of a win
   const motion = !matchMedia('(prefers-reduced-motion: reduce)').matches;
   for (const [k, v] of Object.entries(SPRITE_IMG)) css.push(`.cell.s-${k} .anim{background-image:url("${v}")}`, `.cell.win.s-${k} .anim{opacity:1;${motion ? 'animation:sprite 3s steps(30,jump-none) infinite' : ''}}`);
