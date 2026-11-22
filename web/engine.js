@@ -1,23 +1,23 @@
 // Slot engine: 6 reels x 5 rows, 15625 ways. Pure logic, no DOM.
 const REELS = 6, ROWS = 5;
 // Ladder, lowest rung first. Index = rank.
-// Low pays: letters 10, J, Q, K, H, M. Mid pays: items Φραπές, Τσιγάρο, Αλεξίσφαιρο γιλέκο, Πιστόλι, Τυφέκιο, Άρμα μάχης.
-// High pays, the ranks: Λοχίας, Αρχιλοχίας, Ανθυπολοχαγός, Λοχαγός, Ταγματάρχης, Αντισυνταγματάρχης, Συνταγματάρχης, Στρατηγός.
+// Low pays: letters J, Q, K, H (10 and M are out for now). Mid pays: items Φραπές, Τσιγάρο, Αλεξίσφαιρο γιλέκο, Πιστόλι, Τυφέκιο, Άρμα μάχης.
+// High pays, the ranks: Λοχίας, Επιλοχίας, Αρχιλοχίας, Ανθυπολοχαγός, Υπολοχαγός, Λοχαγός, Ταγματάρχης, Αντισυνταγματάρχης, Συνταγματάρχης, Στρατηγός.
 // The Στρατιώτης (the crying recruit, lowest rank) is the bonus symbol (BONUS).
-const SYMBOLS = ['L10','LJ','LQ','LK','LH','LM','FRAPPE','CIG','VEST','PISTOL','RIFLE','TANK','SGT','MSG','LT2','CPT','MAJ','LTC','COL','GEN'];
+const SYMBOLS = ['LJ','LQ','LK','LH','FRAPPE','CIG','VEST','PISTOL','RIFLE','TANK','SGT','SSG','MSG','LT2','LT1','CPT','MAJ','LTC','COL','GEN'];
 const WILD = 'WILD', BONUS = 'BONUS';   // BONUS = Στρατιώτης
 // Per-cell draw weights (non-bonus). Wild only on reels 2-4.
-const WEIGHTS = { L10:46, LJ:44, LQ:42, LK:40, LH:38, LM:36, FRAPPE:20, CIG:19, VEST:18, PISTOL:17, RIFLE:16, TANK:15, SGT:13, MSG:11, LT2:9, CPT:8, MAJ:7, LTC:6, COL:5, GEN:4 };
+const WEIGHTS = { LJ:44, LQ:42, LK:40, LH:38, FRAPPE:20, CIG:19, VEST:18, PISTOL:17, RIFLE:16, TANK:15, SGT:14, SSG:13, MSG:11, LT2:10, LT1:9, CPT:8, MAJ:7, LTC:6, COL:5, GEN:4 };
 const WILD_W = [0, 7, 7, 7, 7, 0];   // wilds on reels 2-5
 let WILD_W_FS = [0, 11, 11, 11, 11, 0];   // more wilds in the bonus
 let WILD_W_MAX = [0, 24, 24, 24, 24, 0];      // and more again in the max bonus (with multipliers)
 let BONUS_P = 0.045;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
 let PAY = {   // x bet per way for 3/4/5/6 of a kind
-  L10:[0.13,0.29,0.55,1.1], LJ:[0.13,0.29,0.62,1.24], LQ:[0.18,0.35,0.69,1.39], LK:[0.18,0.35,0.83,1.67], LH:[0.21,0.43,0.98,1.96], LM:[0.21,0.49,1.04,2.09],
-  FRAPPE:[0.24,0.54,1.13,2.26], CIG:[0.24,0.57,1.19,2.37], VEST:[0.27,0.6,1.25,2.5], PISTOL:[0.27,0.65,1.37,2.74], RIFLE:[0.3,0.71,1.48,2.96], TANK:[0.32,0.77,1.61,3.21],
-  SGT:[0.35,0.87,1.75,3.5], MSG:[0.43,1.04,2.1,4.19], LT2:[0.62,1.4,3.13,6.28], CPT:[0.69,1.75,3.5,6.99], MAJ:[1.04,2.62,5.22,10.44], LTC:[1.4,3.5,6.8,13.6],
-  COL:[1.75,4.36,8.53,17.06], GEN:[3.5,10.25,34.71,69.41]
+  LJ:[0.09,0.19,0.41,0.82], LQ:[0.12,0.23,0.46,0.92], LK:[0.12,0.23,0.55,1.1], LH:[0.14,0.28,0.65,1.29], FRAPPE:[0.16,0.36,0.75,1.49], CIG:[0.16,0.38,0.79,1.56],
+  VEST:[0.18,0.4,0.83,1.65], PISTOL:[0.18,0.43,0.9,1.81], RIFLE:[0.2,0.47,0.98,1.95], TANK:[0.21,0.51,1.06,2.12], SGT:[0.23,0.57,1.16,2.31], SSG:[0.26,0.63,1.27,2.54],
+  MSG:[0.28,0.69,1.39,2.77], LT2:[0.41,0.92,2.07,4.15], LT1:[0.44,1.04,2.19,4.38], CPT:[0.46,1.16,2.31,4.61], MAJ:[0.69,1.73,3.45,6.89], LTC:[0.92,2.31,4.49,8.98],
+  COL:[1.16,2.88,5.63,11.26], GEN:[2.31,6.77,22.92,45.82]
 };
 const BONUS_PAY = { 3: 1, 4: 10, 5: 100, 6: 100 };   // x total bet
 const MAX_WIN = 10000;                       // x total bet, per game round (spin + respins + bonus)
@@ -28,9 +28,9 @@ const MAX_BET = 20;                          // maximum stake per round
 // A buy is a stake, so it is offered only while its price is within MAX_BUY_EUR.
 // «Βύσμα»: always costs BUY_PRICE_EUR and the bought bonus always plays at BUY_BET (0,20 €), whatever bet is selected.
 // It plays a real trigger spin with at least 3 Generals. 20 € is 100x that bet, so the buy carries a bigger chance of
-// the max bonus (4 Generals 17%, 5 Generals 0.7%) to return ~90%. Line and General wins on that spin pay too.
+// the max bonus (4 recruits 14%, 5 recruits 0.6%) to return ~90%. Line and General wins on that spin pay too.
 const BUYS = {
-  bonus: { min: 3, odds: { 3: 0.8233, 4: 0.17, 5: 0.0067 }, priceX: 100 }
+  bonus: { min: 3, odds: { 3: 0.8544, 4: 0.14, 5: 0.0056 }, priceX: 100 }
 };
 const BUY_PRICE_EUR = 20, BUY_BET = 0.2;
 const buyBet = () => BUY_BET;
