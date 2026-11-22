@@ -76,7 +76,7 @@ test('free spins never show Field Marshals', () => {
 
 test('respin: only with exactly 2 medals and neither on the bottom row', () => {
   assert.equal(E.canRespin([{ c: 0, r: 0 }, { c: 3, r: 2 }]), true);
-  assert.equal(E.canRespin([{ c: 0, r: 0 }, { c: 3, r: 3 }]), false);
+  assert.equal(E.canRespin([{ c: 0, r: 0 }, { c: 3, r: ROWS - 1 }]), false);
   assert.equal(E.canRespin([{ c: 0, r: 0 }]), false);
   assert.equal(E.canRespin([{ c: 0, r: 0 }, { c: 1, r: 0 }, { c: 2, r: 0 }]), false);
 });
@@ -88,9 +88,9 @@ test('respin: both medals step down exactly one row and stay on their reels', ()
   assert.equal(g[1][1], BONUS); assert.equal(g[4][2], BONUS);
 });
 
-test('respins: never more than 3 in one round', () => {
+test('respins: never more than ROWS - 1 in one round', () => {
   const rng = E.makeSeededRng(11);
-  for (let i = 0; i < 100000; i++) assert.ok(E.playBase(rng).respins <= 3);
+  for (let i = 0; i < 100000; i++) assert.ok(E.playBase(rng).respins <= ROWS - 1);
 });
 
 test('bonus wilds: a winning wild steps down one row', () => {
@@ -115,7 +115,8 @@ test('ways rule: every wild on a counted reel is part of the win', () => {
 });
 
 test('bonus wilds: a winning wild on the bottom row leaves', () => {
-  const g = grid([['.', '.', '.', 'SGT'], ['.', '.', '.', WILD], ['.', '.', '.', 'SGT'], [], []]);
+  const B = Array(ROWS - 1).fill('.');
+  const g = grid([[...B, 'SGT'], [...B, WILD], [...B, 'SGT'], [], []]);
   const moves = E.nextWilds(g, E.evaluate(g));
   assert.equal(moves[0].hit, true); assert.equal(moves[0].gone, true);
 });
