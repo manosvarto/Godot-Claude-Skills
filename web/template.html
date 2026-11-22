@@ -82,7 +82,7 @@ h1.goldtext { margin: 0; font-size: clamp(50px, 14vw, 84px); line-height: .95; t
 .status .mode.bonus { color: var(--gold-hi); }
 .status .mode.max { color: #ff9b6a; }
 .status .fs { font-weight: 800; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
-.board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 6px; border-radius: 6px; background: #0b0e15; box-shadow: inset 0 0 0 2px #000, inset 0 0 24px rgba(0,0,0,.9); }
+.board { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 6px; border-radius: 6px; background: #0b0e15; box-shadow: inset 0 0 0 2px #000, inset 0 0 24px rgba(0,0,0,.9); }
 .reel { position: relative; overflow: hidden; border-radius: 6px; }
 .strip { display: grid; gap: 6px; will-change: transform; backface-visibility: hidden; }
 .locks { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
@@ -176,6 +176,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
 .pt.top .cell { width: 78px; }
 .pt.top .name { font-size: 19px; }
 .pt.top .pays { grid-template-columns: repeat(3, auto 1fr); font-size: 14px; }
+.pt:not(.top) .pays { grid-template-columns: repeat(2, auto 1fr); }
 .rules { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
 .rules li { display: grid; grid-template-columns: 150px minmax(0,1fr); gap: 10px; font-size: 16px; line-height: 1.35; }
 .rules li b { color: var(--gold-hi); }
@@ -216,7 +217,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
   .rules li { grid-template-columns: 1fr; gap: 2px; }
   .ladder { grid-template-columns: 1fr; }
   .pt { grid-template-columns: 52px minmax(0,1fr); gap: 10px; padding: 6px 8px; } .pt .cell { width: 52px; }
-  .pt:not(.top) .pays { grid-template-columns: repeat(3, auto 1fr); }
+  .pt:not(.top) .pays { grid-template-columns: repeat(2, auto 1fr); }
   .pt.top .pays { grid-template-columns: repeat(3, auto 1fr); }
 }
 .shake { animation: shake var(--shake-dur, .7s) cubic-bezier(.36,.07,.19,.97) both; }
@@ -239,7 +240,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
 
 <div class="wrap" lang="el">
   <header>
-    <div class="eyebrow">Ελληνικός Στρατός Ξηράς · 5 τροχοί · 6 σειρές · 7.776 τρόποι</div>
+    <div class="eyebrow">Ελληνικός Στρατός Ξηράς · 6 τροχοί · 5 σειρές · 15.625 τρόποι</div>
     <h1 class="goldtext">Greek Army</h1>
     <div class="sub">Ανέβα από Στρατιώτη σε Συνταγματάρχη. 3 Στρατηγοί ανοίγουν το μπόνους.</div>
   </header>
@@ -284,9 +285,9 @@ h2 { margin: 0 0 4px; font-size: 26px; }
   <div class="frame"><div class="inner buy" id="buyPanel">
     <div class="buy-head"><h2 class="goldtext">Βύσμα</h2><span class="buy-note">Αγόρασε μπόνους κατευθείαν</span></div>
     <div class="buy-row">
-      <button class="gold-btn buy-btn" id="buyBonus"><span class="t">Μπόνους</span><span class="p" id="buyBonusPrice">—</span><span class="n" id="buyBonusNote">Σίγουρα 3+ Στρατηγοί · ~1 στις 10 Μέγιστο · παίζεται με 0,20 €</span></button>
+      <button class="gold-btn buy-btn" id="buyBonus"><span class="t">Μπόνους</span><span class="p" id="buyBonusPrice">—</span><span class="n" id="buyBonusNote">Σίγουρα 3+ Στρατηγοί · ~1 στις 6 Μέγιστο · παίζεται με 0,20 €</span></button>
     </div>
-    <p class="buy-note">Κοστίζει πάντα 20 € και το μπόνους παίζεται πάντα με πόνταρισμα 0,20 €, ό,τι πόνταρισμα κι αν έχεις. Οι τροχοί φέρνουν σίγουρα 3 Στρατηγούς, και περίπου 1 στις 10 φορές 4 ή 5 (Μέγιστο μπόνους).</p>
+    <p class="buy-note">Κοστίζει πάντα 20 € και το μπόνους παίζεται πάντα με πόνταρισμα 0,20 €, ό,τι πόνταρισμα κι αν έχεις. Οι τροχοί φέρνουν σίγουρα 3 Στρατηγούς, και περίπου 1 στις 6 φορές 4 ή περισσότεροι (Μέγιστο μπόνους).</p>
   </div></div>
   <div class="demo">Μόνο μονάδες επίδειξης. Δεν παίζονται και δεν πληρώνονται πραγματικά χρήματα.</div>
 
@@ -320,7 +321,7 @@ h2 { margin: 0 0 4px; font-size: 26px; }
     </div></div>
       <div class="frame"><div class="inner panel-body">
         <h2 class="goldtext">Κλίμακα συμβόλων</h2>
-        <p class="hint">Κέρδη για το τρέχον πόνταρισμα, ανά τρόπο, για 3, 4 ή 5 συνεχόμενους τροχούς από αριστερά. Οι τρόποι πολλαπλασιάζονται: δύο Λοχίες στον 1ο τροχό και ένας στον 2ο και στον 3ο μετράνε 2 τρόπους. Ο εξοπλισμός είναι ο πιο συχνός και πληρώνει λίγο, οι βαθμοί πληρώνουν περισσότερο. Όταν ο εξοπλισμός κερδίζει, ζωντανεύει.</p>
+        <p class="hint">Κέρδη για το τρέχον πόνταρισμα, ανά τρόπο, για 3, 4, 5 ή 6 συνεχόμενους τροχούς από αριστερά. Οι τρόποι πολλαπλασιάζονται: δύο Λοχίες στον 1ο τροχό και ένας στον 2ο και στον 3ο μετράνε 2 τρόπους. Ο εξοπλισμός είναι ο πιο συχνός και πληρώνει λίγο, οι βαθμοί πληρώνουν περισσότερο. Όταν ο εξοπλισμός κερδίζει, ζωντανεύει.</p>
         <div class="ladder" id="ladder"></div>
       </div></div>
 
@@ -330,10 +331,10 @@ h2 { margin: 0 0 4px; font-size: 26px; }
           <li><b>2 Στρατηγοί</b><span>Δωρεάν επανάληψη: οι 2 Στρατηγοί μένουν και κατεβαίνουν μία σειρά σε κάθε επανάληψη, μέχρι ένας τους να φτάσει στην κάτω σειρά. Αν πέσει τρίτος Στρατηγός, ανοίγει το μπόνους.</span></li>
           <li><b>3 Στρατηγοί</b><span>Μπόνους: 10 δωρεάν γυρίσματα με περισσότερα WILD. Κάθε WILD που μπαίνει σε κέρδος κατεβαίνει μία σειρά και μένει για το επόμενο γύρισμα (από την κάτω σειρά φεύγει). Ένα WILD που δεν μπαίνει σε κέρδος φεύγει.</span></li>
           <li><b>4 Στρατηγοί</b><span>Μέγιστο μπόνους: 12 δωρεάν γυρίσματα με ακόμα περισσότερα WILD, που κατεβαίνουν με τον ίδιο τρόπο. Κάθε φορά που ένα WILD κερδίζει, ο πολλαπλασιαστής του ανεβαίνει κατά 1 (×2, ×3, ×4...). Ο πολλαπλασιαστής μετράει μόνο στους τρόπους που περνούν από αυτό το WILD: ένας τρόπος με WILD ×3 πληρώνει τριπλά, ένας τρόπος που περνά από WILD ×2 και ×3 πληρώνει ×4 (οι πολλαπλασιαστές προστίθενται).</span></li>
-          <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατηγός πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατηγοί δίνουν 14.</span></li>
+          <li><b>Κάθε επιπλέον</b><span>Κάθε Στρατηγός πάνω από 4 δίνει 2 γυρίσματα ακόμα. 5 Στρατηγοί δίνουν 14, 6 δίνουν 16.</span></li>
           <li><b>Πληρωμή Στρατηγού</b><span>Πληρώνουν όπου κι αν πέσουν: 3 πληρώνουν 1× το πόνταρισμα, 4 πληρώνουν 10×, 5 πληρώνουν 100×.</span></li>
-          <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2, 3 και 4 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατηγό.</span></li>
-          <li><b>Βύσμα</b><span>Αγορά μπόνους κατευθείαν, πάντα για 20 €, και το μπόνους παίζεται πάντα με πόνταρισμα 0,20 €. Οι τροχοί γυρίζουν και φέρνουν σίγουρα τουλάχιστον 3 Στρατηγούς. Στο 10,5% των αγορών πέφτουν 4 (Μέγιστο μπόνους) και στο 0,4% πέφτουν 5. Τα κέρδη του γυρίσματος πληρώνονται. Επιστρέφει περίπου 90%, όπως το υπόλοιπο παιχνίδι.</span></li>
+          <li><b>WILD</b><span>Ο μπαλαντέρ (WILD) εμφανίζεται στους τροχούς 2 έως 5 και αντικαθιστά κάθε σύμβολο, εκτός από τον Στρατηγό.</span></li>
+          <li><b>Βύσμα</b><span>Αγορά μπόνους κατευθείαν, πάντα για 20 €, και το μπόνους παίζεται πάντα με πόνταρισμα 0,20 €. Οι τροχοί γυρίζουν και φέρνουν σίγουρα τουλάχιστον 3 Στρατηγούς. Στο 17% των αγορών πέφτουν 4 (Μέγιστο μπόνους) και στο 0,7% πέφτουν 5. Τα κέρδη του γυρίσματος πληρώνονται. Επιστρέφει περίπου 90%, όπως το υπόλοιπο παιχνίδι.</span></li>
           <li><b>Μέγιστο κέρδος</b><span>10.000× το πόνταρισμα ανά γύρο (γύρισμα, επαναλήψεις και μπόνους μαζί), και ποτέ πάνω από 140.000 ανά γύρο. Με πόνταρισμα 20 αυτό είναι 7.000×.</span></li>
           <li><b>Όρια</b><span>Μέγιστο πόνταρισμα 20 ανά γύρο. Κάθε νέος γύρος ξεκινάει τουλάχιστον 3 δευτερόλεπτα μετά τον προηγούμενο.</span></li>
         </ul>
@@ -344,13 +345,13 @@ h2 { margin: 0 0 4px; font-size: 26px; }
         <p class="hint">Κάθε θέση επιλέγεται με κρυπτογραφική γεννήτρια τυχαίων αριθμών. Οι πιθανότητες είναι ρυθμισμένες ώστε το παιχνίδι να κρατά περίπου 10% μακροπρόθεσμα.</p>
         <div class="stats">
           <div class="stat"><div class="v">90%</div><div class="l">Επιστροφή στον παίκτη</div></div>
-          <div class="stat"><div class="v">45%</div><div class="l">Γυρίσματα με κέρδος</div></div>
-          <div class="stat"><div class="v">1 στα 67</div><div class="l">Επανάληψη</div></div>
-          <div class="stat"><div class="v">1 στα 191</div><div class="l">Μπόνους</div></div>
-          <div class="stat"><div class="v">1 στα 4.100</div><div class="l">Μέγιστο μπόνους</div></div>
+          <div class="stat"><div class="v">47%</div><div class="l">Γυρίσματα με κέρδος</div></div>
+          <div class="stat"><div class="v">1 στα 63</div><div class="l">Επανάληψη</div></div>
+          <div class="stat"><div class="v">1 στα 160</div><div class="l">Μπόνους</div></div>
+          <div class="stat"><div class="v">1 στα 2.900</div><div class="l">Μέγιστο μπόνους</div></div>
           <div class="stat"><div class="v" id="sessionRtp">–</div><div class="l">Η δική σου επιστροφή</div></div>
         </div>
-        <p class="hint">Γρήγορη προσομοίωση 1,5 εκατομμυρίου γύρων. Το μπόνους πληρώνει κατά μέσο όρο περίπου 23× το πόνταρισμα, το μέγιστο μπόνους περίπου 620×. Τα πλήρη τεστ θα γίνουν όταν ολοκληρωθεί το παιχνίδι.</p>
+        <p class="hint">Γρήγορη προσομοίωση 1,5 εκατομμυρίου γύρων. Το μπόνους πληρώνει κατά μέσο όρο περίπου 19× το πόνταρισμα, το μέγιστο μπόνους περίπου 400×. Τα πλήρη τεστ θα γίνουν όταν ολοκληρωθεί το παιχνίδι.</p>
       </div></div>
   </div>
 </div>
@@ -759,7 +760,7 @@ let ladderBet = null;
 function renderLadder() {
   if (ladderBet === bet()) return; ladderBet = bet();
   const b = bet(), rows = [];
-  const pays = p => `<div class="pays"><span>3</span><b>${fmt(p[0] * b)}</b><span>4</span><b>${fmt(p[1] * b)}</b><span>5</span><b>${fmt(p[2] * b)}</b></div>`;
+  const pays = p => `<div class="pays"><span>3</span><b>${fmt(p[0] * b)}</b><span>4</span><b>${fmt(p[1] * b)}</b><span>5</span><b>${fmt(p[2] * b)}</b><span>6</span><b>${fmt(p[3] * b)}</b></div>`;
   rows.push(`<div class="pt top">${cellHTML('BONUS')}<div><div class="rank">ΚΟΡΥΦΗ · ΜΠΟΝΟΥΣ</div><div class="name">Στρατηγός</div>
     <div class="pays"><span>3</span><b>${fmt(BONUS_PAY[3] * b)}</b><span>4</span><b>${fmt(BONUS_PAY[4] * b)}</b><span>5</span><b>${fmt(BONUS_PAY[5] * b)}</b></div></div></div>`);
   const ranks = SYMBOLS.filter(s => GROUP[s]);
@@ -768,7 +769,7 @@ function renderLadder() {
   [...ranks].reverse().forEach((s, i) => rows.push(`<div class="pt">${cellHTML(s)}<div><div class="rank">ΒΑΘΜΙΔΑ ${ranks.length - i}</div><div class="name">${NAMES[s]}</div>${pays(PAY[s])}</div></div>`));
   [...items].reverse().forEach(s => rows.push(`<div class="pt">${cellHTML(s)}<div><div class="rank">ΕΞΟΠΛΙΣΜΟΣ</div><div class="name">${NAMES[s]}</div>${pays(PAY[s])}</div></div>`));
   [...letters].reverse().forEach(s => rows.push(`<div class="pt">${cellHTML(s)}<div><div class="rank">ΓΡΑΜΜΑ</div><div class="name">${NAMES[s]}</div>${pays(PAY[s])}</div></div>`));
-  rows.push(`<div class="pt">${cellHTML('WILD')}<div><div class="rank">ΜΠΑΛΑΝΤΕΡ</div><div class="name">WILD</div><div class="pays" style="display:block;color:var(--muted)">Τροχοί 2–4</div></div></div>`);
+  rows.push(`<div class="pt">${cellHTML('WILD')}<div><div class="rank">ΜΠΑΛΑΝΤΕΡ</div><div class="name">WILD</div><div class="pays" style="display:block;color:var(--muted)">Τροχοί 2–5</div></div></div>`);
   $('ladder').innerHTML = rows.join('');
 }
 
@@ -787,7 +788,7 @@ function overlay(html, btnText) {
 function forcedGrid(n) {
   const grid = spinGrid(rng, { allowBonus: false });
   // 2 medals land high up so the respins have room to walk down
-  [0, 1, 2, 3, 4].sort(() => rng() - 0.5).slice(0, n).forEach(c => grid[c][n === 2 ? Math.floor(rng() * 2) : Math.floor(rng() * ROWS)] = BONUS);
+  Array.from({ length: REELS }, (_, i) => i).sort(() => rng() - 0.5).slice(0, n).forEach(c => grid[c][n === 2 ? Math.floor(rng() * 2) : Math.floor(rng() * ROWS)] = BONUS);
   return grid;
 }
 
@@ -823,7 +824,7 @@ async function buyBonus(kind) {
   if (S.balance < price) return;
   S.auto = false; $('auto').setAttribute('aria-pressed', 'false');
   S.busy = true; render();
-  const ok = await ask(`<div class="kicker">Βύσμα</div><div class="big goldtext">Μπόνους</div><p>Αγορά για ${fmt(price)}; Το μπόνους παίζεται με πόνταρισμα ${fmt(b)} €, με περίπου 1 στις 10 πιθανότητα για Μέγιστο.</p>`, 'Αγορά', 'Άκυρο');
+  const ok = await ask(`<div class="kicker">Βύσμα</div><div class="big goldtext">Μπόνους</div><p>Αγορά για ${fmt(price)}; Το μπόνους παίζεται με πόνταρισμα ${fmt(b)} €, με περίπου 1 στις 6 πιθανότητα για Μέγιστο.</p>`, 'Αγορά', 'Άκυρο');
   if (!ok) { S.busy = false; render(); return; }
   const startedAt = performance.now();
   S.balance -= price; S.wagered += price; render();

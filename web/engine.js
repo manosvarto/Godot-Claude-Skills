@@ -1,5 +1,5 @@
-// Slot engine: 5 reels x 6 rows, 7776 ways. Pure logic, no DOM.
-const REELS = 5, ROWS = 6;
+// Slot engine: 6 reels x 5 rows, 15625 ways. Pure logic, no DOM.
+const REELS = 6, ROWS = 5;
 // Ladder, lowest rung first. Index = rank.
 // Low pays: letters 10, J, Q, K, H, M. Mid pays: items Φραπές, Τσιγάρο, Αλεξίσφαιρο γιλέκο, Πιστόλι, Τυφέκιο, Άρμα μάχης.
 // High pays, the ranks: Στρατιώτης, Λοχίας, Αρχιλοχίας, Ανθυπολοχαγός, Λοχαγός, Ταγματάρχης, Αντισυνταγματάρχης, Συνταγματάρχης.
@@ -7,19 +7,19 @@ const REELS = 5, ROWS = 6;
 const SYMBOLS = ['L10','LJ','LQ','LK','LH','LM','FRAPPE','CIG','VEST','PISTOL','RIFLE','TANK','PVT','SGT','MSG','LT2','CPT','MAJ','LTC','COL'];
 const WILD = 'WILD', BONUS = 'BONUS';   // BONUS = Στρατηγός
 // Per-cell draw weights (non-bonus). Wild only on reels 2-4.
-const WEIGHTS = { L10:26, LJ:26, LQ:26, LK:26, LH:26, LM:26, FRAPPE:24, CIG:24, VEST:23, PISTOL:23, RIFLE:22, TANK:22, PVT:18, SGT:16, MSG:14, LT2:12, CPT:10, MAJ:9, LTC:8, COL:6 };
-const WILD_W = [0, 4, 4, 4, 0];
-let WILD_W_FS = [0, 8, 8, 8, 0];   // more wilds in the bonus
-let WILD_W_MAX = [0, 20, 20, 20, 0];      // and more again in the max bonus (with multipliers)
-let BONUS_P = 0.05;            // chance a reel shows one bonus symbol (max 1 per reel)
+const WEIGHTS = { L10:46, LJ:44, LQ:42, LK:40, LH:38, LM:36, FRAPPE:20, CIG:19, VEST:18, PISTOL:17, RIFLE:16, TANK:15, PVT:13, SGT:11, MSG:9, LT2:8, CPT:7, MAJ:6, LTC:5, COL:4 };
+const WILD_W = [0, 7, 7, 7, 7, 0];   // wilds on reels 2-5
+let WILD_W_FS = [0, 11, 11, 11, 11, 0];   // more wilds in the bonus
+let WILD_W_MAX = [0, 24, 24, 24, 24, 0];      // and more again in the max bonus (with multipliers)
+let BONUS_P = 0.045;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
-let PAY = {   // x bet per way for 3/4/5 of a kind
-  L10:[0.17,0.37,0.69], LJ:[0.17,0.37,0.78], LQ:[0.23,0.44,0.87], LK:[0.23,0.44,1.05], LH:[0.27,0.53,1.23], LM:[0.27,0.61,1.31],
-  FRAPPE:[0.3,0.68,1.42], CIG:[0.3,0.71,1.49], VEST:[0.34,0.75,1.57], PISTOL:[0.34,0.82,1.72], RIFLE:[0.38,0.89,1.86], TANK:[0.41,0.97,2.02],
-  PVT:[0.44,1.09,2.2], SGT:[0.53,1.31,2.63], MSG:[0.78,1.76,3.94], LT2:[0.87,2.2,4.39], CPT:[1.31,3.29,6.56], MAJ:[1.76,4.39,8.54],
-  LTC:[2.2,5.48,10.71], COL:[4.39,12.88,43.59]
+let PAY = {   // x bet per way for 3/4/5/6 of a kind
+  L10:[0.13,0.29,0.55,1.1], LJ:[0.13,0.29,0.62,1.24], LQ:[0.18,0.35,0.69,1.39], LK:[0.18,0.35,0.83,1.67], LH:[0.21,0.43,0.98,1.96], LM:[0.21,0.49,1.04,2.09],
+  FRAPPE:[0.24,0.54,1.13,2.26], CIG:[0.24,0.57,1.19,2.37], VEST:[0.27,0.6,1.25,2.5], PISTOL:[0.27,0.65,1.37,2.74], RIFLE:[0.3,0.71,1.48,2.96], TANK:[0.32,0.77,1.61,3.21],
+  PVT:[0.35,0.87,1.75,3.5], SGT:[0.43,1.04,2.1,4.19], MSG:[0.62,1.4,3.13,6.28], LT2:[0.69,1.75,3.5,6.99], CPT:[1.04,2.62,5.22,10.44], MAJ:[1.4,3.5,6.8,13.6],
+  LTC:[1.75,4.36,8.53,17.06], COL:[3.5,10.25,34.71,69.41]
 };
-const BONUS_PAY = { 3: 1, 4: 10, 5: 100 };   // x total bet
+const BONUS_PAY = { 3: 1, 4: 10, 5: 100, 6: 100 };   // x total bet
 const MAX_WIN = 10000;                       // x total bet, per game round (spin + respins + bonus)
 const MAX_WIN_EUR = 140000;                  // and never more than this per game round (Greek rule, 2022)
 const MIN_CYCLE_MS = 3000;                   // a new paid round may start at least 3 s after the last one
@@ -28,9 +28,9 @@ const MAX_BET = 20;                          // maximum stake per round
 // A buy is a stake, so it is offered only while its price is within MAX_BUY_EUR.
 // «Βύσμα»: always costs BUY_PRICE_EUR and the bought bonus always plays at BUY_BET (0,20 €), whatever bet is selected.
 // It plays a real trigger spin with at least 3 Generals. 20 € is 100x that bet, so the buy carries a bigger chance of
-// the max bonus (4 Generals 10.5%, 5 Generals 0.4%) to return ~90%. Line and General wins on that spin pay too.
+// the max bonus (4 Generals 17%, 5 Generals 0.7%) to return ~90%. Line and General wins on that spin pay too.
 const BUYS = {
-  bonus: { min: 3, odds: { 3: 0.891, 4: 0.105, 5: 0.004 }, priceX: 100 }
+  bonus: { min: 3, odds: { 3: 0.8233, 4: 0.17, 5: 0.0067 }, priceX: 100 }
 };
 const BUY_PRICE_EUR = 20, BUY_BET = 0.2;
 const buyBet = () => BUY_BET;
@@ -184,7 +184,7 @@ function buyGrid(kind, rng) {
   let r = rng(), n = buy.min;
   for (const [k, p] of Object.entries(buy.odds)) { if (r < p) { n = +k; break; } r -= p; }
   const grid = spinGrid(rng, { allowBonus: false });
-  const reels = [0, 1, 2, 3, 4];
+  const reels = Array.from({ length: REELS }, (_, i) => i);
   for (let i = reels.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [reels[i], reels[j]] = [reels[j], reels[i]]; }
   for (const c of reels.slice(0, n)) grid[c][Math.floor(rng() * ROWS)] = BONUS;
   return grid;
@@ -213,6 +213,6 @@ function playBonus(n, rng) {
 
 if (typeof module !== 'undefined') module.exports = {
   REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN, MAX_WIN_EUR, MIN_CYCLE_MS, MAX_BET, BUYS, MAX_BUY_EUR, BUY_PRICE_EUR, BUY_BET, buyBet,
-  get PAY() { return PAY; }, setPay(p) { PAY = p; }, get BONUS_P() { return BONUS_P; }, get WILD_W_FS() { return WILD_W_FS; }, get WILD_W_MAX() { return WILD_W_MAX; }, setBonusP(p) { BONUS_P = p; }, setWildMax(w) { WILD_W_MAX = [0, w, w, w, 0]; }, setWildFs(w) { WILD_W_FS = [0, w, w, w, 0]; },
+  get PAY() { return PAY; }, setPay(p) { PAY = p; }, get BONUS_P() { return BONUS_P; }, get WILD_W_FS() { return WILD_W_FS; }, get WILD_W_MAX() { return WILD_W_MAX; }, setBonusP(p) { BONUS_P = p; }, setWildMax(w) { WILD_W_MAX = [0, w, w, w, w, 0]; }, setWildFs(w) { WILD_W_FS = [0, w, w, w, w, 0]; },
   spinsFor, makeRng, makeSeededRng, drawCell, spinGrid, evaluate, playBonus, playBase, buyGrid, playBuy, nextWilds, keptWilds, multOf, medalsOf, canRespin, stepDown
 };

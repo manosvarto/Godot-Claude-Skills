@@ -7,6 +7,7 @@ const { REELS, ROWS, WILD, BONUS, PAY, BONUS_PAY, SYMBOLS } = E;
 // Build a grid from columns; '.' fills with a symbol that can't win (different letter per reel).
 const FILL = ['FRAPPE', 'CIG', 'VEST', 'PISTOL', 'RIFLE'];
 function grid(cols) {
+  cols = Array.from({ length: REELS }, (_, c) => cols[c] || []);
   return cols.map((col, c) => Array.from({ length: ROWS }, (_, r) => (col[r] && col[r] !== '.') ? col[r] : FILL[c]));
 }
 const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-9, `${a} != ${b}`);
@@ -58,12 +59,12 @@ test('free spins: 3 -> 10, 4 -> 12, 5 -> 14 (each extra adds 2)', () => {
   assert.equal(E.spinsFor(3), 10); assert.equal(E.spinsFor(4), 12); assert.equal(E.spinsFor(5), 14);
 });
 
-test('generated grids: WILD only on reels 2-4, at most one Field Marshal per reel', () => {
+test('generated grids: WILD never on the first or last reel, at most one Field Marshal per reel', () => {
   const rng = E.makeSeededRng(42);
   for (let i = 0; i < 50000; i++) {
     const g = E.spinGrid(rng);
     for (let c = 0; c < REELS; c++) {
-      if (c === 0 || c === 4) assert.ok(!g[c].includes(WILD));
+      if (c === 0 || c === REELS - 1) assert.ok(!g[c].includes(WILD));
       assert.ok(g[c].filter(s => s === BONUS).length <= 1);
     }
   }
@@ -155,7 +156,7 @@ test('a bonus never pays more than the max win', () => {
 
 test('paytable: every rank pays at least as much as the rank below it, letters pay least', () => {
   for (let i = 1; i < SYMBOLS.length; i++)
-    for (let k = 0; k < 3; k++) assert.ok(PAY[SYMBOLS[i]][k] >= PAY[SYMBOLS[i - 1]][k] - 1e-9, `${SYMBOLS[i]} vs ${SYMBOLS[i - 1]}`);
+    for (let k = 0; k < PAY[SYMBOLS[i]].length; k++) assert.ok(PAY[SYMBOLS[i]][k] >= PAY[SYMBOLS[i - 1]][k] - 1e-9, `${SYMBOLS[i]} vs ${SYMBOLS[i - 1]}`);
 });
 
 test('Greek limits are set: max bet 20, 3 s per round, 140,000 max win per round', () => {
