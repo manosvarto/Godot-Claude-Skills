@@ -14,12 +14,14 @@ let WILD_W_MAX = [0, 24, 24, 24, 24, 0];      // and more again in the max bonus
 let BONUS_P = 0.045;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
 let PAY = {   // x bet per way for 3/4/5/6 of a kind
-  LJ:[0.09,0.19,0.41,0.82], LQ:[0.12,0.23,0.46,0.92], LK:[0.12,0.23,0.55,1.1], LH:[0.14,0.28,0.65,1.29], FRAPPE:[0.16,0.36,0.75,1.49], CIG:[0.16,0.38,0.79,1.56],
-  VEST:[0.18,0.4,0.83,1.65], PISTOL:[0.18,0.43,0.9,1.81], RIFLE:[0.2,0.47,0.98,1.95], TANK:[0.21,0.51,1.06,2.12], SGT:[0.23,0.57,1.16,2.31], SSG:[0.26,0.63,1.27,2.54],
-  MSG:[0.28,0.69,1.39,2.77], LT2:[0.41,0.92,2.07,4.15], LT1:[0.44,1.04,2.19,4.38], CPT:[0.46,1.16,2.31,4.61], MAJ:[0.69,1.73,3.45,6.89], LTC:[0.92,2.31,4.49,8.98],
-  COL:[1.16,2.88,5.63,11.26], GEN:[2.31,6.77,22.92,45.82]
+  LJ:[0.08,0.16,0.35,0.71], LQ:[0.1,0.2,0.4,0.79], LK:[0.1,0.2,0.47,0.95], LH:[0.12,0.24,0.56,1.11], FRAPPE:[0.14,0.31,0.65,1.28], CIG:[0.14,0.33,0.68,1.34],
+  VEST:[0.16,0.34,0.72,1.42], PISTOL:[0.16,0.37,0.78,1.56], RIFLE:[0.17,0.4,0.84,1.68], TANK:[0.18,0.44,0.91,1.83], SGT:[0.2,0.49,1.0,1.99], SSG:[0.22,0.54,1.09,2.19],
+  MSG:[0.24,0.59,1.2,2.39], LT2:[0.35,0.79,1.78,3.58], LT1:[0.38,0.9,1.89,3.77], CPT:[0.4,1.0,1.99,3.97], MAJ:[0.59,1.49,2.97,5.94], LTC:[0.79,1.99,3.87,7.74],
+  COL:[1.0,2.48,4.85,9.7], GEN:[1.99,5.83,19.75,39.48]
 };
 const BONUS_PAY = { 3: 1, 4: 10, 5: 100, 6: 100 };   // x total bet
+// Cluster wins: CLUSTER_MIN+ touching symbols pay CLUSTER_K x the paytable value for that many of a kind (6+ uses the 6 column).
+const CLUSTER_MIN = 4, CLUSTER_K = 0.5;
 const MAX_WIN = 10000;                       // x total bet, per game round (spin + respins + bonus)
 const MAX_WIN_EUR = 140000;                  // and never more than this per game round (Greek rule, 2022)
 const MIN_CYCLE_MS = 3000;                   // a new paid round may start at least 3 s after the last one
@@ -28,9 +30,9 @@ const MAX_BET = 20;                          // maximum stake per round
 // A buy is a stake, so it is offered only while its price is within MAX_BUY_EUR.
 // «Βύσμα»: always costs BUY_PRICE_EUR and the bought bonus always plays at BUY_BET (0,20 €), whatever bet is selected.
 // It plays a real trigger spin with at least 3 Generals. 20 € is 100x that bet, so the buy carries a bigger chance of
-// the max bonus (4 recruits 14%, 5 recruits 0.6%) to return ~90%. Line and General wins on that spin pay too.
+// the max bonus (4 recruits 12%, 5 recruits 0.5%) to return ~90%. Line and General wins on that spin pay too.
 const BUYS = {
-  bonus: { min: 3, odds: { 3: 0.8544, 4: 0.14, 5: 0.0056 }, priceX: 100 }
+  bonus: { min: 3, odds: { 3: 0.8752, 4: 0.12, 5: 0.0048 }, priceX: 100 }
 };
 const BUY_PRICE_EUR = 20, BUY_BET = 0.2;
 const buyBet = () => BUY_BET;
@@ -166,6 +168,32 @@ function evaluate(grid, mult = null) {
       total += pay;
     }
   }
+  // Cluster wins: 4 or more of the same symbol touching (up, down, left, right) pay anywhere on the board.
+  // A wild joins any cluster it touches; a cluster needs at least one real symbol. Max bonus multipliers add as on a way.
+  for (const s of SYMBOLS) {
+    const seen = new Set();
+    for (let c0 = 0; c0 < REELS; c0++) for (let r0 = 0; r0 < ROWS; r0++) {
+      if (grid[c0][r0] !== s || seen.has(c0 + ',' + r0)) continue;
+      const group = [], stack = [[c0, r0]], mine = new Set([c0 + ',' + r0]);
+      while (stack.length) {
+        const [c, r] = stack.pop(); group.push([c, r]);
+        for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          const nc = c + dc, nr = r + dr, k = nc + ',' + nr;
+          if (nc < 0 || nr < 0 || nc >= REELS || nr >= ROWS || mine.has(k)) continue;
+          const v = grid[nc][nr];
+          if (v === s || v === WILD) { mine.add(k); stack.push([nc, nr]); }
+        }
+      }
+      group.forEach(([c, r]) => { if (grid[c][r] === s) seen.add(c + ',' + r); });
+      if (group.length >= CLUSTER_MIN) {
+        let m = 1, top = 1;
+        if (mult) for (const [c, r] of group) if (grid[c][r] === WILD) { const x = mult[c + ',' + r] || 1; m += x - 1; if (x > top) top = x; }
+        const pay = PAY[s][Math.min(group.length, 6) - 3] * CLUSTER_K * m;
+        wins.push({ sym: s, kind: 'cluster', len: group.length, ways: 1, pay, cells: group, mult: m, topMult: top });
+        total += pay;
+      }
+    }
+  }
   let bonusCount = 0;
   const bonusCells = [];
   for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++)
@@ -212,7 +240,7 @@ function playBonus(n, rng) {
 }
 
 if (typeof module !== 'undefined') module.exports = {
-  REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN, MAX_WIN_EUR, MIN_CYCLE_MS, MAX_BET, BUYS, MAX_BUY_EUR, BUY_PRICE_EUR, BUY_BET, buyBet,
+  REELS, ROWS, SYMBOLS, WILD, BONUS, WEIGHTS, WILD_W, BONUS_P, BONUS_PAY, MAX_WIN, CLUSTER_MIN, CLUSTER_K, MAX_WIN_EUR, MIN_CYCLE_MS, MAX_BET, BUYS, MAX_BUY_EUR, BUY_PRICE_EUR, BUY_BET, buyBet,
   get PAY() { return PAY; }, setPay(p) { PAY = p; }, get BONUS_P() { return BONUS_P; }, get WILD_W_FS() { return WILD_W_FS; }, get WILD_W_MAX() { return WILD_W_MAX; }, setBonusP(p) { BONUS_P = p; }, setWildMax(w) { WILD_W_MAX = [0, w, w, w, w, 0]; }, setWildFs(w) { WILD_W_FS = [0, w, w, w, w, 0]; },
   spinsFor, makeRng, makeSeededRng, drawCell, spinGrid, evaluate, playBonus, playBase, buyGrid, playBuy, nextWilds, keptWilds, multOf, medalsOf, canRespin, stepDown
 };

@@ -4,11 +4,12 @@ const assert = require('node:assert/strict');
 const E = require('../engine.js');
 const { REELS, ROWS, WILD, BONUS, PAY, BONUS_PAY, SYMBOLS } = E;
 
-// Build a grid from columns; '.' fills with a symbol that can't win (different letter per reel).
-const FILL = ['FRAPPE', 'CIG', 'VEST', 'PISTOL', 'RIFLE'];
+// Build a grid from columns; '.' fills with two symbols per reel that alternate down the reel and differ on every
+// reel, so the filler never forms a way (3 reels from the left) or a cluster (4 touching).
+const FILL = [['LJ', 'LQ'], ['LK', 'LH'], ['FRAPPE', 'CIG'], ['VEST', 'PISTOL'], ['RIFLE', 'TANK'], ['MSG', 'LT2']];
 function grid(cols) {
   cols = Array.from({ length: REELS }, (_, c) => cols[c] || []);
-  return cols.map((col, c) => Array.from({ length: ROWS }, (_, r) => (col[r] && col[r] !== '.') ? col[r] : FILL[c]));
+  return cols.map((col, c) => Array.from({ length: ROWS }, (_, r) => (col[r] && col[r] !== '.') ? col[r] : FILL[c][r % 2]));
 }
 const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-9, `${a} != ${b}`);
 
@@ -189,4 +190,21 @@ test('Βύσμα: the trigger spin always lands at least the minimum medals, one
     if (kind === 'bonus') seen[n]++;
   }
   assert.ok(seen[4] > 0, 'a bonus buy can land 4');
+});
+
+test('cluster: 4 of the same symbol touching pay anywhere, even away from the first reel', () => {
+  const g = grid([[], [], ['SGT', 'SGT'], ['SGT', 'SGT'], [], []]);   // a 2x2 block on reels 3-4
+  const w = E.evaluate(g).wins.find(x => x.kind === 'cluster');
+  assert.equal(w.sym, 'SGT'); assert.equal(w.len, 4); near(w.pay, PAY.SGT[1] * E.CLUSTER_K);
+});
+
+test('cluster: 3 touching do not pay, and diagonal does not count as touching', () => {
+  assert.equal(E.evaluate(grid([[], [], ['SGT', 'SGT'], ['SGT'], [], []])).wins.length, 0);
+  assert.equal(E.evaluate(grid([[], [], ['SGT', '.', 'SGT'], ['.', 'SGT', '.', 'SGT'], [], []])).wins.length, 0);
+});
+
+test('cluster: a wild joins the cluster', () => {
+  const g = grid([[], [], ['SGT', 'SGT'], ['SGT', WILD], [], []]);
+  const w = E.evaluate(g).wins.find(x => x.kind === 'cluster');
+  assert.equal(w.len, 4);
 });
