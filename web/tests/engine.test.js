@@ -208,3 +208,17 @@ test('cluster: a wild joins the cluster', () => {
   const w = E.evaluate(g).wins.find(x => x.kind === 'cluster');
   assert.equal(w.len, 4);
 });
+
+test('cluster shapes: square, Γ, Π, L, T and straight lines of 4+ win anywhere; diagonal does not', () => {
+  const shapes = {
+    square: [[2, 1], [3, 1], [2, 2], [3, 2]], gamma: [[1, 1], [2, 1], [3, 1], [1, 2]], pi: [[1, 1], [2, 1], [3, 1], [1, 2], [3, 2]],
+    L: [[3, 0], [3, 1], [3, 2], [4, 2]], T: [[1, 2], [2, 2], [3, 2], [2, 3]], row: [[2, 3], [3, 3], [4, 3], [5, 3]], column: [[4, 0], [4, 1], [4, 2], [4, 3]]
+  };
+  for (const [name, cells] of Object.entries(shapes)) {
+    const g = grid([]); cells.forEach(([c, r]) => { g[c][r] = 'LTC'; });
+    const w = E.evaluate(g).wins.find(x => x.kind === 'cluster');
+    assert.ok(w && w.len === cells.length, name);
+  }
+  const g = grid([]); [[1, 0], [2, 1], [3, 2], [4, 3]].forEach(([c, r]) => { g[c][r] = 'LTC'; });
+  assert.equal(E.evaluate(g).wins.length, 0);
+});
