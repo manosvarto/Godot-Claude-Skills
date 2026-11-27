@@ -360,10 +360,10 @@ h2 { margin: 0 0 4px; font-size: 26px; }
           <div class="stat"><div class="v">56%</div><div class="l">Γυρίσματα με κέρδος</div></div>
           <div class="stat"><div class="v">1 στα 63</div><div class="l">Επανάληψη</div></div>
           <div class="stat"><div class="v">1 στα 160</div><div class="l">Μπόνους</div></div>
-          <div class="stat"><div class="v">1 στα 2.550</div><div class="l">Μέγιστο μπόνους</div></div>
+          <div class="stat"><div class="v">1 στα 2.740</div><div class="l">Μέγιστο μπόνους</div></div>
           <div class="stat"><div class="v" id="sessionRtp">–</div><div class="l">Η δική σου επιστροφή</div></div>
         </div>
-        <p class="hint">Γρήγορη προσομοίωση 1,5 εκατομμυρίου γύρων. Το μπόνους πληρώνει κατά μέσο όρο περίπου 20× το πόνταρισμα, το μέγιστο μπόνους περίπου 560×. Τα πλήρη τεστ θα γίνουν όταν ολοκληρωθεί το παιχνίδι.</p>
+        <p class="hint">Έλεγχος με 12 εκατομμύρια γύρους: επιστροφή 91,1% (διάστημα 90,0–92,1%). Βύσμα με 800.000 αγορές: 89,8%. Και τα δύο πάνω από το νόμιμο ελάχιστο 80%.</p>
       </div></div>
   </div>
 </div>
@@ -384,10 +384,10 @@ let WILD_W_MAX = [0, 24, 24, 24, 24, 0];      // and more again in the max bonus
 let BONUS_P = 0.045;            // chance a reel shows one bonus symbol (max 1 per reel)
 // Pays in multiples of total bet per way, for 3/4/5 of a kind.
 let PAY = {   // x bet per way for 3/4/5/6 of a kind
-  LJ:[0.08,0.16,0.35,0.71], LQ:[0.1,0.2,0.4,0.79], LK:[0.1,0.2,0.47,0.95], LH:[0.12,0.24,0.56,1.11], FRAPPE:[0.14,0.31,0.65,1.28], CIG:[0.14,0.33,0.68,1.34],
-  VEST:[0.16,0.34,0.72,1.42], PISTOL:[0.16,0.37,0.78,1.56], RIFLE:[0.17,0.4,0.84,1.68], TANK:[0.18,0.44,0.91,1.83], SGT:[0.2,0.49,1.0,1.99], SSG:[0.22,0.54,1.09,2.19],
-  MSG:[0.24,0.59,1.2,2.39], LT2:[0.35,0.79,1.78,3.58], LT1:[0.38,0.9,1.89,3.77], CPT:[0.4,1.0,1.99,3.97], MAJ:[0.59,1.49,2.97,5.94], LTC:[0.79,1.99,3.87,7.74],
-  COL:[1.0,2.48,4.85,9.7], GEN:[1.99,5.83,19.75,39.48]
+  LJ:[0.082,0.164,0.358,0.726], LQ:[0.102,0.205,0.409,0.808], LK:[0.102,0.205,0.481,0.972], LH:[0.123,0.246,0.573,1.136], FRAPPE:[0.143,0.317,0.665,1.309], CIG:[0.143,0.338,0.696,1.371],
+  VEST:[0.164,0.348,0.737,1.453], PISTOL:[0.164,0.379,0.798,1.596], RIFLE:[0.174,0.409,0.859,1.719], TANK:[0.184,0.45,0.931,1.872], SGT:[0.205,0.501,1.023,2.036], SSG:[0.225,0.552,1.115,2.24],
+  MSG:[0.246,0.604,1.228,2.445], LT2:[0.358,0.808,1.821,3.662], LT1:[0.389,0.921,1.933,3.857], CPT:[0.409,1.023,2.036,4.061], MAJ:[0.604,1.524,3.038,6.077], LTC:[0.808,2.036,3.959,7.918],
+  COL:[1.023,2.537,4.962,9.923], GEN:[2.036,5.964,20.204,40.388]
 };
 const BONUS_PAY = { 3: 1, 4: 10, 5: 100, 6: 100 };   // x total bet
 // Cluster wins: CLUSTER_MIN+ touching symbols pay CLUSTER_K x the paytable value for that many of a kind (6+ uses the 6 column).
@@ -400,9 +400,9 @@ const MAX_BET = 20;                          // maximum stake per round
 // A buy is a stake, so it is offered only while its price is within MAX_BUY_EUR.
 // «Βύσμα»: always costs BUY_PRICE_EUR and the bought bonus always plays at BUY_BET (0,20 €), whatever bet is selected.
 // It plays a real trigger spin with at least 3 Generals. 20 € is 100x that bet, so the buy carries a bigger chance of
-// the max bonus (4 recruits 12%, 5 recruits 0.5%) to return ~90%. Line and General wins on that spin pay too.
+// the max bonus (4 recruits 11.5%, 5 recruits 0.5%) to return ~90%. Line and General wins on that spin pay too.
 const BUYS = {
-  bonus: { min: 3, odds: { 3: 0.8752, 4: 0.12, 5: 0.0048 }, priceX: 100 }
+  bonus: { min: 3, odds: { 3: 0.8804, 4: 0.115, 5: 0.0046 }, priceX: 100 }
 };
 const BUY_PRICE_EUR = 20, BUY_BET = 0.2;
 const buyBet = () => BUY_BET;

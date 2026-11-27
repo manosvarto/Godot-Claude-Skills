@@ -1,0 +1,34 @@
+{
+ "rounds": 12000000,
+ "seeds": [
+  201,
+  202,
+  203,
+  204
+ ],
+ "rtp": "91.06%",
+ "rtp95": [
+  "90.00%",
+  "92.12%"
+ ],
+ "hitRate": "56.25%",
+ "bonusEvery": 160,
+ "maxBonusEvery": 2737,
+ "biggestWinX": 10000,
+ "cappedRounds": 3,
+ "buys": 800000,
+ "buyRtp": "89.77%",
+ "buyRtp95": [
+  "89.08%",
+  "90.45%"
+ ],
+ "checks": {
+  "RTP >= 80% (low end of 95% interval)": true,
+  "RTP close to 90% target (88-92%)": true,
+  "Βύσμα RTP >= 80% (low end)": true,
+  "Max bet <= 20": true,
+  "Max win per round <= 140.000 €": true,
+  "Min round time >= 3 s (2 s is the 2022 minimum)": true,
+  "Βύσμα price within the 20 € stake limit": true
+ }
+}
